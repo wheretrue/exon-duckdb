@@ -111,6 +111,7 @@ namespace wtt01
     void GcContent(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
     {
         result.SetVectorType(duckdb::VectorType::FLAT_VECTOR);
+        // result.SetVectorType(duckdb::VectorType::CONSTANT_VECTOR);
 
         for (duckdb::idx_t i = 0; i < args.size(); i++)
         {
