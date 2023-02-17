@@ -1,0 +1,30 @@
+[package]
+build = "build.rs"
+edition = "2021"
+name = "wtt01_rust"
+version = "1.0.0"
+
+[features]
+statically_linked = []
+
+[lib]
+crate-type = ["staticlib"]
+name = "wtt01_rust"
+
+[dependencies]
+
+[dependencies.noodles]
+features = ["fasta", "fastq", "gff", "core", "sam", "bam", "vcf"]
+version = "0.31.1"
+
+[dependencies.flate2]
+version = "1.0.25"
+
+[dependencies.zstd]
+version = "0.12"
+
+[dependencies.bytes]
+version = "1.0.1"
+
+[build-dependencies]
+cbindgen = "0.24.3"
