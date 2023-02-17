@@ -16,6 +16,7 @@
 #include "sam_io.hpp"
 #include "wtt01_functions.hpp"
 #include "sequence_functions.hpp"
+#include "check_license.hpp"
 
 namespace duckdb
 {
