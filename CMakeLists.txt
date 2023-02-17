@@ -12,6 +12,9 @@ if (APPLE)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
+  find_package(OpenSSL REQUIRED)
+else()
+  find_package(OpenSSL REQUIRED OPENSSL_ROOT_DIR $ENV{OPENSSL_ROOT_DIR})
 endif()
 
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
@@ -29,8 +32,6 @@ if (WTT_01_LICENSE_SERVER_URL)
 else()
   message("-- wtt: WTT_01_LICENSE_SERVER_URL is not set")
 endif()
-
-find_package(OpenSSL REQUIRED)
 
 add_subdirectory(wtt01_rust)
 

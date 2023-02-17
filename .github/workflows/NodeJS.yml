@@ -41,7 +41,9 @@ jobs:
           python-version: "3.9"
 
       - name: Build DuckDB NodeJS client
-        run: make debug_js
+        run: make release_js
+        env:
+          STATIC_OPENSSL: 1
 
       - name: Run NodeJS client tests
-        run: make test_debug_js
+        run: make test_release_js
