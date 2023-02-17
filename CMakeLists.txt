@@ -54,7 +54,15 @@ include_directories(src/include)
 set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
   src/check_license.cpp
+
   src/sequence_functions.cpp
+  src/fasta_io.cpp
+  src/fastq_io.cpp
+  src/gff_io.cpp
+  src/hmm_io.cpp
+  src/sam_cigar_parse.cpp
+  src/sam_io.cpp
+  src/vcf_io.cpp
 )
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 

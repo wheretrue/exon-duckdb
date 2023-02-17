@@ -12,10 +12,10 @@ namespace wtt01
     class FastqFunctions
     {
     public:
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetFastqTableFunction();
-        static std::unique_ptr<duckdb::CreateCopyFunctionInfo> GetFastqCopyFunction();
-        static std::unique_ptr<duckdb::TableRef> GetFastqReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
-        static std::unique_ptr<duckdb::CreateScalarFunctionInfo> GetQualityScoreStringToList();
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetFastqTableFunction();
+        static duckdb::unique_ptr<duckdb::CreateCopyFunctionInfo> GetFastqCopyFunction();
+        static duckdb::unique_ptr<duckdb::TableRef> GetFastqReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
+        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetQualityScoreStringToList();
     };
 
 } // namespace wtt01

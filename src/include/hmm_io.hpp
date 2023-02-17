@@ -12,7 +12,7 @@ namespace wtt01
     class HMMFunctions
     {
     public:
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetHMMScanFunction();
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetHMMScanFunction();
     };
 
 } // namespace wtt01

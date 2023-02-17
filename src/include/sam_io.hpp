@@ -12,10 +12,10 @@ namespace wtt01
     class SamFunctions
     {
     public:
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamRecordScanFunction();
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamHeaderScanFunction();
-        static std::unique_ptr<duckdb::CreateScalarFunctionInfo> GetParseCIGARStringFunction();
-        static std::vector<std::unique_ptr<duckdb::CreateScalarFunctionInfo>> GetSamFunctions();
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamRecordScanFunction();
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamHeaderScanFunction();
+        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetParseCIGARStringFunction();
+        static std::vector<duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo>> GetSamFunctions();
     };
 
 } // namespace wtt01

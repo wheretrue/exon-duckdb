@@ -13,9 +13,9 @@ namespace wtt01
     {
 
     public:
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetFastaTableFunction();
-        static std::unique_ptr<duckdb::CreateCopyFunctionInfo> GetFastaCopyFunction();
-        static std::unique_ptr<duckdb::TableRef> GetFastaReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetFastaTableFunction();
+        static duckdb::unique_ptr<duckdb::CreateCopyFunctionInfo> GetFastaCopyFunction();
+        static duckdb::unique_ptr<duckdb::TableRef> GetFastaReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
     };
 
 } // namespace wtt01

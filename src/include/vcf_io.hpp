@@ -11,7 +11,7 @@ namespace wtt01
     class VCFFunctions
     {
     public:
-        static std::unique_ptr<duckdb::CreateTableFunctionInfo> GetVCFRecordScanFunction();
-        static std::unique_ptr<duckdb::TableRef> GetVcfReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
+        static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetVCFRecordScanFunction();
+        static duckdb::unique_ptr<duckdb::TableRef> GetVcfReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
     };
 }
