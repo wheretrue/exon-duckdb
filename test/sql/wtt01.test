@@ -13,6 +13,6 @@ require wtt01
 
 # Confirm the extension works
 query I
-SELECT wtt01('Sam');
+SELECT gc_content('ATCG')
 ----
-Wtt01 Sam 🐥
+0.5
