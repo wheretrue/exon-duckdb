@@ -67,6 +67,7 @@ jobs:
       - if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
         uses: ./duckdb/.github/actions/ubuntu_16_setup
         with:
+          openssl: 1
           aarch64_cross_compile: ${{ matrix.arch == 'linux_arm64' && 1 }}
 
         # Build extension
@@ -76,6 +77,7 @@ jobs:
           STATIC_LIBCPP: 1
           CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
           CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
+          CHECK_LICENSE: 1
         run: |
           make release
 
