@@ -7,7 +7,10 @@ set(EXTENSION_NAME ${TARGET_NAME}_extension)
 project(${TARGET_NAME})
 include_directories(src/include)
 
-set(EXTENSION_SOURCES src/wtt01_extension.cpp)
+set(EXTENSION_SOURCES
+  src/wtt01_extension.cpp
+  src/sequence_functions.cpp
+)
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 set(PARAMETERS "-warnings")
