@@ -53,6 +53,11 @@ jobs:
           fetch-depth: 0
           submodules: "true"
 
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - name: Checkout DuckDB to version
         if: ${{ matrix.duckdb_version != '<submodule_version>'}}
         run: |

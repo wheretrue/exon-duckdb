@@ -24,6 +24,16 @@ jobs:
           fetch-depth: 0
           submodules: "true"
 
+      - name: Install OpenSSL
+        shell: bash
+        run: |
+          choco install openssl -y --force
+
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - uses: actions/setup-python@v2
         with:
           python-version: "3.7"
