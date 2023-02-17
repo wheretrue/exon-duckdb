@@ -1,0 +1,18 @@
+# name: test/sql/wtt01.test
+# description: test wtt01 extension
+# group: [wtt01]
+
+# Before we load the extension, this will fail
+statement error
+SELECT wtt01('Sam');
+----
+Catalog Error: Scalar Function with name wtt01 does not exist!
+
+# Require statement will ensure this test is run with this extension loaded
+require wtt01
+
+# Confirm the extension works
+query I
+SELECT wtt01('Sam');
+----
+Wtt01 Sam 🐥
