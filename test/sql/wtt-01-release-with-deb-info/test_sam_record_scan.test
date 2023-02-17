@@ -1,0 +1,22 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Example File
+query IIIIIIIIII
+SELECT * FROM read_sam_file_records('./test/sql/wtt-01-release-with-deb-info/sam/example1.sam')
+----
+CGAGCTCGGT
+ref1_grp1_p001
+99
+1
+10
+10M
+!!!!!!!!!!
+34
+0
+25
+
+# Missing file throws an error
+statement error
+SELECT * FROM read_sam_file_records('./test/sql/wtt-01-release-with-deb-info/sam/missing.sam')
+----

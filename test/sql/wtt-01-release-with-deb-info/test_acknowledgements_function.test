@@ -1,0 +1,16 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Very basic
+query I
+SELECT name FROM wtt01_third_party_acknowledgements() ORDER BY name;
+----
+DuckDB
+brotli
+cpp-httplib
+nlohmann/json
+noodles
+openssl
+
+statement ok
+SELECT wtt01_version()

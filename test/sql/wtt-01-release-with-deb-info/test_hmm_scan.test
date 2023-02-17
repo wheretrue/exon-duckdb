@@ -1,0 +1,8 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Test count
+query I
+SELECT COUNT(*) FROM read_hmm_dom_tbl_out('./test/sql/wtt-01-release-with-deb-info/test.pfam.hmmout')
+----
+100

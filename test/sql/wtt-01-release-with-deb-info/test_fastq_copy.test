@@ -1,0 +1,50 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Test writing to a FASTQ file
+query I
+COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq' (FORMAT 'fastq');
+----
+2
+
+# Test writing to a FASTQ file, gzipped
+query I
+COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gz' (FORMAT 'fastq');
+----
+2
+
+# Test writing to a FASTQ file, zstd
+query I
+COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.zst' (FORMAT 'fastq');
+----
+2
+
+# Test writing to a FASTQ file, gzipped
+query I
+COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gzip' (FORMAT 'fastq', COMPRESSION 'gzip');
+----
+2
+
+# Test writing to a FASTQ file, force its creation
+# query I
+# COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gzip' (FORMAT 'fastq', COMPRESSION 'gzip', FORCE true);
+# ----
+# 2
+
+# Test we can read back out the FASTQ file
+query I
+SELECT COUNT(*) FROM read_fastq('./test/sql/tmp/test.fastq.gzip', compression='gzip');
+----
+2
+
+# Test writing to a FASTQ file, zstd
+query I
+COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.zstd' (FORMAT 'fastq', COMPRESSION 'zstd');
+----
+2
+
+# Test we can read back out the FASTQ file
+query I
+SELECT COUNT(*) FROM read_fastq('./test/sql/tmp/test.fastq.zstd', compression='zstd');
+----
+2

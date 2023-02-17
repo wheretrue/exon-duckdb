@@ -1,0 +1,101 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Very basic
+query I
+SELECT gc_content(seq) FROM (SELECT 'ATGC' AS seq UNION ALL SELECT 'ATGCGC' AS seq);
+----
+0.5
+0.66
+
+# Test the gc_content function returns 0 for an empty string
+query I
+SELECT gc_content('')
+----
+0
+
+# Test the gc_content functions returns NULL for a NULL input
+query I
+SELECT gc_content(NULL) IS NULL
+----
+true
+
+# Two columns
+query I
+WITH two_seqs AS (SELECT 'ATCG' AS sequence UNION ALL SELECT 'GGGG') SELECT gc_content(sequence) FROM two_seqs
+----
+0.5
+1.0
+
+# Test complement
+query I
+SELECT complement(seq) FROM (SELECT 'ATGC' AS seq UNION ALL SELECT 'ATGCGC' AS seq);
+----
+TACG
+TACGCG
+
+# Test bad sequence in complement
+statement error
+SELECT complement('ATCGQ')
+
+# Test reverse complement
+query I
+SELECT reverse_complement(seq) FROM (SELECT 'ATCG' AS seq UNION ALL SELECT 'GGGG' AS seq);
+----
+CGAT
+TTTT
+
+# Test transcribe function works with ATCG
+query I
+SELECT transcribe(t) FROM (SELECT 'ATCG' AS t UNION ALL SELECT 'ATCGATCG' AS t)
+----
+AUCG
+AUCGAUCG
+
+# Test a bad sequence of ATNN throws an InvalidInputException error
+statement error
+SELECT transcribe('ATNN')
+
+# Test a bad sequence of ATTT (4 characters) throws an InvalidInputException error
+statement error
+SELECT translate('ATTT')
+
+# Test a simple sequence works
+query I
+SELECT translate_dna_to_aa(seq) FROM (SELECT 'ATGCGC' AS seq UNION ALL SELECT 'ATGCGC' AS seq);
+----
+MR
+MR
+
+# Test a sequence with all codons
+query I
+SELECT translate_dna_to_aa('AAAAATAACAAGATAATTATCATGACAACTACCACGAGAAGTAGCAGGTAATATTACTAGTTATTTTTCTTGTCATCTTCCTCGTGATGTTGCTGGCAACATCACCAGCTACTTCTCCTGCCACCTCCCCCGCGACGTCGCCGGGAAGATGACGAGGTAGTTGTCGTGGCAGCTGCCGCGGGAGGTGGCGGG')
+----
+KNNKIIIMTTTTRSSR*YY*LFFLSSSS*CCWQHHQLLLLPPPPRRRREDDEVVVVAAAAGGGG
+
+# Test an unknown codon returns an InvalidInputException error
+statement error
+SELECT translate_dna_to_aa('NNN')
+
+# Test reverse transcribe function converts AUCG to ATCG
+query I
+SELECT reverse_transcribe(seq) FROM (SELECT 'AUCG' AS seq UNION ALL SELECT 'AUCU' AS seq);
+----
+ATCG
+ATCT
+
+# Test a bad sequence of AUNN throws an InvalidInputException error for reverse transcribe
+statement error
+SELECT reverse_transcribe('AUNN')
+
+# Test a sam string can be read
+query I
+SELECT parse_cigar('1M2M123S')
+----
+[{'op': M, 'len': 1}, {'op': M, 'len': 2}, {'op': S, 'len': 123}]
+
+# Test a CIGAR string parse error is
+statement error
+SELECT parse_cigar('MMM') as cigar;
+----
+Invalid Error: Invalid CIGAR string: MMM

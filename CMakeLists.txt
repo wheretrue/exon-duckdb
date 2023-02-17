@@ -32,6 +32,8 @@ endif()
 
 find_package(OpenSSL REQUIRED)
 
+add_subdirectory(wtt01_rust)
+
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -47,6 +49,7 @@ FetchContent_Declare(
 list(APPEND available_contents httplib json)
 
 FetchContent_MakeAvailable(${available_contents})
+
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
@@ -63,12 +66,17 @@ set(EXTENSION_SOURCES
   src/sam_cigar_parse.cpp
   src/sam_io.cpp
   src/vcf_io.cpp
+  src/wtt01_acknowledgement_table.cpp
+  src/wtt01_functions.cpp
 )
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 set(PARAMETERS "-warnings")
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
-target_link_libraries(${EXTENSION_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+target_link_libraries(${EXTENSION_NAME}
+  PUBLIC
+  OpenSSL::SSL OpenSSL::Crypto "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a")
 
 install(
   TARGETS ${EXTENSION_NAME}

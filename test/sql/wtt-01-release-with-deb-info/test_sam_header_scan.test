@@ -1,0 +1,23 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+# Comment selection
+query III
+SELECT * FROM read_sam_file_header('./test/sql/wtt-01-release-with-deb-info/sam/comment1.sam')
+----
+CO
+NULL
+Validation of AUX
+CO
+NULL
+Type A
+
+query III
+SELECT * FROM read_sam_file_header('./test/sql/wtt-01-release-with-deb-info/sam/example1.sam')
+----
+SQ
+NULL
+ref1
+CO
+NULL
+The MIT License
