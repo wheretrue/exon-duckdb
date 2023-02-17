@@ -12,27 +12,14 @@ if (APPLE)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
-  find_package(OpenSSL REQUIRED)
-else()
-  execute_process(COMMAND pkg-config --variable=prefix openssl11 OUTPUT_VARIABLE OPENSSL_ROOT_DIR)
-  string(STRIP ${OPENSSL_ROOT_DIR} OPENSSL_ROOT_DIR)
-  set(OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR} CACHE PATH "OpenSSL root directory" FORCE)
+elseif(UNIX)
+  set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
-  execute_process(COMMAND pkg-config --libs openssl11 OUTPUT_VARIABLE OPENSSL_LIBRARIES)
-  string(STRIP ${OPENSSL_LIBRARIES} OPENSSL_LIBRARIES)
-  set(OPENSSL_LIBRARIES ${OPENSSL_LIBRARIES} CACHE STRING "OpenSSL libraries" FORCE)
-
-  execute_process(COMMAND pkg-config --cflags openssl11 OUTPUT_VARIABLE OPENSSL_INCLUDE_DIR)
-  string(STRIP ${OPENSSL_INCLUDE_DIR} OPENSSL_INCLUDE_DIR)
-  set(OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR} CACHE PATH "OpenSSL include directory" FORCE)
-
-  set(OPENSSL_USE_STATIC_LIBS TRUE)
-  set(OPENSSL_CRYPTO_LIBRARY /usr/lib64/libcrypto.so.1.1.1k)
-
-  message("-- wtt: OPENSSL_ROOT_DIR is ${OPENSSL_ROOT_DIR}")
-
-  find_package(OpenSSL REQUIRED)
+  include_directories(${OPENSSL_ROOT_DIR}/include)
+  link_directories(${OPENSSL_ROOT_DIR}/lib)
 endif()
+
+find_package(OpenSSL REQUIRED)
 
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
 if (CHECK_LICENSE)

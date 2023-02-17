@@ -3,6 +3,9 @@
 version: '3.7'
 
 services:
-  wtt01:
+  wtt01_manylinux:
     build:
       dockerfile: ./Dockerfile.manylinux
+  wtt01_ubuntu:
+    build:
+      dockerfile: ./Dockerfile.ubuntu
