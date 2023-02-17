@@ -42,6 +42,16 @@ namespace duckdb
 
     void Wtt01Extension::Load(DuckDB &db)
     {
+#if defined(CHECK_LICENSE)
+        try
+        {
+            wtt01::LicenseCheck::ValidateLicense();
+        }
+        catch (std::exception &e)
+        {
+            throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
+        }
+#endif
         LoadInternal(*db.instance);
     }
     std::string Wtt01Extension::Name()
