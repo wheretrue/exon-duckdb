@@ -11,9 +11,9 @@ describe(`wtt01 extension`, () => {
     });
 
     it('function should return expected constant', function (done) {
-        db.all("SELECT wtt01('Sam') as value;", function (err, res) {
+        db.all("SELECT gc_content('ATCG') as value;", function (err, res) {
             if (err) throw err;
-            assert.deepEqual(res, [{value: "Wtt01 Sam 🐥"}]);
+            assert.deepEqual(res, [{ value: 0.5 }]);
             done();
         });
     });
