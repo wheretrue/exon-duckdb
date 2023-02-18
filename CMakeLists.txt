@@ -77,11 +77,19 @@ set(EXTENSION_SOURCES
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 set(PARAMETERS "-warnings")
+
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
+if (WIN32)
+message("CUrrent cmake is: ${CMAKE_CURRENT_BINARY_DIR}")
+target_link_libraries(${EXTENSION_NAME}
+  PUBLIC
+  OpenSSL::SSL OpenSSL::Crypto "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib")
+else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   OpenSSL::SSL OpenSSL::Crypto "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a")
+endif()
 
 install(
   TARGETS ${EXTENSION_NAME}
