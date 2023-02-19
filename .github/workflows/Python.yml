@@ -33,6 +33,11 @@ jobs:
           fetch-depth: 0
           submodules: "true"
 
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
