@@ -47,7 +47,7 @@ if __name__ == "__main__":
         #         / f"{name}.duckdb_extension"
         #     )
     else:
-        build_target = Path("build") / "release" / "extension" / f"{name}.duckdb_extension"
+        build_target = Path("build") / "release" / "extension" / name / f"{name}.duckdb_extension"
 
     with zipfile.ZipFile(local_file, "w") as zip_file:
         print(f"Adding {build_target} to {local_file}.")

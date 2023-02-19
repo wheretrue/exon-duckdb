@@ -35,6 +35,20 @@ namespace duckdb
 
     static void LoadInternal(DatabaseInstance &instance)
     {
+#if defined(CHECK_LICENSE)
+        try
+        {
+            // print a debug message
+            printf("Checking license...\n");
+
+            wtt01::LicenseCheck::ValidateLicense();
+        }
+        catch (std::exception &e)
+        {
+            throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
+        }
+#endif
+
         Connection con(instance);
         con.BeginTransaction();
 
@@ -117,19 +131,6 @@ namespace duckdb
 
     void Wtt01Extension::Load(DuckDB &db)
     {
-        // #if defined(CHECK_LICENSE)
-        try
-        {
-            // print a debug message
-            printf("Checking license...\n");
-
-            wtt01::LicenseCheck::ValidateLicense();
-        }
-        catch (std::exception &e)
-        {
-            throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
-        }
-        // #endif
         LoadInternal(*db.instance);
     }
     std::string Wtt01Extension::Name()

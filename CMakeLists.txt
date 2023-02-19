@@ -23,6 +23,7 @@ find_package(OpenSSL REQUIRED)
 message("-- wtt: Found openssl ${OPENSSL_VERSION}")
 message("-- wtt: Found openssl at ${OPENSSL_ROOT_DIR}")
 
+add_compile_definitions(CHECK_LICENSE)
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
 if (CHECK_LICENSE)
   add_compile_definitions(CHECK_LICENSE)
@@ -86,11 +87,13 @@ if (WIN32)
 message("CUrrent cmake is: ${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
-  OpenSSL::SSL OpenSSL::Crypto "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib")
+  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
+  ${OPENSSL_LIBRARIES})
 else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
-  OpenSSL::SSL OpenSSL::Crypto "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a")
+  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  ${OPENSSL_LIBRARIES})
 endif()
 
 install(

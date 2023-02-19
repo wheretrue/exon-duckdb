@@ -7,8 +7,17 @@ services:
     build:
       dockerfile: ./Dockerfile.manylinux2014
   wtt01:
+    environment:
+      WTT_01_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
+      DATA_DIR: /data
     build:
       dockerfile: ./Dockerfile
+    volumes:
+      - ./test/sql/wtt-01-release-with-deb-info:/data
+      - ./bin/demo.py:/tmp/demo.py
+  wtt01_ubuntu20:
+    build:
+      dockerfile: ./Dockerfile.ubuntu2004
   wtt01_ubuntu16:
     build:
       dockerfile: ./Dockerfile.ubuntu1604
