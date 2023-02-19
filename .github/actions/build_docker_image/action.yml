@@ -1,0 +1,60 @@
+name: Build Docker Image
+description: Build a Docker image and push it to Amazon ECR
+
+inputs:
+  aws_account_id:
+    required: true
+    description: The AWS account ID to use for the deployment
+  check_license:
+    required: true
+    description: Whether to check the license
+  wtt_01_license_server_url:
+    required: true
+    description: The URL of the license server
+  environment:
+    required: true
+    description: The environment to deploy to
+  repository:
+    required: true
+    description: The name of the repository
+  registry_type:
+    required: false
+    default: "private"
+    description: The type of registry to use
+  docker_image:
+    required: true
+    description: The name of the docker image
+  registry_region:
+    required: false
+    default: "us-west-2"
+    description: The region of the registry
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: us-west-2
+        role-to-assume: arn:aws:iam::${{ inputs.aws_account_id}}:role/github-deploy-role
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      env:
+        AWS_REGION: ${{ inputs.registry_region }}
+        AWS_DEFAULT_REGION: ${{ inputs.registry_region }}}
+      with:
+        registry-type: ${{ inputs.registry_type }}
+    - name: Build, tag, and push docker image to Amazon ECR
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: ${{ inputs.repository }}
+        CHECK_LICENSE: ${{ inputs.check_license }}
+        WTT_01_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
+        ENVIRONMENT: ${{inputs.environment}}
+        DOCKER_IMAGE: ${{ inputs.docker_image }}
+      shell: bash
+      run: |
+        git submodule update --init
+        docker compose build wtt01
+        docker compose push wtt01

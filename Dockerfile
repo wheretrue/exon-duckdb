@@ -1,12 +1,34 @@
-FROM ubuntu:20.04 AS builder
+FROM ubuntu:latest AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential python-dev unzip wget libssl-dev
+ARG CHECK_LICENSE
+ENV CHECK_LICENSE=${CHECK_LICENSE}
 
-RUN wget -O /tmp/duckdb.zip https://github.com/duckdb/duckdb/releases/download/v0.7.0/duckdb_cli-linux-amd64.zip
-RUN unzip /tmp/duckdb.zip -d /usr/local/bin
+ARG WTT_01_LICENSE_SERVER_URL
+ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
-RUN pip3 install duckdb==0.7.0 ipython pandas
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential
 
-ADD ./wtt01.duckdb_extension /tmp/wtt01.duckdb_extension
+RUN apt-get install -y -qq software-properties-common && \
+        add-apt-repository ppa:git-core/ppa && \
+        apt-get update -y -qq && \
+        apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client ccache git
+
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh && \
+        chmod +x cmake-3.25.2-linux-x86_64.sh && \ 
+        ./cmake-3.25.2-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+        cmake --version
+
+RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
+        sh rustup.sh -y
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+COPY ./ /app
+WORKDIR /app
+
+RUN make release
+
+WORKDIR /tmp
+ENTRYPOINT ["/app/build/release/duckdb"]

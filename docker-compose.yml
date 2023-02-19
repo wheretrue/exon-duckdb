@@ -5,11 +5,24 @@ version: '3.7'
 services:
   # Deployed environment
   wtt01:
+    build:
+      args:
+        CHECK_LICENSE: ${CHECK_LICENSE:-0}
+        WTT_01_LICENSE_SERVER_URL: ${WTT_01_LICENSE_SERVER_URL:-https://api.wheretrue.com}
+    image: ${DOCKER_IMAGE:-wtt-01-release-with-deb-info}
+    environment:
+      WTT_01_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
+      DATA_DIR: /data
+    volumes:
+      - ./test/sql/wtt-01-release-with-deb-info:/data
+    ports:
+      - 8080:8080
+  wtt01_python:
     environment:
       WTT_01_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
       DATA_DIR: /data
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.python
     volumes:
       - ./test/sql/wtt-01-release-with-deb-info:/data
       - ./bin/demo.py:/tmp/demo.py
@@ -21,6 +34,3 @@ services:
   wtt01_ubuntu16:
     build:
       dockerfile: ./Dockerfile.ubuntu1604
-  wtt01_ubuntulatest:
-    build:
-      dockerfile: ./Dockerfile.ubuntulatest
