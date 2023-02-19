@@ -3,9 +3,7 @@
 version: '3.7'
 
 services:
-  wtt01_manylinux:
-    build:
-      dockerfile: ./Dockerfile.manylinux2014
+  # Deployed environment
   wtt01:
     environment:
       WTT_01_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
@@ -15,9 +13,14 @@ services:
     volumes:
       - ./test/sql/wtt-01-release-with-deb-info:/data
       - ./bin/demo.py:/tmp/demo.py
-  wtt01_ubuntu20:
+  # Build environment for manylinux, gcc4
+  wtt01_manylinux:
     build:
-      dockerfile: ./Dockerfile.ubuntu2004
+      dockerfile: ./Dockerfile.manylinux2014
+  # Build environment for ubuntu 16.04
   wtt01_ubuntu16:
     build:
       dockerfile: ./Dockerfile.ubuntu1604
+  wtt01_ubuntu20:
+    build:
+      dockerfile: ./Dockerfile.ubuntu2004
