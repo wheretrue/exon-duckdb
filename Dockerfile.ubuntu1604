@@ -17,6 +17,19 @@ RUN apt-get install -y -qq software-properties-common && \
         apt-get update -y -qq && \
         apt-get install -y -qq ninja-build make gcc-multilib g++-multilib wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client ccache git
 
+RUN apt-get install -y -qq vim
+
+RUN wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz && \
+        tar xvf Python-3.7.12.tgz && \
+        cd Python-3.7.12 && \
+        mkdir -p pythonbin && \
+        ./configure --with-ensurepip=install && \
+        make -j && \
+        make install && \
+        python3.7 --version && \
+        python3.7 -m pip install pip && \
+        python3.7 -m pip install requests awscli
+
 RUN wget https://www.openssl.org/source/openssl-1.1.1c.tar.gz && \
         tar -xf openssl-1.1.1c.tar.gz && \
         cd openssl-1.1.1c && \

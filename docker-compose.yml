@@ -21,6 +21,6 @@ services:
   wtt01_ubuntu16:
     build:
       dockerfile: ./Dockerfile.ubuntu1604
-  wtt01_ubuntu20:
+  wtt01_ubuntulatest:
     build:
-      dockerfile: ./Dockerfile.ubuntu2004
+      dockerfile: ./Dockerfile.ubuntulatest
