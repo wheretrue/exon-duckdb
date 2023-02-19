@@ -38,9 +38,6 @@ namespace duckdb
 #if defined(CHECK_LICENSE)
         try
         {
-            // print a debug message
-            printf("Checking license...\n");
-
             wtt01::LicenseCheck::ValidateLicense();
         }
         catch (std::exception &e)
@@ -48,7 +45,6 @@ namespace duckdb
             throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
         }
 #endif
-
         Connection con(instance);
         con.BeginTransaction();
 

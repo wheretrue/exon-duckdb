@@ -87,14 +87,14 @@ jobs:
           STATIC_LIBCPP: 1
           CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
           CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
-          CHECK_LICENSE: 1
+          CHECK_LICENSE: 0
         run: |
           make release
 
-      # - name: Test extension
-      #   if: ${{ matrix.arch != 'linux_arm64'}}
-      #   run: |
-      #     make test
+      - name: Test extension
+        if: ${{ matrix.arch != 'linux_arm64'}}
+        run: |
+          make test
 
       - uses: actions/upload-artifact@v2
         with:
