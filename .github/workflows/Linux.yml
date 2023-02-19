@@ -87,7 +87,7 @@ jobs:
         run: |
           make release
 
-      - name: Build extension
+      - name: Test extension
         if: ${{ matrix.arch != 'linux_arm64'}}
         run: |
           make test
@@ -98,25 +98,16 @@ jobs:
           path: |
             build/release/extension/wtt01/wtt01.duckdb_extension
 
-      - name: Deploy
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::900163113876:role/github-deploy-role
+      - name: upload to s3
+        shell: bash
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.S3_DEPLOY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_DEPLOY_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.S3_REGION }}
-          BUCKET_NAME: ${{ secrets.S3_BUCKET }}
+          ARTIFACT_BUCKET: wtt-01-dist-dev
+          ARTIFACT_HANDLER: WTTArtifactHandler
+          ENVIROMENT: dev
         run: |
-          git config --global --add safe.directory '*'
-          cd duckdb
-          git fetch --tags
-          export DUCKDB_VERSION=`git tag --points-at HEAD`
-          export DUCKDB_VERSION=${DUCKDB_VERSION:=`git log -1 --format=%h`}
-          cd ..
-          if [[ "$AWS_ACCESS_KEY_ID" == "" ]] ; then
-            echo 'No key set, skipping'
-          elif [[ "$GITHUB_REF" =~ ^(refs/tags/v.+)$ ]] ; then
-            python3 -m pip install pip awscli
-            ./scripts/extension-upload.sh wtt01 ${{ github.ref_name }} $DUCKDB_VERSION ${{matrix.arch}} $BUCKET_NAME true
-          elif [[ "$GITHUB_REF" =~ ^(refs/heads/main)$ ]] ; then
-            python3 -m pip install pip awscli
-            ./scripts/extension-upload.sh wtt01 `git log -1 --format=%h` $DUCKDB_VERSION ${{matrix.arch}} $BUCKET_NAME false
-          fi
+          python3 bin/upload-artifacts.py
