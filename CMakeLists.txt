@@ -20,6 +20,8 @@ elseif(UNIX)
 endif()
 
 find_package(OpenSSL REQUIRED)
+message("-- wtt: Found openssl ${OPENSSL_VERSION}")
+message("-- wtt: Found openssl at ${OPENSSL_ROOT_DIR}")
 
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
 if (CHECK_LICENSE)

@@ -5,7 +5,10 @@ version: '3.7'
 services:
   wtt01_manylinux:
     build:
-      dockerfile: ./Dockerfile.manylinux
-  wtt01_ubuntu:
+      dockerfile: ./Dockerfile.manylinux2014
+  wtt01:
     build:
-      dockerfile: ./Dockerfile.ubuntu
+      dockerfile: ./Dockerfile
+  wtt01_ubuntu16:
+    build:
+      dockerfile: ./Dockerfile.ubuntu1604
