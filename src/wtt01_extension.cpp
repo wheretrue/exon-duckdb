@@ -120,6 +120,9 @@ namespace duckdb
 #if defined(CHECK_LICENSE)
         try
         {
+            // print a debug message
+            printf("Checking license...\n");
+
             wtt01::LicenseCheck::ValidateLicense();
         }
         catch (std::exception &e)

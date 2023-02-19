@@ -3,6 +3,7 @@
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
+
 #include <nlohmann/json.hpp>
 
 #include "check_license.hpp"
