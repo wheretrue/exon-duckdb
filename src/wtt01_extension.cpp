@@ -117,7 +117,7 @@ namespace duckdb
 
     void Wtt01Extension::Load(DuckDB &db)
     {
-#if defined(CHECK_LICENSE)
+        // #if defined(CHECK_LICENSE)
         try
         {
             // print a debug message
@@ -129,7 +129,7 @@ namespace duckdb
         {
             throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
         }
-#endif
+        // #endif
         LoadInternal(*db.instance);
     }
     std::string Wtt01Extension::Name()

@@ -23,7 +23,6 @@ find_package(OpenSSL REQUIRED)
 message("-- wtt: Found openssl ${OPENSSL_VERSION}")
 message("-- wtt: Found openssl at ${OPENSSL_ROOT_DIR}")
 
-add_compile_definitions(CHECK_LICENSE)
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
 if (CHECK_LICENSE)
   add_compile_definitions(CHECK_LICENSE)
