@@ -6,4 +6,5 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python
 
 RUN pip3 install duckdb==0.7.0
 
+ADD ./wtt_01.duckdb_extension /tmp/wtt_01.duckdb_extension
 ADD ./wtt01.duckdb_extension /tmp/wtt01.duckdb_extension

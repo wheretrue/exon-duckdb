@@ -107,6 +107,11 @@ jobs:
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::900163113876:role/github-deploy-role
+      - name: install boto3
+        shell: bash
+        run: |
+          # python3 -m pip install --upgrade pip
+          pip3 install boto3
       - name: upload to s3
         shell: bash
         env:
