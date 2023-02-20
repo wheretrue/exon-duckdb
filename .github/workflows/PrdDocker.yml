@@ -1,4 +1,4 @@
-name: Build Docker Dev Image
+name: Build Docker Prd Image
 
 on:
   push:
@@ -24,3 +24,4 @@ jobs:
           repository: "wtt01"
           wtt_01_license_server_url: "https://api.wheretrue.com"
           docker_image: 894819748579.dkr.ecr.us-west-2.amazonaws.com/wtt01
+          registry_type: "public"
