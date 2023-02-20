@@ -2,9 +2,8 @@ name: Build Docker Dev Image
 
 on:
   push:
-  # push:
-  #   tags:
-  #     - "v*dev*"
+    tags:
+      - "v*dev*"
 
 permissions:
   contents: read

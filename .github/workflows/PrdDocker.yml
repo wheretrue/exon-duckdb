@@ -1,0 +1,26 @@
+name: Build Docker Dev Image
+
+on:
+  push:
+    tags-ignore:
+      - "v*dev*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build docker image
+        uses: ./.github/actions/build_docker_image
+        with:
+          environment: "prd"
+          check_license: "1"
+          aws_account_id: "894819748579"
+          repository: "wtt01"
+          wtt_01_license_server_url: "https://api.wheretrue.com"
+          docker_image: 894819748579.dkr.ecr.us-west-2.amazonaws.com/wtt01
