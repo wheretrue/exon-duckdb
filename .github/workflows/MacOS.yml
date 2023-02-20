@@ -1,5 +1,5 @@
 name: MacOS
-on: [pull_request]
+on: [workflow_dispatch]
 # on: [push, pull_request, repository_dispatch]
 # on:
 #   push:
