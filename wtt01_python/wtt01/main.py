@@ -101,7 +101,13 @@ def get_connection(
                 temp_dir_path = Path(temp_dir)
 
                 temp_file_name = temp_dir_path / filename
-                urllib.request.urlretrieve(full_s3_path, temp_file_name)
+
+                try:
+                    urllib.request.urlretrieve(full_s3_path, temp_file_name)
+                except Exception as exp:
+                    raise WTTException(
+                        f"Unable to download extension from {full_s3_path}"
+                    ) from exp
 
                 with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
                     zip_ref.extract(f"{name}.duckdb_extension", temp_dir)

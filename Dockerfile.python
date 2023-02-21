@@ -15,5 +15,5 @@ RUN pip install /wtt/wtt01_python/wtt01-0.1.5.dev3-py3-none-any.whl
 
 # RUN python3 -m pip install .
 
-ADD ./wtt01.duckdb_extension /wtt/wtt01.duckdb_extension
-ENV WTT01_EXTENSION_PATH /wtt/wtt01.duckdb_extension
+# ADD ./wtt01.duckdb_extension /wtt/wtt01.duckdb_extension
+# ENV WTT01_EXTENSION_PATH /wtt/wtt01.duckdb_extension
