@@ -1,8 +1,13 @@
 name: Linux
-on: [push, pull_request, repository_dispatch]
+on:
+  - push
+  - pull_request
+  - repository_dispatch
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
   cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
@@ -35,6 +40,19 @@ jobs:
       GEN: ninja
 
     steps:
+      - name: Set Up Env Vars for Prod
+        run: echo "Setting Prod Build Env Vars"
+        env:
+          CHECK_LICENSE: 1
+          WTT_01_LICENSE_URL: "https://api.wheretrue.com"
+
+      - name: Set Up Env Vars for Dev Override if Applicable
+        if: (startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')) || github.event_name == 'push'
+        run: echo "Overriding Env Vars for Dev Build"
+        env:
+          CHECK_LICENSE: 0
+          WTT_01_LICENSE_URL: "https://api.wheretrue.net"
+
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
         run: |
@@ -88,7 +106,8 @@ jobs:
           STATIC_LIBCPP: 1
           CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
           CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
-          CHECK_LICENSE: 0
+          CHECK_LICENSE: ${{ env.CHECK_LICENSE }}
+          WTT_01_LICENSE_URL: ${{ env.WTT_01_LICENSE_URL }}
         run: |
           make release
 
