@@ -99,7 +99,6 @@ def get_connection(
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_dir_path = Path(temp_dir)
-
                 temp_file_name = temp_dir_path / filename
 
                 try:

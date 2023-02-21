@@ -49,7 +49,7 @@ jobs:
 
       - name: Build wheels
         run: |
-          echo "ENVIRONMENT = \"${{ github.event.inputs.environment }}\"" > wtt01/_env.py
+          echo "ENVIRONMENT = \"${{ env.ENVIRONMENT }}\"" > wtt01/_env.py
           hatch build
         working-directory: ./wtt01_python/
 
