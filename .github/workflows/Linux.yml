@@ -68,7 +68,7 @@ jobs:
           exit 0
 
       - name: Exit Test
-        if: ${{ env.CHECK_LICENSE == 1}}
+        if: env.CHECK_LICENSE == 1
         run: |
           echo "Exiting Test"
           exit 1
