@@ -13,13 +13,18 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   python:
     name: Python
     runs-on: ubuntu-latest
 
     env:
-      AWS_ACCOUNT_ID: ${{ github.event.inputs.environment == 'prd' && '894819748579' || '900163113876' }}
+      # AWS_ACCOUNT_ID: ${{ github.event.inputs.environment == 'prd' && '894819748579' || '900163113876' }}
+      AWS_ACCOUNT_ID: "900163113876"
 
     steps:
       - name: Install System Deps
