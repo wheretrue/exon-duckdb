@@ -25,7 +25,7 @@ if __name__ == "__main__":
     operating_system = platform_uname.system
     architecture = platform_uname.machine
 
-    version = "0.1.9.dev2"
+    version = "0.1.9"
 
     filename = f"{name}-{version}-{operating_system}-{architecture}.zip"
     full_s3_path = f"s3://{bucket}/extension/{name}/{filename}"
