@@ -63,8 +63,8 @@ jobs:
 
       - name: test
         run: |
-          echo $CHECK_LICENSE
-          echo $WTT_01_LICENSE_URL
+          echo CHECK -- "$CHECK_LICENSE"
+          echo WTT - "$WTT_01_LICENSE_URL"
           exit 1
 
       - name: Install required ubuntu packages
