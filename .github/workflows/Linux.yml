@@ -61,11 +61,16 @@ jobs:
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
           echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
 
-      - name: test
+      - name: Print Build Env Vars
         run: |
-          echo CHECK -- "$CHECK_LICENSE"
-          echo WTT - "$WTT_01_LICENSE_URL"
           echo ${{ env.CHECK_LICENSE }}
+          echo ${{ env.WTT_01_LICENSE_URL}}
+          exit 0
+
+      - name: Exit Test
+        if: ${{ env.CHECK_LICENSE == 1}}
+        run: |
+          echo "Exiting Test"
           exit 0
 
       - name: Install required ubuntu packages
@@ -127,7 +132,7 @@ jobs:
           make release
 
       - name: Test extension
-        if: ${{ matrix.arch != 'linux_arm64'}}
+        if: ${{ matrix.arch != 'linux_arm64' || env.CHECK_LICENSE == 0}}
         run: |
           make test
 
