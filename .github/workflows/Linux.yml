@@ -42,7 +42,11 @@ jobs:
     steps:
       - name: Set Up Env Vars for Prod
         if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
-        run: echo "Setting Prod Build Env Vars"
+        run: |
+          echo "Setting Prod Build Env Vars"
+          echo "CHECK_LICENSE=1" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
+
         env:
           CHECK_LICENSE: 1
           WTT_01_LICENSE_URL: "https://api.wheretrue.com"
@@ -65,6 +69,7 @@ jobs:
         run: |
           echo CHECK -- "$CHECK_LICENSE"
           echo WTT - "$WTT_01_LICENSE_URL"
+          echo ${{ env.CHECK_LICENSE }}
           exit 1
 
       - name: Install required ubuntu packages
