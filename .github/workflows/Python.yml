@@ -25,6 +25,7 @@ jobs:
     env:
       # AWS_ACCOUNT_ID: ${{ github.event.inputs.environment == 'prd' && '894819748579' || '900163113876' }}
       AWS_ACCOUNT_ID: "900163113876"
+      ENVIRONMENT: "dev"
 
     steps:
       - name: Install System Deps
@@ -65,4 +66,4 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
       - name: Upload wheels to S3
-        run: aws s3 cp wtt01_python/dist/*.whl s3://wtt-01-dist-${{ github.event.inputs.environment }}/python/wheels/
+        run: aws s3 cp wtt01_python/dist/*.whl s3://wtt-01-dist-${{ env.ENVIRONMENT }}/python/wheels/
