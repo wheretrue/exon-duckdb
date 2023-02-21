@@ -70,11 +70,12 @@ def get_connection(
         return con
     except duckdb.IOException:
         if extension_path := os.environ.get("WTT01_EXTENSION_PATH"):
-            con.install_extension(extension_path, force_install=True)
+            extension_path = Path(extension_path).absolute()
+            con.install_extension(str(extension_path), force_install=True)
             con.load_extension(EXTENSION_NAME)
 
         elif file_path is not None and file_path.exists():
-            con.install_extension(str(file_path), force_install=True)
+            con.install_extension(str(file_path.absolute()), force_install=True)
             con.load_extension(EXTENSION_NAME)
 
         elif s3_uri is not None:

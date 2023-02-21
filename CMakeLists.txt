@@ -84,6 +84,8 @@ set(PARAMETERS "-warnings")
 
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
+message("-- wtt: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
+
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
