@@ -47,30 +47,26 @@ jobs:
           echo "CHECK_LICENSE=1" >> $GITHUB_ENV
           echo "WTT_01_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
 
-        env:
-          CHECK_LICENSE: 1
-          WTT_01_LICENSE_URL: "https://api.wheretrue.com"
-
       - name: Set Up Env Vars for Dev Override if Applicable
         if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
-        run: echo "Overriding Env Vars for Dev Build"
-        env:
-          CHECK_LICENSE: 0
-          WTT_01_LICENSE_URL: "https://api.wheretrue.net"
+        run: |
+          echo "Overriding Env Vars for Dev Build"
+          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
-        run: echo "Overriding Env Vars for Dev Build"
-        env:
-          CHECK_LICENSE: 0
-          WTT_01_LICENSE_URL: "https://api.wheretrue.net"
+        run: |
+          echo "Overriding Env Vars for Dev Build"
+          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
 
       - name: test
         run: |
           echo CHECK -- "$CHECK_LICENSE"
           echo WTT - "$WTT_01_LICENSE_URL"
           echo ${{ env.CHECK_LICENSE }}
-          exit 1
+          exit 0
 
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
