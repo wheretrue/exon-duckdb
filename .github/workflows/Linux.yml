@@ -71,7 +71,7 @@ jobs:
         if: env.CHECK_LICENSE == 1
         run: |
           echo "Exiting Test"
-          exit 1
+          exit 0
 
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
@@ -132,7 +132,7 @@ jobs:
           make release
 
       - name: Test extension (skip if CHECK_LICENSE=1)
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        if: env.CHECK_LICENSE == 0
         run: |
           make test
 
