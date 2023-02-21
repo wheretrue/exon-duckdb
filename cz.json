@@ -1,12 +1,13 @@
 {
   "commitizen": {
     "name": "cz_conventional_commits",
-    "version": "0.1.8",
+    "version": "0.1.9.dev1",
     "tag_format": "v$version",
     "version_files": [
       "./CMakeLists.txt",
       "./bin/upload-artifacts.py",
-      "./src/wtt01_functions.cpp"
+      "./src/wtt01_functions.cpp",
+      "./wtt01_python/wtt01/__about__.py"
     ]
   }
 }
