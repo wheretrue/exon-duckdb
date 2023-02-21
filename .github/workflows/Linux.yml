@@ -46,6 +46,8 @@ jobs:
           echo "Setting Prod Build Env Vars"
           echo "CHECK_LICENSE=1" >> $GITHUB_ENV
           echo "WTT_01_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
+          echo "ENVIRONMENT=prd" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
         if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
@@ -53,6 +55,8 @@ jobs:
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
           echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
@@ -60,6 +64,8 @@ jobs:
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
           echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Print Build Env Vars
         run: |
@@ -146,7 +152,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::900163113876:role/github-deploy-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
       - name: install boto3
         shell: bash
         run: |
@@ -155,8 +161,8 @@ jobs:
       - name: upload to s3
         shell: bash
         env:
-          ARTIFACT_BUCKET: wtt-01-dist-dev
+          ARTIFACT_BUCKET: wtt-01-dist-${{ env.ENVIRONMENT }}
           ARTIFACT_HANDLER: WTTArtifactHandler
-          ENVIRONMENT: dev
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
           python3 bin/upload-artifacts.py
