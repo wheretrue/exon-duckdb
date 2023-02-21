@@ -41,13 +41,14 @@ jobs:
 
     steps:
       - name: Set Up Env Vars for Prod
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
         run: echo "Setting Prod Build Env Vars"
         env:
           CHECK_LICENSE: 1
           WTT_01_LICENSE_URL: "https://api.wheretrue.com"
 
       - name: Set Up Env Vars for Dev Override if Applicable
-        if: (startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')) || github.event_name == 'push'
+        if: (startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')) || github.ref_type == 'tag'
         run: echo "Overriding Env Vars for Dev Build"
         env:
           CHECK_LICENSE: 0
