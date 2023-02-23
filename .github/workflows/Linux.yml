@@ -161,8 +161,6 @@ jobs:
       - name: upload to s3
         shell: bash
         env:
-          ARTIFACT_BUCKET: wtt-01-dist-${{ env.ENVIRONMENT }}
-          ARTIFACT_HANDLER: WTTArtifactHandler
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
           python3 bin/upload-artifacts.py

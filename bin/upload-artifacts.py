@@ -12,20 +12,22 @@ client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
 
 if __name__ == "__main__":
-    environment = os.environ["ENVIRONMENT"]
-    bucket = os.environ["ARTIFACT_BUCKET"]
-    handler = os.environ["ARTIFACT_HANDLER"]
-
-    print(f"Uploading artifacts to {bucket} with handler {handler}.")
-    print(f"Working on environment: {environment}.")
-
     name = "wtt01"
+    version = "0.1.20"
+    handler = "WTTArtifactHandler"
+
+    environment = os.environ["ENVIRONMENT"]
+    bucket = f"wtt-01-dist-{environment}"
+
+    print(f"Uploading artifacts to {bucket} with handler {handler}")
+    print(f"Working on environment: {environment}")
 
     platform_uname = platform.uname()
     operating_system = platform_uname.system
     architecture = platform_uname.machine
 
-    version = "0.1.20"
+    print(f"Operating system: {operating_system}")
+    print(f"Architecture: {architecture}")
 
     filename = f"{name}-{version}-{operating_system}-{architecture}.zip"
     full_s3_path = f"s3://{bucket}/extension/{name}/{filename}"
