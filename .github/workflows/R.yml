@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         # os: [ubuntu-latest, macos-latest, windows-latest]
-        r: [4.1.3]
+        r: [4.2.2]
 
     steps:
       - name: Checkout code
@@ -24,9 +24,9 @@ jobs:
           r-version: ${{ matrix.r }}
           http-user-agent: "GitHub Action"
 
-      # - name: Install dependencies
-      #   run: |
-      #     Rscript -e "install.packages('devtools')"
+      - name: Install dev tools
+        run: |
+          R -f ./wtt01r/dependencies.R
 
       - name: Build package
         run: R CMD build wtt01r
