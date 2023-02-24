@@ -26,8 +26,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages("devtools")
-          devtools::install_deps(dependencies = TRUE)
+          Rscript -e "install.packages('devtools')"
+          Rscript -e "devtools::install_deps(dependencies = TRUE)"
 
       - name: Build package
         run: R CMD build wtt01r
