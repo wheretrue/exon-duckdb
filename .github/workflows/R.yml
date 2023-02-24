@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -17,6 +21,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set Up Env Vars for Prod
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
+        run: |
+          echo "ENVIRONMENT=prd" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
+
+      - name: Set Up Env Vars for Dev Override if Applicable
+        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
+        run: |
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
+
+      - name: Set Up Env Vars for Dev Override if Applicable
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        run: |
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Install System Deps
         run: |
@@ -48,3 +70,23 @@ jobs:
         with:
           name: wtt01r-${{ matrix.os }}
           path: dist/*.tar.gz
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: install boto3
+        shell: bash
+        run: |
+          pip3 install boto3
+
+      - name: Upload wheels to S3
+        shell: bash
+        run: aws s3 cp dist/*.tar.gz s3://wtt-01-dist-${{ env.ENVIRONMENT }}/R/
