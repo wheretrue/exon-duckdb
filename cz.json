@@ -7,7 +7,8 @@
       "./CMakeLists.txt",
       "./bin/upload-artifacts.py",
       "./src/wtt01_functions.cpp",
-      "./wtt01_python/wtt01/__about__.py"
+      "./wtt01_python/wtt01/__about__.py",
+      "./wtt01r/R/getConnection.R"
     ]
   }
 }
