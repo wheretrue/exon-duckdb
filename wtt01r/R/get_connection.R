@@ -1,0 +1,96 @@
+# Some useful keyboard shortcuts for package authoring:
+#
+#   Install Package:           'Cmd + Shift + B'
+#   Check Package:             'Cmd + Shift + E'
+#   Test Package:              'Cmd + Shift + T'
+
+
+library(DBI)
+library(duckdb)
+
+download_extension <- function(con) {
+  name <- "wtt01"
+
+  regex_major_version <- "^v[0-9]+\\."
+  version <- "0.1.21.dev1"
+
+  if (grepl(regex_major_version, version)) {
+    env <- "prd"
+  } else {
+    env <- "dev"
+  }
+
+  bucket <- paste0("wtt-01-dist-", env)
+
+  sys_info <- Sys.info()
+  operating_system <- sys_info["sysname"]
+  architecture <- sys_info["machine"]
+
+  filename <- paste0(
+    name,
+    "-",
+    version,
+    "-",
+    operating_system,
+    "-",
+    architecture,
+    ".zip"
+  )
+
+  full_s3_path <- paste0(
+    "https://",
+    bucket,
+    ".s3.us-west-2.amazonaws.com/extension/wtt01/",
+    filename
+  )
+
+  print(full_s3_path)
+  temp_dir <- tempdir()
+  temp_file <- tempfile(tmpdir = temp_dir)
+  download.file(full_s3_path, temp_file, method = "auto")
+  unzip(temp_file, exdir = temp_dir)
+
+  fp <- file.path(temp_dir, "wtt01.duckdb_extension")
+
+  query <- paste0("LOAD '", fp, "';")
+  DBI::dbExecute(con, query)
+
+  return(con)
+}
+
+# Write the R documentation for the function
+#' Get a connection to the database
+#' @param dbdir The path to the database file
+#' @return A connection to the database
+#' @export
+#' @examples
+#' \dontrun{
+#' con <- get_connection()
+#' }
+#' @importFrom DBI dbConnect dbExecute
+#' @importFrom duckdb duckdb
+#' @importFrom utils unzip
+#' @importFrom httr GET content
+#' @importFrom base Sys.info
+#' @importFrom utils download.file
+#' @importFrom utils tempfile
+#' @importFrom utils tempdir
+#' @importFrom utils file.path
+get_connection <- function(dbdir = ":memory:") {
+  con <- DBI::dbConnect(
+    duckdb::duckdb(config = list("allow_unsigned_extensions" = "true")),
+    dbdir = dbdir
+  )
+
+  tryCatch(
+    {
+      query <- "LOAD 'wtt01';"
+      DBI::dbExecute(con, query)
+
+      return(con)
+    },
+    error = function(e) {
+      return(download_extension(con))
+    }
+  )
+}
