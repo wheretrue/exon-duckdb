@@ -21,7 +21,7 @@ downloadExtension <- function(con) {
   name <- "wtt01"
   env <- "prd"
   bucket <- paste0("wtt-01-dist-", env)
-  version <- "0.1.20"
+  version <- "0.1.21.dev1"
 
   sys_info <- Sys.info()
   operating_system <- sys_info["sysname"]
