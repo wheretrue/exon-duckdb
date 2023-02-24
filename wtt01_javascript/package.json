@@ -1,0 +1,17 @@
+{
+    "name": "wtt01",
+    "version": "0.1.20",
+    "description": "wtt01 nodejs",
+    "dependencies": {
+        "duckdb": "^0.7.0"
+    },
+    "devDependencies": {
+        "jest": "^29.4.3"
+    },
+    "main": "index.js",
+    "scripts": {
+        "test": "jest --coverage"
+    },
+    "author": "Trent Hauck <thauck@whereetrue.com>",
+    "license": "SEE LICENSE IN LICENSE.md"
+}
