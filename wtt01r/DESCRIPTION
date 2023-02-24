@@ -7,7 +7,11 @@ Maintainer: Trent Hauck <thauck@wheretrue.com>
 Description: Package to support wtt01 in R.
 License: Commercial
 Encoding: UTF-8
-LazyData: true
 Imports:
     duckdb (>= 0.7.0),
     DBI
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.2.3

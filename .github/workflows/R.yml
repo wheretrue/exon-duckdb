@@ -1,0 +1,46 @@
+name: Build R Package
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        r: [4.1.3]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r }}
+          http-user-agent: "GitHub Action"
+
+      - name: Install dependencies
+        run: |
+          install.packages("devtools")
+          devtools::install_deps(dependencies = TRUE)
+
+      - name: Build package
+        run: R CMD build wtt01r
+
+      - name: Create dist directory
+        run: mkdir dist
+
+      - name: Move package to dist directory
+        run: mv *.tar.gz dist/
+        if: success()
+
+      - name: Upload package to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: wtt01r-${{ matrix.os }}
+          path: dist/*.tar.gz

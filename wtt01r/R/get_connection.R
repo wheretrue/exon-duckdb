@@ -58,24 +58,6 @@ download_extension <- function(con) {
   return(con)
 }
 
-# Write the R documentation for the function
-#' Get a connection to the database
-#' @param dbdir The path to the database file
-#' @return A connection to the database
-#' @export
-#' @examples
-#' \dontrun{
-#' con <- get_connection()
-#' }
-#' @importFrom DBI dbConnect dbExecute
-#' @importFrom duckdb duckdb
-#' @importFrom utils unzip
-#' @importFrom httr GET content
-#' @importFrom base Sys.info
-#' @importFrom utils download.file
-#' @importFrom utils tempfile
-#' @importFrom utils tempdir
-#' @importFrom utils file.path
 get_connection <- function(dbdir = ":memory:") {
   con <- DBI::dbConnect(
     duckdb::duckdb(config = list("allow_unsigned_extensions" = "true")),
