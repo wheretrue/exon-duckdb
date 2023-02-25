@@ -55,7 +55,6 @@ where
     P: AsRef<Path>,
 {
     let src = src.as_ref();
-
     let file = std::fs::File::open(src)?;
 
     let reader = match compression {

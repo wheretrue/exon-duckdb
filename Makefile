@@ -46,22 +46,6 @@ release:
 	cmake --build build/release --config Release --target 'cargo-build_wtt01_rust' && \
 	cmake --build build/release --config Release -j 8
 
-# Client build
-debug_js: CLIENT_FLAGS=-DBUILD_NODE=1 -DBUILD_JSON_EXTENSION=1
-debug_js: debug
-
-debug_r: CLIENT_FLAGS=-DBUILD_R=1
-debug_r: debug
-
-debug_python: CLIENT_FLAGS=-DBUILD_PYTHON=1 -DBUILD_JSON_EXTENSION=1 -DBUILD_FTS_EXTENSION=1 -DBUILD_TPCH_EXTENSION=1 -DBUILD_VISUALIZER_EXTENSION=1 -DBUILD_TPCDS_EXTENSION=1
-debug_python: debug
-
-release_js: CLIENT_FLAGS=-DBUILD_NODE=1 -DBUILD_JSON_EXTENSION=1
-release_js: release
-
-release_r: CLIENT_FLAGS=-DBUILD_R=1
-release_r: release
-
 release_python: CLIENT_FLAGS=-DBUILD_PYTHON=1 -DBUILD_JSON_EXTENSION=1 -DBUILD_FTS_EXTENSION=1 -DBUILD_TPCH_EXTENSION=1 -DBUILD_VISUALIZER_EXTENSION=1 -DBUILD_TPCDS_EXTENSION=1
 release_python: release
 
@@ -74,27 +58,11 @@ test_release: release
 	./build/release/test/unittest --test-dir . "[wtt-01-release-with-deb-info]"
 	rm -rf ./test/sql/tmp
 
-test_debug: debug
-	./build/debug/test/unittest --test-dir . "[sql]"
-
-# Client tests
-test_js: test_debug_js
-test_debug_js: debug_js
-	cd duckdb/tools/nodejs && npm run test-path -- "../../../test/nodejs/**/*.js"
-
-test_release_js: release_js
-	cd duckdb/tools/nodejs && npm run test-path -- "../../../test/nodejs/**/*.js"
-
-test_python: test_debug_python
-test_debug_python: debug_python
-	cd test/python && python3 -m pytest
-
-test_release_python: release_python
-	cd test/python && python3 -m pytest
-
-format:
-	find src/ -iname *.hpp -o -iname *.cpp | xargs clang-format --sort-includes=0 -style=file -i
-	cmake-format -i CMakeLists.txt
-
 update:
 	git submodule update --remote --merge
+
+r:
+	mkdir -p r-dist
+	R CMD build wtt01r
+	mv wtt01r*tar.gz r-dist/
+	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIORNMENT)/R/macOS/
