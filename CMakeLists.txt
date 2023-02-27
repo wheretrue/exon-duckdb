@@ -19,11 +19,14 @@ elseif(UNIX)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
+elseif(WIN32)
+
+  # set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64")
+  # set(OPENSSL_USE_STATIC_LIBS TRUE)
 endif()
 
 find_package(OpenSSL REQUIRED)
 message("-- wtt: Found openssl ${OPENSSL_VERSION}")
-message("-- wtt: Found openssl at ${OPENSSL_ROOT_DIR}")
 
 set(CHECK_LICENSE $ENV{CHECK_LICENSE})
 if (CHECK_LICENSE)
@@ -90,7 +93,7 @@ if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
-  ${OPENSSL_LIBRARIES})
+   OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
