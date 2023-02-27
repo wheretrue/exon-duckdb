@@ -11,7 +11,7 @@ library(duckdb)
 download_extension <- function(con) {
   name <- "wtt01"
 
-  regex_major_version <- "^v[0-9]+\\."
+  regex_major_version <- "^[0-9]+\\.[0-9]+\\.[0-9]+$"
   version <- "0.1.21"
 
   if (grepl(regex_major_version, version)) {
