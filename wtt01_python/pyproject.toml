@@ -15,7 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-  "duckdb==0.7.0",
+  "duckdb==0.7.1",
 ]
 description = ''
 dynamic = ["version"]
