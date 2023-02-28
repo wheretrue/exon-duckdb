@@ -2,12 +2,6 @@ FROM ubuntu:latest AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ARG CHECK_LICENSE
-ENV CHECK_LICENSE=${CHECK_LICENSE}
-
-ARG WTT_01_LICENSE_SERVER_URL
-ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
-
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential
 
 RUN apt-get install -y -qq software-properties-common && \
@@ -25,10 +19,23 @@ RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+FROM builder AS extension_builder
+
 COPY ./ /app
 WORKDIR /app
 
+ARG CHECK_LICENSE
+ENV CHECK_LICENSE=${CHECK_LICENSE}
+
+ARG WTT_01_LICENSE_SERVER_URL
+ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
+
 RUN make release
+
+FROM builder AS duckdb
+
+COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
+COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
 
 WORKDIR /tmp
 ENTRYPOINT ["/app/build/release/duckdb"]
