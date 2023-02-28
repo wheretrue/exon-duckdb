@@ -4,6 +4,10 @@ name: Windows
 on:
   workflow_dispatch:
 
+  push:
+    tags:
+      - v*
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
   cancel-in-progress: true
@@ -21,6 +25,38 @@ jobs:
         duckdb_version: ["v0.7.1"]
 
     steps:
+      - name: Set Up Env Vars for Prod
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
+        run: |
+          echo "Setting Prod Build Env Vars"
+          echo "CHECK_LICENSE=1" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
+          echo "ENVIRONMENT=prd" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
+
+      - name: Set Up Env Vars for Dev Override if Applicable
+        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
+        run: |
+          echo "Overriding Env Vars for Dev Build"
+          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
+
+      - name: Set Up Env Vars for Dev Override if Applicable
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        run: |
+          echo "Overriding Env Vars for Dev Build"
+          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
+          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
+
+      - name: Print Build Env Vars
+        run: |
+          echo ${{ env.CHECK_LICENSE }}
+          echo ${{ env.WTT_01_LICENSE_URL}}
+          exit 0
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -54,6 +90,25 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: linux-extensions-64-aarch64
+          name: windows-extension
           path: |
             build/release/extension/wtt01/wtt01.duckdb_extension
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
+
+      - name: install boto3
+        shell: bash
+        run: |
+          # python3 -m pip install --upgrade pip
+          pip3 install boto3
+
+      - name: upload to s3
+        shell: bash
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+        run: |
+          python3 bin/upload-artifacts.py

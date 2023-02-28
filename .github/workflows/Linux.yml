@@ -72,12 +72,6 @@ jobs:
           echo ${{ env.WTT_01_LICENSE_URL}}
           exit 0
 
-      - name: Exit Test
-        if: env.CHECK_LICENSE == 1
-        run: |
-          echo "Exiting Test"
-          exit 0
-
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
         run: |
