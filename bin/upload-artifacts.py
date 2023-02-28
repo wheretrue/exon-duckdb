@@ -35,19 +35,13 @@ if __name__ == "__main__":
     local_file = Path(f"{name}.duckdb_extension.zip")
 
     if operating_system.lower() == "windows":
-        raise RuntimeError("Windows is not supported yet.")
-        # if cmake_build_type == "Release":
-        #     build_target = (
-        #         Path("build") / "extension" / name / f"{name}.duckdb_extension"
-        #     )
-        # else:
-        #     build_target = (
-        #         Path("build")
-        #         / "release"
-        #         / "extension"
-        #         / "wtt01"
-        #         / f"{name}.duckdb_extension"
-        #     )
+        build_target = (
+            Path("build")
+            / "release"
+            / "extension"
+            / "wtt01"
+            / f"{name}.duckdb_extension"
+        )
     else:
         build_target = Path("build") / "release" / "extension" / name / f"{name}.duckdb_extension"
 
