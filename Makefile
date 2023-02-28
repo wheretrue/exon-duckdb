@@ -65,4 +65,5 @@ r:
 	mkdir -p r-dist
 	R CMD build wtt01r
 	mv wtt01r*tar.gz r-dist/
-	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIORNMENT)/R/macOS/
+	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIORNMENT)/R/
+	rm -rf r-dist
