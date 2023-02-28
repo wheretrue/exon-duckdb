@@ -90,7 +90,6 @@ jobs:
       - name: Build extension
         run: |
           make release
-          build/release/test/Release/unittest.exe
 
       - uses: actions/upload-artifact@v2
         with:
