@@ -20,3 +20,4 @@ jobs:
         with:
           environment: "dev"
           aws_account_id: "900163113876"
+          pypi_api_token: ${{ secrets.PYPI_API_TOKEN }}

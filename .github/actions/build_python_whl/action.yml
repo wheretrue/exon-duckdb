@@ -8,6 +8,9 @@ inputs:
   aws_account_id:
     required: true
     description: The AWS account ID to deploy to
+  pypi_api_token:
+    required: true
+    description: The PyPI API token to use
 
 runs:
   using: "composite"
@@ -55,5 +58,5 @@ runs:
     - name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        password: ${{ inputs.pypi_api_token }}
         packages_dir: ./wtt01_python/dist

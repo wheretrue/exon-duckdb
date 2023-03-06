@@ -20,3 +20,4 @@ jobs:
         with:
           environment: "prd"
           aws_account_id: "894819748579"
+          pypi_api_token: ${{ secrets.PYPI_API_TOKEN }}
