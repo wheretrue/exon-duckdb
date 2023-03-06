@@ -52,7 +52,10 @@ download_extension <- function(con) {
 
   fp <- file.path(temp_dir, "wtt01.duckdb_extension")
 
-  query <- paste0("LOAD '", fp, "';")
+  query <- paste0("INSTALL '", fp, "';")
+  DBI::dbExecute(con, query)
+
+  query <- "LOAD wtt01;"
   DBI::dbExecute(con, query)
 
   return(con)
