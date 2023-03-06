@@ -8,7 +8,7 @@
 namespace wtt01
 {
 
-    const std::string WTT_01_VERSION = "0.1.26.dev2";
+    const std::string WTT_01_VERSION = "0.1.26.dev3";
 
     duckdb::CreateScalarFunctionInfo Wtt01Functions::GetWtt01VersionFunction()
     {
