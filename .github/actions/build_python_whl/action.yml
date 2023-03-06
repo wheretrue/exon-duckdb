@@ -54,6 +54,6 @@ runs:
 
     - name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      working-directory: ./wtt01_python/
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+        packages_dir: ./wtt01_python/dist
