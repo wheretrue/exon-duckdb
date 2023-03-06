@@ -1,14 +1,14 @@
 Package: wtt01r
 Type: Package
 Title: WTT-01 R Package
-Version: 0.1.26.dev1
+Version: 0.1.25
 Author: Trent Hauck
 Maintainer: Trent Hauck <thauck@wheretrue.com>
 Description: Package to support wtt01 in R.
 License: Commercial
 Encoding: UTF-8
 Imports:
-    duckdb (== 0.7.1),
+    duckdb (>= 0.7.1),
     DBI
 Suggests:
     knitr,
