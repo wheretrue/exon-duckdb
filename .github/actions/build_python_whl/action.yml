@@ -51,3 +51,9 @@ runs:
     - name: Upload wheels to S3
       shell: bash
       run: aws s3 cp wtt01_python/dist/*.whl s3://wtt-01-dist-${{ inputs.environment }}/python/wheels/
+
+    - name: Publish a Python distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      working-directory: ./wtt01_python/
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
