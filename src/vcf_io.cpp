@@ -22,6 +22,11 @@ namespace wtt01
 
         htsFile *vcf_file;
         bcf_hdr_t *header;
+
+        std::vector<int> info_field_ids;
+        std::vector<std::string> info_field_names;
+        std::vector<uint32_t> info_field_types;
+        std::vector<uint32_t> info_field_lengths;
     };
 
     struct VCFRecordScanLocalState : public duckdb::LocalTableFunctionState
@@ -96,6 +101,12 @@ namespace wtt01
         auto ids = header->id[BCF_DT_ID];
         auto n = header->n[BCF_DT_ID];
 
+        std::vector<int> info_field_ids;
+        std::vector<std::string> info_field_names;
+
+        std::vector<uint32_t> info_field_types;
+        std::vector<uint32_t> info_field_lengths;
+
         duckdb::child_list_t<duckdb::LogicalType> info_children;
         for (int i = 0; i < n; i++)
         {
@@ -105,13 +116,19 @@ namespace wtt01
                 continue;
             }
 
+            info_field_ids.push_back(i);
+
             auto key = ids[i].key;
             auto key_str = std::string(key);
+            info_field_names.push_back(key_str);
 
             auto length = bcf_hdr_id2length(header, BCF_HL_INFO, i);
             auto number = bcf_hdr_id2number(header, BCF_HL_INFO, i);
             auto bcf_type = bcf_hdr_id2type(header, BCF_HL_INFO, i);
             auto coltype = bcf_hdr_id2coltype(header, BCF_HL_INFO, i);
+
+            info_field_types.push_back(bcf_type);
+            info_field_lengths.push_back(number);
 
             if (bcf_type == BCF_HT_FLAG)
             {
@@ -156,6 +173,12 @@ namespace wtt01
             }
         }
 
+        result->info_field_ids = info_field_ids;
+        result->info_field_names = info_field_names;
+
+        result->info_field_types = info_field_types;
+        result->info_field_lengths = info_field_lengths;
+
         names.push_back("info");
         return_types.push_back(duckdb::LogicalType::STRUCT(move(info_children)));
 
@@ -193,6 +216,11 @@ namespace wtt01
 
         htsFile *fp = bind_data->vcf_file;
         bcf_hdr_t *header = bind_data->header;
+        auto info_field_ids = bind_data->info_field_ids;
+        auto info_field_names = bind_data->info_field_names;
+
+        auto info_field_types = bind_data->info_field_types;
+        auto info_field_lengths = bind_data->info_field_lengths;
 
         bcf1_t *record = bcf_init();
 
@@ -251,6 +279,128 @@ namespace wtt01
             {
                 output.SetValue(6, output.size(), duckdb::Value::INTEGER(*filter));
             }
+
+            duckdb::child_list_t<duckdb::Value> struct_values;
+
+            // bcf_info_t
+            for (int i = 0; i < info_field_ids.size(); i++)
+            {
+
+                auto name = info_field_names[i];
+                auto field_index = info_field_ids[i];
+                auto field_type = info_field_types[i];
+                auto field_len = info_field_lengths[i];
+
+                if (name == "END")
+                {
+                    struct_values.push_back(std::make_pair(name, duckdb::Value()));
+                    continue;
+                }
+
+                if (field_type == BCF_HT_INT)
+                {
+                    int count = 0;
+                    int32_t *field_value = nullptr;
+
+                    auto get_info_op = bcf_get_info_int32(header, record, name.c_str(), &field_value, &count);
+                    if (get_info_op < 0)
+                    {
+                        throw std::runtime_error("Could not get info field " + name);
+                    }
+
+                    if (field_len == BCF_VL_VAR)
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::INTEGER(*field_value)));
+                    }
+                    else
+                    {
+                        std::vector<duckdb::Value> field_values;
+                        for (int i = 0; i < count; i++)
+                        {
+                            field_values.push_back(duckdb::Value(field_value[i]));
+                        }
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                    }
+                }
+                else if (field_type == BCF_HT_FLAG)
+                {
+                    int count = 0;
+                    bool *field_value = nullptr;
+
+                    auto get_info_op = bcf_get_info_flag(header, record, name.c_str(), &field_value, &count);
+                    if (get_info_op < 0)
+                    {
+                        throw std::runtime_error("Could not get flag info field " + name);
+                    }
+
+                    if (get_info_op == 1)
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::BOOLEAN(true)));
+                    }
+                    else
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::BOOLEAN(false)));
+                    }
+                }
+                else if (field_type == BCF_HT_STR)
+                {
+                    int count = 0;
+                    char *info_value = NULL;
+
+                    int ret = bcf_get_info_string(header, record, name.c_str(), &info_value, &count);
+                    if (ret == -3) // field not present
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value()));
+                        continue;
+                    }
+
+                    if (ret < 0)
+                    {
+                        throw std::runtime_error("Could not get str info field " + name);
+                    }
+
+                    if (field_len == BCF_VL_VAR)
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value(info_value)));
+                    }
+                    else
+                    {
+                        std::vector<duckdb::Value> field_values;
+                        for (int i = 0; i < count; i++)
+                        {
+                            field_values.push_back(duckdb::Value(info_value[i]));
+                        }
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                    }
+                }
+                else if (field_type == BCF_HT_REAL)
+                {
+                    int count = 0;
+                    float *field_value = nullptr;
+
+                    auto get_info_op = bcf_get_info_float(header, record, name.c_str(), &field_value, &count);
+                    if (get_info_op < 0)
+                    {
+                        throw std::runtime_error("Could not get real info field " + name);
+                    }
+
+                    if (field_len == BCF_VL_VAR)
+                    {
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::FLOAT(*field_value)));
+                    }
+                    else
+                    {
+                        std::vector<duckdb::Value> field_values;
+                        for (int i = 0; i < count; i++)
+                        {
+                            field_values.push_back(duckdb::Value::FLOAT(field_value[i]));
+                        }
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                    }
+                }
+            }
+
+            output.SetValue(7, output.size(), duckdb::Value::STRUCT(struct_values));
 
             output.SetCardinality(output.size() + 1);
         }
