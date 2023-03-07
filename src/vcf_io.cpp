@@ -4,7 +4,7 @@
 #include <duckdb/parser/expression/constant_expression.hpp>
 #include <duckdb/parser/expression/function_expression.hpp>
 
-#include "wtt01_rust.hpp"
+#include "htslib/vcf.h"
 #include "vcf_io.hpp"
 
 namespace wtt01
@@ -19,19 +19,14 @@ namespace wtt01
     {
         std::string file_path;
         VCFRecordScanOptions options;
-        VCFReaderC reader;
 
-        std::vector<std::string> format_strings;
-        std::vector<std::string> format_type_strings;
-        std::vector<std::string> format_number_strings;
-
-        std::vector<WTInfoField> info_fields;
+        htsFile *vcf_file;
+        bcf_hdr_t *header;
     };
 
     struct VCFRecordScanLocalState : public duckdb::LocalTableFunctionState
     {
         bool done = false;
-        VCFReaderC reader;
     };
 
     struct VCFRecordScanGlobalState : public duckdb::GlobalTableFunctionState
@@ -65,11 +60,19 @@ namespace wtt01
             }
         };
 
-        auto reader = vcf_new(result->file_path.c_str(), result->options.compression.c_str());
-        result->reader = reader;
+        auto reader = hts_open(result->file_path.c_str(), "r");
+        auto header = bcf_hdr_read(reader);
+
+        if (header == nullptr)
+        {
+            throw std::runtime_error("Could not read header");
+        }
+
+        result->vcf_file = reader;
+        result->header = header;
 
         names.push_back("chromosome");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        return_types.push_back(duckdb::LogicalType::INTEGER);
 
         names.push_back("ids");
         return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR));
@@ -87,102 +90,74 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::FLOAT);
 
         names.push_back("filter");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        // maybe should be a varchar?? Can I get that from the filter
+        return_types.push_back(duckdb::LogicalType::INTEGER);
 
-        names.push_back("info");
+        auto ids = header->id[BCF_DT_ID];
+        auto n = header->n[BCF_DT_ID];
 
         duckdb::child_list_t<duckdb::LogicalType> info_children;
-
-        auto info_fields = &reader.info_fields;
-        for (int i = 0; i < info_fields->total_fields; i++)
+        for (int i = 0; i < n; i++)
         {
-            auto info_field = next_info_field(info_fields);
+            auto bb = bcf_hdr_idinfo_exists(header, BCF_HL_INFO, i);
+            if (!bb)
+            {
+                continue;
+            }
 
-            result->info_fields.push_back(info_field);
-            // printf("info_field: %s %s %s\n", info_field.id, info_field.ty, info_field.number);
+            auto key = ids[i].key;
+            auto key_str = std::string(key);
 
-            if (strcmp(info_field.ty, "Integer") == 0 && strcmp(info_field.number, "1") == 0)
+            auto length = bcf_hdr_id2length(header, BCF_HL_INFO, i);
+            auto number = bcf_hdr_id2number(header, BCF_HL_INFO, i);
+            auto bcf_type = bcf_hdr_id2type(header, BCF_HL_INFO, i);
+            auto coltype = bcf_hdr_id2coltype(header, BCF_HL_INFO, i);
+
+            if (bcf_type == BCF_HT_FLAG)
             {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::BIGINT));
+                info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::BOOLEAN));
             }
-            else if (strcmp(info_field.ty, "Float") == 0 && strcmp(info_field.number, "1") == 0)
+            else if (bcf_type == BCF_HT_INT)
             {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::FLOAT));
+                if (number == BCF_VL_VAR)
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::INTEGER));
+                }
+                else
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::LIST(duckdb::LogicalType::INTEGER)));
+                }
             }
-            else if (strcmp(info_field.ty, "Float") == 0 && strcmp(info_field.number, "1") != 0)
+            else if (bcf_type == BCF_HT_REAL)
             {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::LIST(duckdb::LogicalType::FLOAT)));
+                if (number == BCF_VL_VAR)
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::FLOAT));
+                }
+                else
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::LIST(duckdb::LogicalType::FLOAT)));
+                }
             }
-            else if (strcmp(info_field.ty, "String") == 0 && strcmp(info_field.number, "1") == 0)
+            else if (bcf_type == BCF_HT_STR)
             {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::VARCHAR));
-            }
-            else if (strcmp(info_field.ty, "String") == 0 && strcmp(info_field.number, "1") != 0)
-            {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR)));
-            }
-            else if (strcmp(info_field.ty, "Integer") == 0 && strcmp(info_field.number, "1") != 0)
-            {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::LIST(duckdb::LogicalType::INTEGER)));
-            }
-            else if (strcmp(info_field.ty, "Flag") == 0)
-            {
-                info_children.push_back(std::make_pair(info_field.id, duckdb::LogicalType::BOOLEAN));
+                if (number == BCF_VL_VAR)
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::VARCHAR));
+                }
+                else
+                {
+                    info_children.push_back(std::make_pair(key_str, duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR)));
+                }
             }
             else
             {
-                throw std::runtime_error("Unknown info field type: " + std::string(info_field.ty));
+                throw std::runtime_error("Unknown type");
             }
         }
+
+        names.push_back("info");
         return_types.push_back(duckdb::LogicalType::STRUCT(move(info_children)));
-
-        names.push_back("genotypes");
-
-        duckdb::child_list_t<duckdb::LogicalType> struct_children;
-        struct_children.push_back(std::make_pair("sample_id", duckdb::LogicalType::VARCHAR));
-
-        auto formats = &reader.formats;
-        for (int i = 0; i < formats->total_fields; i++)
-        {
-            auto format = next_format(formats);
-
-            // printf("Adding format: %s %s %s\n", format.id, format.ty, format.number);
-
-            result->format_strings.push_back(format.id);
-            result->format_type_strings.push_back(format.ty);
-            result->format_number_strings.push_back(format.number);
-
-            if (strcmp(format.ty, "Integer") == 0 && strcmp(format.number, "1") == 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::BIGINT));
-            }
-            else if (strcmp(format.ty, "Float") == 0 && strcmp(format.number, "1") == 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::FLOAT));
-            }
-            else if (strcmp(format.ty, "String") == 0 && strcmp(format.number, "1") == 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::VARCHAR));
-            }
-            else if (strcmp(format.ty, "String") == 0 && strcmp(format.number, "1") != 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR)));
-            }
-            else if (strcmp(format.ty, "Integer") == 0 && strcmp(format.number, "1") != 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::LIST(duckdb::LogicalType::BIGINT)));
-            }
-            else if (strcmp(format.ty, "Float") == 0 && strcmp(format.number, "1") != 0)
-            {
-                struct_children.push_back(std::make_pair(format.id, duckdb::LogicalType::LIST(duckdb::LogicalType::FLOAT)));
-            }
-            else
-            {
-                throw std::runtime_error("Unknown format type: " + std::string(format.ty));
-            }
-        }
-
-        return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(struct_children)));
 
         return move(result);
     }
@@ -202,9 +177,6 @@ namespace wtt01
 
         auto local_state = duckdb::make_unique<VCFRecordScanLocalState>();
 
-        // should this be init here or use the bind data?
-        local_state->reader = bind_data->reader;
-
         return std::move(local_state);
     }
 
@@ -214,346 +186,71 @@ namespace wtt01
         auto local_state = (VCFRecordScanLocalState *)data.local_state;
         auto gstate = (VCFRecordScanGlobalState *)data.global_state;
 
-        auto header = bind_data->reader.header;
-
-        auto format_strings = bind_data->format_strings;
-        auto format_type_strings = bind_data->format_type_strings;
-        auto format_number_strings = bind_data->format_number_strings;
-
-        auto info_fields = bind_data->info_fields;
-
         if (local_state->done)
         {
             return;
         }
 
+        htsFile *fp = bind_data->vcf_file;
+        bcf_hdr_t *header = bind_data->header;
+
+        bcf1_t *record = bcf_init();
+
         while (output.size() < STANDARD_VECTOR_SIZE)
         {
-            VCFRecord record = vcf_next(&bind_data->reader);
 
-            if (record.chromosome == NULL || strcmp(record.chromosome, "") == 0)
+            auto bcf_read_op = bcf_read(fp, header, record);
+            if (bcf_read_op < 0)
             {
                 local_state->done = true;
                 break;
             }
 
-            output.SetValue(0, output.size(), duckdb::Value(record.chromosome));
+            auto chromosome = record->rid;
+            auto position = record->pos;
 
-            if (record.ids == NULL)
+            auto ref_all_unpack_op = bcf_unpack(record, BCF_UN_STR);
+            if (ref_all_unpack_op < 0)
             {
-                output.SetValue(1, output.size(), duckdb::Value());
-            }
-            else
-            {
-                // split the string on ';' and add to a list
-                auto ids = duckdb::StringUtil::Split(record.ids, ';');
-                std::vector<duckdb::Value> values;
-
-                for (auto id : ids)
-                {
-                    // duckdb::StringUtil::Trim(id);
-                    // duckdb::StringUtil::Trim(id, '"');
-                    values.push_back(duckdb::Value(id));
-                }
-
-                output.SetValue(1, output.size(), duckdb::Value::LIST(values));
+                throw std::runtime_error("Could not unpack record");
             }
 
-            output.SetValue(2, output.size(), duckdb::Value::BIGINT(record.position));
-            output.SetValue(3, output.size(), duckdb::Value(record.reference_bases));
-            output.SetValue(4, output.size(), duckdb::Value(record.alternate_bases));
+            auto id = record->d.id;
+            std::vector<duckdb::Value> id_vec;
 
-            if (std::isnan(record.quality_score))
+            std::istringstream iss(id);
+            std::string s;
+            while (std::getline(iss, s, '\0'))
             {
-                output.SetValue(5, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(5, output.size(), duckdb::Value::FLOAT(record.quality_score));
-            }
-
-            if (record.filters == NULL || strcmp(record.filters, "") == 0)
-            {
-                output.SetValue(6, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(6, output.size(), duckdb::Value(record.filters));
-            }
-
-            // auto info_fields = &reader.info_fields;
-            auto infos = record.infos;
-            duckdb::child_list_t<duckdb::Value> struct_values;
-
-            for (WTInfoField info_field : info_fields)
-            {
-                auto info = next_info(info_field.id, &infos);
-
-                if (info.error != NULL)
+                if (s != ".")
                 {
-                    throw std::runtime_error("For field: " + std::string(info_field.id) + ", got error: " + std::string(info.error));
-                }
-
-                if (info.value == NULL)
-                {
-                    struct_values.push_back(std::make_pair(info_field.id, duckdb::Value()));
-                    continue;
-                }
-
-                if (strcmp(info_field.ty, "Integer") == 0 && strcmp(info_field.number, "1") == 0)
-                {
-                    auto v = info_field_int(&info);
-                    struct_values.push_back(std::make_pair(info_field.id, duckdb::Value::BIGINT(v)));
-                }
-                else if (strcmp(info_field.ty, "Integer") == 0 && strcmp(info_field.number, "1") != 0)
-                {
-                    auto vs = info_field_ints(&info);
-                    std::vector<duckdb::Value> values;
-
-                    for (int i = 0; i < vs.number_of_fields; i++)
-                    {
-                        auto vi = info_field_int_value(&vs);
-                        values.push_back(duckdb::Value::BIGINT(vi));
-                    }
-
-                    struct_values.push_back(std::make_pair(info_field.id, duckdb::Value::LIST(values)));
-                }
-                else if (strcmp(info_field.ty, "Float") == 0 && strcmp(info_field.number, "1") != 0)
-                {
-                    auto vs = info_field_floats(&info);
-
-                    std::vector<duckdb::Value> values;
-
-                    for (int i = 0; i < vs.number_of_fields; i++)
-                    {
-                        auto vi = info_field_float_value(&vs);
-
-                        if (vi.is_null)
-                        {
-                            values.push_back(duckdb::Value::FLOAT(NAN));
-                        }
-                        else
-                        {
-                            values.push_back(duckdb::Value::FLOAT(vi.value));
-                        }
-                    }
-                    struct_values.push_back(std::make_pair(info_field.id, duckdb::Value::LIST(values)));
-                }
-                else if (strcmp(info_field.ty, "Float") == 0 && strcmp(info_field.number, "1") == 0)
-                {
-                    auto v = info_field_float(&info);
-                    struct_values.push_back(std::make_pair(info.id, duckdb::Value::FLOAT(0.1)));
-                }
-                else if (strcmp(info_field.ty, "String") == 0 && strcmp(info_field.number, "1") == 0)
-                {
-                    auto v = info_field_string(&info);
-                    struct_values.push_back(std::make_pair(info.id, duckdb::Value(v)));
-                }
-                else if (strcmp(info_field.ty, "String") == 0 && strcmp(info_field.number, "1") != 0)
-                {
-                    auto v = info_field_strings(&info);
-
-                    std::vector<duckdb::Value> values;
-
-                    for (int i = 0; i < v.number_of_fields; i++)
-                    {
-                        auto vi = info_field_string_value(&v);
-                        values.push_back(duckdb::Value(vi));
-                    }
-
-                    struct_values.push_back(std::make_pair(info_field.id, duckdb::Value::LIST(values)));
-                }
-                else if (strcmp(info_field.ty, "Flag") == 0)
-                {
-                    auto v = info_field_bool(&info);
-                    struct_values.push_back(std::make_pair(info.id, duckdb::Value::BOOLEAN(v)));
-                }
-                else
-                {
-                    throw std::runtime_error("Unsupported type for info field: " + std::string(info_field.ty) + " " + std::string(info_field.number));
+                    id_vec.push_back(s);
                 }
             }
 
-            if (struct_values.size() == 0)
+            auto als = record->d.als;
+            auto als_vec = duckdb::StringUtil::Split(als, '\0');
+
+            // Get the filter from the record
+            auto filter = record->d.flt;
+
+            output.SetValue(0, output.size(), duckdb::Value::INTEGER(chromosome));
+            if (id_vec.size() != 0)
             {
-                output.SetValue(7, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(7, output.size(), duckdb::Value::STRUCT(struct_values));
-            }
-
-            std::vector<duckdb::Value> genotype_structs;
-
-            auto genotypes = record.genotypes;
-            auto sample_names = duckdb::StringUtil::Split(get_sample_names(header), ',');
-
-            for (int i = 0; i < genotypes.number_of_genotypes; i++)
-            {
-                duckdb::child_list_t<duckdb::Value> struct_values;
-                struct_values.push_back(std::make_pair("sample_name", duckdb::Value(sample_names[i])));
-
-                auto genotype = next_genotype(&genotypes);
-
-                for (int j = 0; j < format_strings.size(); j++)
-                {
-                    // The necessary info in order to parse the genotype field
-                    auto key_type = format_type_strings[j];
-                    auto key_name = format_strings[j];
-                    auto key_number = format_number_strings[j];
-
-                    if (key_type == "Integer" && key_number == "1")
-                    {
-                        auto value = next_int_key(&genotype, key_name.c_str());
-
-                        if (value.error != NULL)
-                        {
-                            throw std::runtime_error(value.error);
-                        }
-
-                        if (value.none)
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value::BIGINT(0)));
-                        }
-                        else
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value::BIGINT(value.value)));
-                        }
-                    }
-                    else if (key_type == "String" && key_number == "1")
-                    {
-                        auto value = next_string_key(&genotype, key_name.c_str());
-
-                        if (value.error != NULL)
-                        {
-                            throw std::runtime_error(value.error);
-                        }
-
-                        if (value.none)
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value("")));
-                        }
-                        else
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value(value.value)));
-                        }
-                    }
-                    else if (key_type == "Float" && key_number == "1")
-                    {
-                        auto value = next_float_key(&genotype, key_name.c_str());
-
-                        if (value.error != NULL)
-                        {
-                            throw std::runtime_error(value.error);
-                        }
-
-                        if (value.none)
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value()));
-                        }
-                        else
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value::FLOAT(value.value)));
-                        }
-                    }
-                    else if (key_type == "Float" && key_number != "1")
-                    {
-                        auto key_list = next_float_list_key(&genotype, key_name.c_str());
-                        if (key_list.error != NULL)
-                        {
-                            throw std::runtime_error(key_list.error);
-                        }
-
-                        std::vector<duckdb::Value> values;
-                        auto list_length = key_list.length;
-
-                        if (list_length == 0)
-                        {
-                            // TODO: handle this case
-                            values.push_back(duckdb::Value::FLOAT(1.0));
-                        }
-
-                        for (int ll = 0; ll < list_length; ll++)
-                        {
-                            auto list_value = next_float_list_value(&key_list);
-
-                            values.push_back(duckdb::Value::FLOAT(list_value));
-                        }
-
-                        struct_values.push_back(std::make_pair(key_name, duckdb::Value::LIST(values)));
-                    }
-
-                    else if (key_type == "String" && key_number != "1")
-                    {
-                        auto key_list = next_string_list_key(&genotype, key_name.c_str());
-                        if (key_list.error != NULL)
-                        {
-                            throw std::runtime_error(key_list.error);
-                        }
-
-                        std::vector<duckdb::Value> values;
-                        auto list_length = key_list.length;
-
-                        for (int ll = 0; ll < list_length; ll++)
-                        {
-                            auto list_value = next_string_list_value(&key_list);
-
-                            values.push_back(duckdb::Value(list_value));
-                        }
-
-                        struct_values.push_back(std::make_pair(key_name, duckdb::Value::LIST(values)));
-                    }
-
-                    else if (key_type == "Integer" && key_number != "1")
-                    {
-                        auto key_list = next_int_list_key(&genotype, key_name.c_str());
-                        if (key_list.error != NULL)
-                        {
-                            throw std::runtime_error(key_list.error);
-                        }
-
-                        std::vector<duckdb::Value> values;
-
-                        auto list_length = key_list.length;
-
-                        for (int ll = 0; ll < list_length; ll++)
-                        {
-                            auto list_value = next_int_list_value(&key_list);
-
-                            if (list_value.error != NULL)
-                            {
-                                throw std::runtime_error(list_value.error);
-                            }
-
-                            if (list_value.is_none)
-                            {
-                                values.push_back(duckdb::Value::BIGINT(0));
-                            }
-                            else
-                            {
-                                values.push_back(duckdb::Value::BIGINT(list_value.value));
-                            }
-                        }
-
-                        if (values.size() != 0)
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value::LIST(values)));
-                        }
-                        else
-                        {
-                            struct_values.push_back(std::make_pair(key_name, duckdb::Value()));
-                        }
-                    }
-                    else
-                    {
-                        throw std::runtime_error("Unsupported type for genotype field: " + key_type + " " + key_number);
-                    }
-                }
-
-                genotype_structs.push_back(duckdb::Value::STRUCT(struct_values));
+                output.SetValue(1, output.size(), duckdb::Value::LIST(id_vec));
             }
 
-            output.SetValue(8, output.size(), duckdb::Value::LIST(genotype_structs));
+            output.SetValue(2, output.size(), duckdb::Value::BIGINT(position));
+
+            output.SetValue(3, output.size(), duckdb::Value(als_vec[0]));
+            output.SetValue(4, output.size(), duckdb::Value(als_vec[1]));
+
+            output.SetValue(5, output.size(), duckdb::Value::FLOAT(record->qual));
+
+            if (filter != nullptr)
+            {
+                output.SetValue(6, output.size(), duckdb::Value::INTEGER(*filter));
+            }
 
             output.SetCardinality(output.size() + 1);
         }

@@ -13,7 +13,8 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
-  message("-- wtt: OSX_BUILD_UNIVERSAL is ${OSX_BUILD_UNIVERSAL}")
+  message("-- wtt: Found htslib ${htslib_FOUND}")
+
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
@@ -65,6 +66,9 @@ FetchContent_MakeAvailable(${available_contents})
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
+message("-- wtt: Found ${CMAKE_CURRENT_BINARY_DIR}/htslib/include")
+include_directories(/Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/include)
+
 include_directories(src/include)
 set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
@@ -86,10 +90,6 @@ add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 set(PARAMETERS "-warnings")
 
-build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
-
-message("-- wtt: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
-
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
@@ -99,7 +99,11 @@ else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
-  ${OPENSSL_LIBRARIES})
+  ${OPENSSL_LIBRARIES}
+  /opt/homebrew/opt/htslib/lib/libhts.a
+  -lz -lm -lbz2 -llzma -lcurl
+  # /Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/lib/libhts.dylib
+)
 endif()
 
 install(
