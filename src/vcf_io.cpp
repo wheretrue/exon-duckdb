@@ -1,4 +1,5 @@
 #include <math.h>
+#include <map>
 
 #include <duckdb/common/file_system.hpp>
 #include <duckdb/parser/expression/constant_expression.hpp>
@@ -33,6 +34,8 @@ namespace wtt01
         int g_j;
         int n_gt;
         int n_sample;
+
+        std::vector<std::string> tags;
     };
 
     struct VCFRecordScanLocalState : public duckdb::LocalTableFunctionState
@@ -89,7 +92,7 @@ namespace wtt01
         result->n_sample = n_sample;
 
         names.push_back("chromosome");
-        return_types.push_back(duckdb::LogicalType::INTEGER);
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
 
         names.push_back("ids");
         return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR));
@@ -107,8 +110,7 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::FLOAT);
 
         names.push_back("filter");
-        // maybe should be a varchar?? Can I get that from the filter
-        return_types.push_back(duckdb::LogicalType::INTEGER);
+        return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR));
 
         auto ids = header->id[BCF_DT_ID];
         auto n = header->n[BCF_DT_ID];
@@ -118,6 +120,8 @@ namespace wtt01
 
         std::vector<uint32_t> info_field_types;
         std::vector<uint32_t> info_field_lengths;
+
+        std::vector<std::string> genotype_int_tags;
 
         duckdb::child_list_t<duckdb::LogicalType> info_children;
         for (int i = 0; i < n; i++)
@@ -194,6 +198,8 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::STRUCT(move(info_children)));
 
         duckdb::child_list_t<duckdb::LogicalType> format_children;
+        std::vector<std::string> tags;
+
         for (int i = 0; i < n; i++)
         {
             auto bb = bcf_hdr_idinfo_exists(header, BCF_HL_FMT, i);
@@ -204,6 +210,8 @@ namespace wtt01
 
             auto key = ids[i].key;
             auto key_str = std::string(key);
+
+            tags.push_back(key_str);
 
             auto length = bcf_hdr_id2length(header, BCF_HL_FMT, i);
             auto number = bcf_hdr_id2number(header, BCF_HL_FMT, i);
@@ -253,6 +261,8 @@ namespace wtt01
             }
         }
 
+        result->tags = tags;
+
         names.push_back("genotypes");
         return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(format_children)));
 
@@ -277,6 +287,14 @@ namespace wtt01
         return std::move(local_state);
     }
 
+    struct Int32Array
+    {
+        int32_t *arr;
+        int32_t number;
+        int32_t get_op_response;
+        std::string tag;
+    };
+
     void VCFRecordScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
     {
         auto bind_data = (const VCFRecordScanBindData *)data.bind_data;
@@ -288,8 +306,6 @@ namespace wtt01
             return;
         }
 
-        printf("n samples: %d\n", bind_data->n_sample);
-
         htsFile *fp = bind_data->vcf_file;
         bcf_hdr_t *header = bind_data->header;
         auto info_field_ids = bind_data->info_field_ids;
@@ -297,6 +313,8 @@ namespace wtt01
 
         auto info_field_types = bind_data->info_field_types;
         auto info_field_lengths = bind_data->info_field_lengths;
+
+        auto genotype_tags = bind_data->tags;
 
         bcf1_t *record = bcf_init();
 
@@ -311,6 +329,9 @@ namespace wtt01
             }
 
             auto chromosome = record->rid;
+            const char *chr_name = bcf_hdr_id2name(header, record->rid);
+            std::string chr_name_str = std::string(chr_name);
+
             auto position = record->pos;
 
             auto ref_all_unpack_op = bcf_unpack(record, BCF_UN_STR);
@@ -336,9 +357,10 @@ namespace wtt01
             auto als_vec = duckdb::StringUtil::Split(als, '\0');
 
             // Get the filter from the record
-            auto filter = record->d.flt;
+            // TODO: This is not working
+            auto n_filter = record->d.n_flt;
 
-            output.SetValue(0, output.size(), duckdb::Value::INTEGER(chromosome));
+            output.SetValue(0, output.size(), duckdb::Value(chr_name_str));
             if (id_vec.size() != 0)
             {
                 output.SetValue(1, output.size(), duckdb::Value::LIST(id_vec));
@@ -351,9 +373,20 @@ namespace wtt01
 
             output.SetValue(5, output.size(), duckdb::Value::FLOAT(record->qual));
 
-            if (filter != nullptr)
+            // Set the filter values if possible
+            if (n_filter > 0)
             {
-                output.SetValue(6, output.size(), duckdb::Value::INTEGER(*filter));
+                std::vector<duckdb::Value> filter_vec;
+                for (int i = 0; i < record->d.n_flt; i++)
+                {
+                    const char *filter_name = bcf_hdr_int2id(header, BCF_DT_ID, record->d.flt[i]);
+                    filter_vec.push_back(duckdb::Value(std::string(filter_name)));
+                }
+                output.SetValue(6, output.size(), duckdb::Value::LIST(filter_vec));
+            }
+            else
+            {
+                output.SetValue(6, output.size(), duckdb::Value());
             }
 
             duckdb::child_list_t<duckdb::Value> struct_values;
@@ -486,24 +519,22 @@ namespace wtt01
 
             output.SetValue(7, output.size(), duckdb::Value::STRUCT(struct_values));
 
+            std::unordered_map<std::string, Int32Array> int_maps;
+
             // Create the array for the genotypes...
             int32_t *gt_arr = NULL, ngt_arr = 0;
             auto n_gt = bcf_get_genotypes(header, record, &gt_arr, &ngt_arr);
 
-            int32_t *gq_arr = NULL;
-            int32_t ngq_arr = 0;
+            std::vector<std::string> tags = {"GQ", "DP", "HQ"};
+            for (auto tag : tags)
+            {
+                int32_t *arr = NULL;
+                int32_t narr = 0;
 
-            auto n_gq = bcf_get_format_int32(header, record, "GQ", &gq_arr, &ngq_arr);
+                auto n = bcf_get_format_int32(header, record, tag.c_str(), &arr, &narr);
 
-            int32_t *dp_arr = NULL;
-            int32_t ndp_arr = 0;
-
-            auto n_dp = bcf_get_format_int32(header, record, "DP", &dp_arr, &ndp_arr);
-
-            int32_t *hq_arr = NULL;
-            int32_t nhq_arr = 0;
-
-            auto n_hq = bcf_get_format_int32(header, record, "HQ", &hq_arr, &nhq_arr);
+                int_maps[tag] = Int32Array{arr, narr, n, tag};
+            }
 
             std::vector<duckdb::Value> genotype_structs;
 
@@ -511,36 +542,68 @@ namespace wtt01
             {
                 duckdb::child_list_t<duckdb::Value> struct_values;
 
-                struct_values.push_back(std::make_pair("GT", duckdb::Value::INTEGER(gt_arr[i * 2])));
+                for (auto tag : genotype_tags)
+                {
 
-                if (n_gq > 0)
-                {
-                    struct_values.push_back(std::make_pair("GQ", duckdb::Value::INTEGER(gq_arr[i])));
-                }
-                else
-                {
-                    struct_values.push_back(std::make_pair("GQ", duckdb::Value()));
-                }
+                    if (tag == "GT")
+                    {
+                        auto gt_value = gt_arr[i];
+                        if (gt_value <= bcf_int32_missing)
+                        {
+                            struct_values.push_back(std::make_pair("GT", duckdb::Value()));
+                        }
+                        else
+                        {
+                            // printf("gt value: %d %d %d\n", gt_value, bcf_int32_missing,
+                            struct_values.push_back(std::make_pair("GT", duckdb::Value::INTEGER(gt_value)));
+                        }
+                    };
 
-                if (n_dp > 0)
-                {
-                    struct_values.push_back(std::make_pair("DP", duckdb::Value::INTEGER(dp_arr[i])));
-                }
-                else
-                {
-                    struct_values.push_back(std::make_pair("DP", duckdb::Value()));
-                }
+                    // TODO: other types
+                    if (int_maps.count(tag) == 0)
+                    {
+                        continue;
+                    }
 
-                if (n_hq > 0)
-                {
-                    std::vector<duckdb::Value> hq_values;
-                    hq_values.push_back(duckdb::Value::INTEGER(hq_arr[i * 2]));
-                    hq_values.push_back(duckdb::Value::INTEGER(hq_arr[i * 2 + 1]));
-                    struct_values.push_back(std::make_pair("HQ", duckdb::Value::LIST(hq_values)));
-                }
-                else
-                {
-                    struct_values.push_back(std::make_pair("HQ", duckdb::Value()));
+                    auto &arr = int_maps[tag];
+
+                    if (arr.get_op_response > 0)
+                    {
+                        if (arr.number == bind_data->n_sample)
+                        {
+                            if (arr.arr[i] > bcf_int32_missing)
+                            {
+                                struct_values.push_back(std::make_pair(tag, duckdb::Value::INTEGER(arr.arr[i])));
+                            }
+                            else
+                            {
+                                struct_values.push_back(std::make_pair(tag, duckdb::Value::INTEGER(-1)));
+                            }
+                        }
+                        else
+                        {
+                            auto per_sample = arr.number / bind_data->n_sample;
+                            std::vector<duckdb::Value> field_values;
+                            for (int j = 0; j < per_sample; j++)
+                            {
+                                auto arr_value = arr.arr[i * per_sample + j];
+
+                                if (arr_value <= bcf_int32_missing)
+                                {
+                                    field_values.push_back(duckdb::Value());
+                                }
+                                else
+                                {
+                                    field_values.push_back(duckdb::Value::INTEGER(arr_value));
+                                }
+                            }
+                            struct_values.push_back(std::make_pair(tag, duckdb::Value::LIST(field_values)));
+                        }
+                    }
+                    else
+                    {
+                        struct_values.push_back(std::make_pair(tag, duckdb::Value()));
+                    }
                 }
 
                 genotype_structs.push_back(duckdb::Value::STRUCT(struct_values));
