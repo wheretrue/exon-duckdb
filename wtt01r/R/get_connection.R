@@ -24,7 +24,11 @@ download_extension <- function(con) {
 
   sys_info <- Sys.info()
   operating_system <- sys_info["sysname"]
+
   architecture <- sys_info["machine"]
+  if (operating_system == "Windows" && architecture == "x86_64") {
+    architecture <- "AMD64"
+  }
 
   filename <- paste0(
     name,
