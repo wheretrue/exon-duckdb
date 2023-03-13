@@ -22,6 +22,7 @@ jobs:
       - name: wtt01 smoke Test
         env:
           WTT_01_LICENSE: XXX
+        shell: python
         run: |
           import wtt01
           con = wtt01.get_connection()
