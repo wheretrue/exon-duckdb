@@ -54,7 +54,7 @@ r:
 	mkdir -p r-dist
 	R CMD build wtt01r
 	mv wtt01r*tar.gz r-dist/
-	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIORNMENT)/R/
+	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIRONMENT)/R/
 	rm -rf r-dist
 
 
@@ -69,4 +69,4 @@ docker-release:
 
 extension-release:
 	CHECK_LICENSE=1 make
-	ENVIRONMENT=$(ENVIORNMENT) python bin/upload-artifacts.py
+	ENVIRONMENT=$(ENVIRONMENT) python bin/upload-artifacts.py
