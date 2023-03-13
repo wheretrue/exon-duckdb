@@ -13,8 +13,6 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
-  message("-- wtt: Found htslib ${htslib_FOUND}")
-
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
