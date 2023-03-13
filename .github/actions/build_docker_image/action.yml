@@ -83,6 +83,6 @@ runs:
         docker compose build wtt01
         docker compose push wtt01
 
-        NEW_IMAGE = $(echo $DOCKER_IMAGE | sed -e "s/latest/v0.1.28/g")
+        NEW_IMAGE = $(echo $DOCKER_IMAGE | sed -e "s/latest/v0.1.29/g")
         docker tag $DOCKER_IMAGE $NEW_IMAGE
         docker push $NEW_IMAGE
