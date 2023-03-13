@@ -1,0 +1,19 @@
+name: Test Python Installs
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+    - name: Install wtt01
+      run: |
+        python -m pip install --upgrade pip
+        pip install wtt01
