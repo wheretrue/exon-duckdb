@@ -27,8 +27,8 @@ jobs:
         run: |
           echo "url <- \"https://wtt01.wheretrue.com/R/wtt01r_latest.tar.gz\"" > test.R
 
-          echo "install.packages(\"duckdb\")" >> test.R
-          echo "install.packages(url, repos = NULL, type = \"source\")" >> test.R
+          echo "install.packages(\"duckdb\", repos = \"https://cran.us.r-project.org\")" >> test.R
+          echo "install.packages(url, type = \"source\", repos = NULL)" >> test.R
 
           echo "library(wtt01r)" >> test.R
           echo "library(DBI)" >> test.R
@@ -41,5 +41,7 @@ jobs:
           cat test.R
       - name: R smoke Test
         shell: bash
+        env:
+          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
         run: |
           R -f test.R
