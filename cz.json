@@ -1,7 +1,7 @@
 {
   "commitizen": {
     "name": "cz_conventional_commits",
-    "version": "0.1.26.dev1",
+    "version": "0.1.26",
     "tag_format": "v$version",
     "version_files": [
       "./CMakeLists.txt",
