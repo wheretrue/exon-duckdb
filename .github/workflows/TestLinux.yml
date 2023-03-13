@@ -2,6 +2,10 @@ name: Test Python Installs
 
 on: [push]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -21,7 +25,7 @@ jobs:
           pip install wtt01
       - name: wtt01 smoke Test
         env:
-          WTT_01_LICENSE: XXX
+          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
         shell: python
         run: |
           import wtt01
