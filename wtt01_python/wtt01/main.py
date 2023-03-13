@@ -68,8 +68,10 @@ def get_connection(
     try:
         con.load_extension(EXTENSION_NAME)
         return con
-    except duckdb.IOException:
-        if extension_path := os.environ.get("WTT01_EXTENSION_PATH"):
+    except duckdb.IOException as exp:
+        extension_path = os.getenv("WTT01_EXTENSION_PATH")
+
+        if extension_path is not None:
             extension_path = Path(extension_path).absolute()
             con.install_extension(str(extension_path), force_install=True)
             con.load_extension(EXTENSION_NAME)
@@ -103,10 +105,10 @@ def get_connection(
 
                 try:
                     urllib.request.urlretrieve(full_s3_path, temp_file_name)
-                except Exception as exp:
+                except Exception as retrieve_exp:
                     raise WTTException(
                         f"Unable to download extension from {full_s3_path}"
-                    ) from exp
+                    ) from retrieve_exp
 
                 with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
                     zip_ref.extract(f"{name}.duckdb_extension", temp_dir)
@@ -115,7 +117,7 @@ def get_connection(
                 if not output_file.exists():
                     raise WTTException(
                         f"Unable to find extension file at {output_file}"
-                    )
+                    ) from exp
 
                 con.install_extension(output_file.as_posix(), force_install=True)
 
