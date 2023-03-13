@@ -28,6 +28,10 @@ inputs:
     required: false
     default: "us-west-2"
     description: The region of the registry
+  platform:
+    required: false
+    default: "x86_64"
+    description: The platform to build for
 
 runs:
   using: "composite"
@@ -53,6 +57,7 @@ runs:
         WTT_01_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
         ENVIRONMENT: ${{inputs.environment}}
         DOCKER_IMAGE: ${{ inputs.docker_image }}
+        PLATFORM: ${{ inputs.platform }}
       shell: bash
       run: |
         git submodule update --init
