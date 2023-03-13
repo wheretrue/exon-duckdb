@@ -13,7 +13,7 @@ lambda_client = boto3.client("lambda")
 
 if __name__ == "__main__":
     name = "wtt01"
-    version = "0.1.28.dev2"
+    version = "0.1.28"
     handler = "WTTArtifactHandler"
 
     environment = os.environ["ENVIRONMENT"]
