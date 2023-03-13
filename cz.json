@@ -5,6 +5,7 @@
     "tag_format": "v$version",
     "version_files": [
       "./CMakeLists.txt",
+      "./Makefile",
       "./bin/upload-artifacts.py",
       "./src/wtt01_functions.cpp",
       "./wtt01_python/wtt01/__about__.py",

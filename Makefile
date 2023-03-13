@@ -29,17 +29,6 @@ pull:
 	git submodule init
 	git submodule update --recursive --remote
 
-clean:
-	rm -rf build
-	rm -rf testext
-	cd duckdb && make clean
-
-# Main build
-debug:
-	mkdir -p  build/debug && \
-	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Debug ${BUILD_FLAGS} -S ./duckdb/ -B build/debug && \
-	cmake --build build/debug --config Debug
-
 release:
 	mkdir -p build/release && \
 	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
@@ -67,3 +56,10 @@ r:
 	mv wtt01r*tar.gz r-dist/
 	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIORNMENT)/R/
 	rm -rf r-dist
+
+
+docker-release:
+	DOCKER_IMAGE=public.ecr.aws/p3a4z1t3/wtt01:latest PLATFORM=${PLATFORM} CHECK_LICENSE=1 docker compose build wtt01
+	docker tag public.ecr.aws/p3a4z1t3/wtt01:latest public.ecr.aws/p3a4z1t3/wtt01:v0.1.28
+	docker push public.ecr.aws/p3a4z1t3/wtt01:latest
+	docker push public.ecr.aws/p3a4z1t3/wtt01:v0.1.28
