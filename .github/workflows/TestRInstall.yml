@@ -1,0 +1,45 @@
+name: Test R Installs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        r: [4.2.2]
+    steps:
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r }}
+          http-user-agent: "GitHub Action"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install wtt01
+      - name: wtt01 smoke Test
+        env:
+          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
+        shell: Rscript -e {0}
+        run: |
+          url <- "https://wtt01.wheretrue.com/R/wtt01r_latest.tar.gz"
+
+          install.packages("duckdb")
+          install.packages(url, repos = NULL, type = "source")
+
+          library(wtt01r)
+          library(DBI)
+
+          con <- wtt01r::get_connection()
+
+          df <- DBI::dbGetQuery(con, "SELECT gc_content('ATCG') AS gc")
+          print(df)
