@@ -10,6 +10,7 @@ RUN apt-get install -y -qq software-properties-common && \
         apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget
 
 ARG PLATFORM
+ENV PLATFORM=${PLATFORM}
 RUN wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-${PLATFORM}.sh && \
         chmod +x cmake.sh && \
         ./cmake.sh --skip-license --prefix=/usr/local && \

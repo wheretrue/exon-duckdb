@@ -51,6 +51,24 @@ runs:
         AWS_DEFAULT_REGION: ${{ inputs.registry_region }}}
       with:
         registry-type: ${{ inputs.registry_type }}
+    - name: Echo inputs.
+      shell: bash
+      run: |
+        echo "REGISTRY: $REGISTRY"
+        echo "REPOSITORY: $REPOSITORY"
+        echo "CHECK_LICENSE: $CHECK_LICENSE"
+        echo "WTT_01_LICENSE_SERVER_URL: $WTT_01_LICENSE_SERVER_URL"
+        echo "ENVIRONMENT: $ENVIRONMENT"
+        echo "DOCKER_IMAGE: $DOCKER_IMAGE"
+        echo "PLATFORM: $PLATFORM"
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: ${{ inputs.repository }}
+        CHECK_LICENSE: ${{ inputs.check_license }}
+        WTT_01_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
+        ENVIRONMENT: ${{inputs.environment}}
+        DOCKER_IMAGE: ${{ inputs.docker_image }}
+        PLATFORM: ${{ inputs.platform }}
     - name: Build, tag, and push docker image to Amazon ECR
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -62,6 +80,5 @@ runs:
         PLATFORM: ${{ inputs.platform }}
       shell: bash
       run: |
-        git submodule update --init
         docker compose build wtt01
         docker compose push wtt01

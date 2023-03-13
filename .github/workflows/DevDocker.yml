@@ -17,18 +17,18 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        arch: ["linux_amd64", "linux_arm64"]
+        arch: ["linux_amd64"]
+        # arch: ["linux_amd64", "linux_arm64"]
         include:
           - arch: "linux_amd64"
-            container: "ubuntu:18.04"
             platform: "x86_64"
-          - arch: "linux_arm64"
-            container: "ubuntu:18.04"
-            platform: "aarch64"
-    container: ${{ matrix.container }}
+          # - arch: "linux_arm64"
+          #   platform: "aarch64"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Build docker image
         uses: ./.github/actions/build_docker_image
         with:
