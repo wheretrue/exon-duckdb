@@ -7,11 +7,12 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python
 RUN apt-get install -y -qq software-properties-common && \
         add-apt-repository ppa:git-core/ppa && \
         apt-get update -y -qq && \
-        apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client ccache git
+        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget
 
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh && \
-        chmod +x cmake-3.25.2-linux-x86_64.sh && \ 
-        ./cmake-3.25.2-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+ARG PLATFORM
+RUN wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-${PLATFORM}.sh && \
+        chmod +x cmake.sh && \
+        ./cmake.sh --skip-license --prefix=/usr/local && \
         cmake --version
 
 RUN curl https://sh.rustup.rs -sSf > rustup.sh && \

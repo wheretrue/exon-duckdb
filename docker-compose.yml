@@ -9,6 +9,7 @@ services:
       args:
         CHECK_LICENSE: ${CHECK_LICENSE:-0}
         WTT_01_LICENSE_SERVER_URL: ${WTT_01_LICENSE_SERVER_URL:-https://api.wheretrue.com}
+        PLATFORM: ${PLATFORM:-x86_64}
     image: ${DOCKER_IMAGE:-wtt-01-release-with-deb-info}
     environment:
       WTT_01_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
