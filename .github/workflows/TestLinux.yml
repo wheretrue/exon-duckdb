@@ -33,3 +33,4 @@ jobs:
           con.execute("SELECT gc_content('ATCG') as value;");
           res = con.fetchall()
           assert res[0][0] == .5
+          print(res)
