@@ -30,4 +30,6 @@ jobs:
         run: |
           import wtt01
           con = wtt01.get_connection()
-          print(con)
+          con.execute("SELECT gc_content('ATCG') as value;");
+          res = con.fetchall()
+          assert res[0][0] == .5
