@@ -2,8 +2,6 @@ name: Build Docker Dev Image
 
 on:
   push:
-    branches:
-      - "main"
     tags:
       - "v*dev*"
 
