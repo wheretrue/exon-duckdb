@@ -93,3 +93,12 @@ jobs:
       - name: Upload wheels to S3
         shell: bash
         run: aws s3 cp dist/*.tar.gz s3://wtt-01-dist-${{ env.ENVIRONMENT }}/R/
+
+      - name: Copy rdist version tar.gz to a 'latest' version
+        shell: bash
+        run: |
+          cd r-dist
+          LATEST_VERSION=$(ls -t *.tar.gz | head -1)
+          LATEST_VERSION=${LATEST_VERSION%.tar.gz}
+          cp $LATEST_VERSION.tar.gz wtt01r_latest.tar.gz
+          aws s3 cp wtt01r_latest.tar.gz s3://wtt-01-dist-${{ env.ENVIRONMENT }}/R/
