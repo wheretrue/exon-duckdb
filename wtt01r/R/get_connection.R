@@ -26,7 +26,7 @@ download_extension <- function(con) {
   operating_system <- sys_info["sysname"]
 
   architecture <- sys_info["machine"]
-  if (operating_system == "Windows" && architecture == "x86_64") {
+  if (operating_system == "Windows" && architecture == "x86-64") {
     architecture <- "AMD64"
   }
 
@@ -48,7 +48,6 @@ download_extension <- function(con) {
     filename
   )
 
-  print(full_s3_path)
   temp_dir <- tempdir()
   temp_file <- tempfile(tmpdir = temp_dir)
   download.file(full_s3_path, temp_file, method = "auto")
