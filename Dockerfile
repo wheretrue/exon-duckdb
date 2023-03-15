@@ -40,4 +40,4 @@ COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
 COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
 
 WORKDIR /tmp
-ENTRYPOINT ["/usr/local/bin/duckdb"]
+ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
