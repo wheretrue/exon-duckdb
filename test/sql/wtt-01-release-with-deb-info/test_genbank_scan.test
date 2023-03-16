@@ -2,10 +2,12 @@ statement ok
 LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
 
 
-query I
-SELECT sequence[:5] AS seq FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb') LIMIT 1;
+query III
+SELECT sequence[:5] AS seq, accession, topology FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb') LIMIT 1;
 ----
 gttaa
+NC_021938
+circular
 
 
 query I
