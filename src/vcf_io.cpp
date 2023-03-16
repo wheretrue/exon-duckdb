@@ -36,6 +36,8 @@ namespace wtt01
         int n_sample;
 
         std::vector<std::string> tags;
+        std::vector<uint32_t> format_field_types;
+        std::vector<uint32_t> format_field_lengths;
     };
 
     struct VCFRecordScanLocalState : public duckdb::LocalTableFunctionState
@@ -121,8 +123,6 @@ namespace wtt01
         std::vector<uint32_t> info_field_types;
         std::vector<uint32_t> info_field_lengths;
 
-        std::vector<std::string> genotype_int_tags;
-
         duckdb::child_list_t<duckdb::LogicalType> info_children;
         for (int i = 0; i < n; i++)
         {
@@ -200,6 +200,9 @@ namespace wtt01
         duckdb::child_list_t<duckdb::LogicalType> format_children;
         std::vector<std::string> tags;
 
+        std::vector<uint32_t> format_field_types;
+        std::vector<uint32_t> format_field_lengths;
+
         for (int i = 0; i < n; i++)
         {
             auto bb = bcf_hdr_idinfo_exists(header, BCF_HL_FMT, i);
@@ -217,6 +220,9 @@ namespace wtt01
             auto number = bcf_hdr_id2number(header, BCF_HL_FMT, i);
             auto bcf_type = bcf_hdr_id2type(header, BCF_HL_FMT, i);
             auto coltype = bcf_hdr_id2coltype(header, BCF_HL_FMT, i);
+
+            format_field_types.push_back(bcf_type);
+            format_field_lengths.push_back(number);
 
             if (bcf_type == BCF_HT_FLAG)
             {
@@ -261,10 +267,12 @@ namespace wtt01
             }
         }
 
-        result->tags = tags;
-
         names.push_back("genotypes");
         return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(format_children)));
+
+        result->tags = tags;
+        result->format_field_types = format_field_types;
+        result->format_field_lengths = format_field_lengths;
 
         return move(result);
     }
@@ -315,6 +323,8 @@ namespace wtt01
         auto info_field_lengths = bind_data->info_field_lengths;
 
         auto genotype_tags = bind_data->tags;
+        auto genotype_field_types = bind_data->format_field_types;
+        auto genotype_field_lengths = bind_data->format_field_lengths;
 
         bcf1_t *record = bcf_init();
 
