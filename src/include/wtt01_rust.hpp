@@ -243,6 +243,10 @@ struct WTFloatValue {
   bool is_null;
 };
 
+struct GenbankReader {
+  void *inner_reader;
+};
+
 extern "C" {
 
 BamRecordReaderC bam_record_new_reader(const char *filename, const char *compression);
@@ -385,5 +389,11 @@ float info_field_float(WTField *wt_field);
 const char *info_field_string(WTField *wt_field);
 
 bool info_field_bool(WTField *wt_field);
+
+GenbankReader genbank_new(const char *filename);
+
+void genbank_free(GenbankReader reader);
+
+char *genbank_next(const GenbankReader *reader);
 
 } // extern "C"

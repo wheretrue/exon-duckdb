@@ -8,14 +8,16 @@
 
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
 
-#include "vcf_io.hpp"
 #include "fasta_io.hpp"
 #include "fastq_io.hpp"
+#include "genbank_io.hpp"
 #include "gff_io.hpp"
 #include "hmm_io.hpp"
 #include "sam_io.hpp"
-#include "wtt01_functions.hpp"
 #include "sequence_functions.hpp"
+#include "vcf_io.hpp"
+#include "wtt01_functions.hpp"
+
 #include "check_license.hpp"
 
 namespace duckdb
@@ -76,6 +78,9 @@ namespace duckdb
 
         auto fastq_copy = wtt01::FastqFunctions::GetFastqCopyFunction();
         catalog.CreateCopyFunction(context, fastq_copy.get());
+
+        auto genbank_table = wtt01::GenbankFunctions::GetGenbankTableFunction();
+        catalog.CreateTableFunction(context, genbank_table.get());
 
         config.replacement_scans.emplace_back(wtt01::FastqFunctions::GetFastqReplacementScanFunction);
 

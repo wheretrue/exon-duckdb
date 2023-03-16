@@ -74,6 +74,7 @@ set(EXTENSION_SOURCES
   src/fasta_io.cpp
   src/fastq_io.cpp
   src/gff_io.cpp
+  src/genbank_io.cpp
   src/hmm_io.cpp
   src/sam_cigar_parse.cpp
   src/sam_io.cpp

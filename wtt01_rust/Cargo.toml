@@ -13,6 +13,9 @@ name = "wtt01_rust"
 
 [dependencies]
 
+[dependencies.gb-io]
+version = "0.7.1"
+
 [dependencies.noodles]
 features = ["fasta", "fastq", "gff", "core", "sam", "bam", "vcf"]
 version = "0.31.1"
