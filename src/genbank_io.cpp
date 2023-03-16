@@ -56,6 +56,48 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         names.push_back("sequence");
 
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("accession");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("comments");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("contig");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("date");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("dblink");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("definition");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("division");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("keywords");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("molecule_type");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("name");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("titles");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("source");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("version");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("topology");
+
         return move(result);
     }
 
@@ -95,13 +137,140 @@ namespace wtt01
         {
             auto record = genbank_next(&bind_data->reader);
 
-            if (record == nullptr)
+            if (record.seq == nullptr)
             {
                 local_state->done = true;
                 break;
             }
 
-            output.SetValue(0, output.size(), duckdb::Value(record));
+            output.SetValue(0, output.size(), duckdb::Value(record.seq));
+
+            if (record.accession == nullptr)
+            {
+                output.SetValue(1, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(1, output.size(), duckdb::Value(record.accession));
+            }
+
+            if (record.comments == nullptr)
+            {
+                output.SetValue(2, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(2, output.size(), duckdb::Value(record.comments));
+            }
+
+            if (record.contig == nullptr)
+            {
+                output.SetValue(3, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(3, output.size(), duckdb::Value(record.contig));
+            }
+
+            if (record.date == nullptr)
+            {
+                output.SetValue(4, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(4, output.size(), duckdb::Value(record.date));
+            }
+
+            if (record.dblink == nullptr)
+            {
+                output.SetValue(5, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(5, output.size(), duckdb::Value(record.dblink));
+            }
+
+            if (record.definition == nullptr)
+            {
+                output.SetValue(6, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(6, output.size(), duckdb::Value(record.definition));
+            }
+
+            if (record.division == nullptr)
+            {
+                output.SetValue(7, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(7, output.size(), duckdb::Value(record.division));
+            }
+
+            if (record.keywords == nullptr)
+            {
+                output.SetValue(8, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(8, output.size(), duckdb::Value(record.keywords));
+            }
+
+            if (record.molecule_type == nullptr)
+            {
+                output.SetValue(9, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(9, output.size(), duckdb::Value(record.molecule_type));
+            }
+
+            if (record.name == nullptr)
+            {
+                output.SetValue(10, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(10, output.size(), duckdb::Value(record.name));
+            }
+
+            if (record.titles == nullptr)
+            {
+                output.SetValue(11, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(11, output.size(), duckdb::Value(record.titles));
+            }
+
+            if (record.source == nullptr)
+            {
+                output.SetValue(12, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(12, output.size(), duckdb::Value(record.source));
+            }
+
+            if (record.version == nullptr)
+            {
+                output.SetValue(13, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(13, output.size(), duckdb::Value(record.version));
+            }
+
+            if (record.topology == nullptr)
+            {
+                output.SetValue(14, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(14, output.size(), duckdb::Value(record.topology));
+            }
+
             output.SetCardinality(output.size() + 1);
         }
     }

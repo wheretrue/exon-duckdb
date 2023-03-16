@@ -247,6 +247,24 @@ struct GenbankReader {
   void *inner_reader;
 };
 
+struct GenbankRecord {
+  char *seq;
+  char *accession;
+  char *comments;
+  char *contig;
+  char *date;
+  char *dblink;
+  char *definition;
+  char *division;
+  char *keywords;
+  char *molecule_type;
+  char *name;
+  char *titles;
+  char *source;
+  char *version;
+  char *topology;
+};
+
 extern "C" {
 
 BamRecordReaderC bam_record_new_reader(const char *filename, const char *compression);
@@ -394,6 +412,6 @@ GenbankReader genbank_new(const char *filename);
 
 void genbank_free(GenbankReader reader);
 
-char *genbank_next(const GenbankReader *reader);
+GenbankRecord genbank_next(const GenbankReader *reader);
 
 } // extern "C"
