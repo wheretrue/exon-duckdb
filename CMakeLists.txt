@@ -13,15 +13,18 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
+  execute_process(COMMAND brew --prefix htslib OUTPUT_VARIABLE HTSLIB_PREFIX)
+  string(STRIP ${HTSLIB_PREFIX} HTSLIB_ROOT_DIR)
+
+  include_directories(${HTSLIB_ROOT_DIR}/include)
+  link_directories(${HTSLIB_ROOT_DIR}/lib)
+
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 elseif(WIN32)
-
-  # set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64")
-  # set(OPENSSL_USE_STATIC_LIBS TRUE)
 endif()
 
 find_package(OpenSSL REQUIRED)
@@ -65,7 +68,7 @@ include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
 message("-- wtt: Found ${CMAKE_CURRENT_BINARY_DIR}/htslib/include")
-include_directories(/Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/include)
+# include_directories(/Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/include)
 
 include_directories(src/include)
 set(EXTENSION_SOURCES
@@ -100,7 +103,6 @@ target_link_libraries(${EXTENSION_NAME}
   ${OPENSSL_LIBRARIES}
   /opt/homebrew/opt/htslib/lib/libhts.a
   -lz -lm -lbz2 -llzma -lcurl
-  # /Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/lib/libhts.dylib
 )
 endif()
 
