@@ -7,6 +7,7 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 #include <duckdb/function/table/read_csv.hpp>
 
+#include <nlohmann/json.hpp>
 #include "genbank_io.hpp"
 #include "wtt01_rust.hpp"
 
@@ -97,6 +98,9 @@ namespace wtt01
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         names.push_back("topology");
+
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        names.push_back("features");
 
         return move(result);
     }
@@ -269,6 +273,16 @@ namespace wtt01
             else
             {
                 output.SetValue(14, output.size(), duckdb::Value(record.topology));
+            }
+
+            auto feature_json = record.features_json;
+            if (feature_json == nullptr)
+            {
+                output.SetValue(15, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(15, output.size(), duckdb::Value(feature_json));
             }
 
             output.SetCardinality(output.size() + 1);

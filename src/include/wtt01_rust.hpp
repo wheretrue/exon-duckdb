@@ -263,6 +263,7 @@ struct GenbankRecord {
   char *source;
   char *version;
   char *topology;
+  char *features_json;
 };
 
 extern "C" {

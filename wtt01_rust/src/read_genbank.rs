@@ -5,6 +5,7 @@ use std::{
 };
 
 use gb_io::{reader::SeqReader, seq::Seq};
+use serde::Serialize;
 
 #[repr(C)]
 pub struct GenbankReader {
@@ -38,6 +39,19 @@ pub unsafe extern "C" fn genbank_free(reader: GenbankReader) {
     let _ = Box::from_raw(reader.inner_reader as *mut SeqReader<Box<dyn BufRead>>);
 }
 
+#[derive(Serialize)]
+pub struct Qualifier {
+    pub key: String,
+    pub value: Option<String>,
+}
+
+#[derive(Serialize)]
+pub struct WTFeature {
+    pub kind: String,
+    pub location: String,
+    pub qualifiers: Vec<Qualifier>,
+}
+
 #[repr(C)]
 pub struct GenbankRecord {
     pub seq: *mut c_char,
@@ -55,6 +69,7 @@ pub struct GenbankRecord {
     pub source: *mut c_char,
     pub version: *mut c_char,
     pub topology: *mut c_char,
+    pub features_json: *mut c_char,
 }
 
 impl GenbankRecord {
@@ -75,12 +90,40 @@ impl GenbankRecord {
             source: std::ptr::null_mut(),
             version: std::ptr::null_mut(),
             topology: std::ptr::null_mut(),
+            features_json: std::ptr::null_mut(),
         }
     }
 
     pub fn from_seqrecord(record: Seq) -> GenbankRecord {
         let seq = record.seq;
         let seq = std::ffi::CString::new(seq).unwrap();
+
+        let features: Vec<WTFeature> = record
+            .features
+            .iter()
+            .map(|f| {
+                let kind = f.kind.to_string();
+                let location = f.location.to_string();
+
+                let qualifiers = f
+                    .qualifiers
+                    .iter()
+                    .map(|(key, value)| Qualifier {
+                        key: key.to_string(),
+                        value: value.to_owned(),
+                    })
+                    .collect::<Vec<Qualifier>>();
+
+                WTFeature {
+                    kind,
+                    location,
+                    qualifiers,
+                }
+            })
+            .collect();
+
+        let features_json = serde_json::to_string(&features).unwrap();
+        let feature_json = std::ffi::CString::new(features_json).unwrap();
 
         let accession = record.accession;
         let accession = if let Some(accession) = accession {
@@ -178,6 +221,7 @@ impl GenbankRecord {
             version: version.into_raw(),
             topology: top.into_raw(),
             seq: seq.into_raw(),
+            features_json: feature_json.into_raw(),
         }
     }
 }
