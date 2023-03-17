@@ -78,11 +78,11 @@ namespace duckdb
 
         auto fastq_copy = wtt01::FastqFunctions::GetFastqCopyFunction();
         catalog.CreateCopyFunction(context, fastq_copy.get());
+        config.replacement_scans.emplace_back(wtt01::FastqFunctions::GetFastqReplacementScanFunction);
 
         auto genbank_table = wtt01::GenbankFunctions::GetGenbankTableFunction();
         catalog.CreateTableFunction(context, genbank_table.get());
-
-        config.replacement_scans.emplace_back(wtt01::FastqFunctions::GetFastqReplacementScanFunction);
+        config.replacement_scans.emplace_back(wtt01::GenbankFunctions::GetGenbankReplacementScanFunction);
 
         auto gff_scan = wtt01::GFFunctions::GetGffTableFunction();
         catalog.CreateTableFunction(context, gff_scan.get());

@@ -14,3 +14,8 @@ query I
 SELECT COUNT(*) FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb');
 ----
 2
+
+query I
+SELECT COUNT(*) FROM './test/sql/wtt-01-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb';
+----
+2

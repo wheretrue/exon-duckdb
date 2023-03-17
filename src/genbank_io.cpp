@@ -296,4 +296,30 @@ namespace wtt01
         duckdb::CreateTableFunctionInfo genbank_table_function_info(genbank_table_function);
         return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(genbank_table_function_info);
     }
+
+    duckdb::unique_ptr<duckdb::TableRef> GenbankFunctions::GetGenbankReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data)
+    {
+        auto table_function = duckdb::make_unique<duckdb::TableFunctionRef>();
+
+        auto valid_fasta_filename = duckdb::StringUtil::EndsWith(table_name, ".genbank") || duckdb::StringUtil::EndsWith(table_name, ".gb");
+
+        if (!valid_fasta_filename)
+        {
+            return nullptr;
+        };
+
+        auto &fs = duckdb::FileSystem::GetFileSystem(context);
+
+        if (!(fs.FileExists(table_name)))
+        {
+            return nullptr;
+        };
+
+        std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
+        children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
+
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_genbank", move(children));
+
+        return table_function;
+    }
 }
