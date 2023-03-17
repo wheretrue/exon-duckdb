@@ -68,6 +68,14 @@ tableFunctions:
       - name: "filepath"
         type: "string"
         description: "The path to the GenBank file."
+      - name: "compression"
+        type: "string"
+        description: "The compression type of the GenBank file. Inferred from the file name if a value is not provided."
+        default: "none"
+        allowedValues:
+          - "none"
+          - "gzip"
+          - "zstd"
     schema:
       - name: "sequence"
         type: "string"

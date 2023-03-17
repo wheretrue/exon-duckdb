@@ -4,34 +4,79 @@ use std::{
     path::Path,
 };
 
+use flate2::read::GzDecoder;
 use gb_io::{reader::SeqReader, seq::Seq};
 use serde::Serialize;
 
 #[repr(C)]
 pub struct GenbankReader {
     inner_reader: *mut c_void,
+    error: *const c_char,
 }
 
-pub fn build_from_path<P>(src: P) -> std::io::Result<SeqReader<Box<dyn BufRead>>>
+pub fn build_from_path<P>(src: P, compression: &str) -> std::io::Result<SeqReader<Box<dyn BufRead>>>
 where
     P: AsRef<Path>,
 {
     let src = src.as_ref();
     let file = std::fs::File::open(src)?;
-    let reader = Box::new(BufReader::new(file)) as Box<dyn BufRead>;
+    // let reader = Box::new(BufReader::new(file)) as Box<dyn BufRead>;
+
+    let reader = match compression {
+        "gzip" => {
+            let decoder = GzDecoder::new(file);
+            Box::new(BufReader::new(decoder)) as Box<dyn BufRead>
+        }
+        "zstd" => {
+            let decoder = zstd::stream::read::Decoder::new(file)?;
+            Box::new(BufReader::new(decoder)) as Box<dyn BufRead>
+        }
+        _ => {
+            // match based on the extension.
+            let extension = src.extension().unwrap().to_str().unwrap();
+            match extension {
+                "gz" => {
+                    let decoder = GzDecoder::new(file);
+                    Box::new(BufReader::new(decoder)) as Box<dyn BufRead>
+                }
+                "zst" => {
+                    let decoder = zstd::stream::read::Decoder::new(file)?;
+                    Box::new(BufReader::new(decoder)) as Box<dyn BufRead>
+                }
+                _ => Box::new(BufReader::new(file)) as Box<dyn BufRead>,
+            }
+        }
+    };
 
     Ok(SeqReader::new(reader))
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn genbank_new(filename: *const c_char) -> GenbankReader {
+pub unsafe extern "C" fn genbank_new(
+    filename: *const c_char,
+    compression: *const c_char,
+) -> GenbankReader {
     let filename = CStr::from_ptr(filename).to_str().unwrap();
+    let compression = CStr::from_ptr(compression).to_str().unwrap();
 
-    let reader = build_from_path(filename).unwrap();
+    let reader = build_from_path(filename, compression);
+    match reader {
+        Ok(reader) => {
+            let inner_reader = Box::into_raw(Box::new(reader));
 
-    return GenbankReader {
-        inner_reader: Box::into_raw(Box::new(reader)) as *mut c_void,
-    };
+            return GenbankReader {
+                inner_reader: inner_reader as *mut c_void,
+                error: std::ptr::null(),
+            };
+        }
+        Err(e) => {
+            let error = Box::into_raw(Box::new(e.to_string()));
+            return GenbankReader {
+                inner_reader: std::ptr::null_mut(),
+                error: error as *const c_char,
+            };
+        }
+    }
 }
 
 #[no_mangle]

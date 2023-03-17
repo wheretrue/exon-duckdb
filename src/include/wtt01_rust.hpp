@@ -245,6 +245,7 @@ struct WTFloatValue {
 
 struct GenbankReader {
   void *inner_reader;
+  const char *error;
 };
 
 struct GenbankRecord {
@@ -409,7 +410,7 @@ const char *info_field_string(WTField *wt_field);
 
 bool info_field_bool(WTField *wt_field);
 
-GenbankReader genbank_new(const char *filename);
+GenbankReader genbank_new(const char *filename, const char *compression);
 
 void genbank_free(GenbankReader reader);
 

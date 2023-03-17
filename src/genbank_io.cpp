@@ -51,7 +51,19 @@ namespace wtt01
 
         result->file_path = file_name;
 
-        auto reader = genbank_new(result->file_path.c_str());
+        for (auto &kv : input.named_parameters)
+        {
+            if (kv.first == "compression")
+            {
+                result->options.compression = kv.second.GetValue<std::string>();
+            }
+            else
+            {
+                throw duckdb::Exception("Unknown parameter: " + kv.first);
+            }
+        }
+
+        auto reader = genbank_new(result->file_path.c_str(), result->options.compression.c_str());
         result->reader = reader;
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
@@ -292,6 +304,7 @@ namespace wtt01
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GenbankFunctions::GetGenbankTableFunction()
     {
         auto genbank_table_function = duckdb::TableFunction("read_genbank", {duckdb::LogicalType::VARCHAR}, GenbankScan, GenbankBind, GenbankInitGlobalState, GenbankInitLocalState);
+        genbank_table_function.named_parameters["compression"] = duckdb::LogicalType::VARCHAR;
 
         duckdb::CreateTableFunctionInfo genbank_table_function_info(genbank_table_function);
         return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(genbank_table_function_info);
