@@ -60,3 +60,9 @@ SELECT count(*) FROM './test/sql/wtt-01-release-with-deb-info/test.fastq.zst';
 
 statement error
 SELECT count(*) FROM read_fastq('');
+
+# Test glob functionality
+query I
+SELECT COUNT(*) FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/*.fastq') LIMIT 1;
+----
+4

@@ -20,7 +20,9 @@ namespace wtt01
 
     struct FastaScanBindData : public duckdb::TableFunctionData
     {
-        std::string file_path;
+        std::vector<std::string> file_paths;
+        int nth_file = 0;
+
         FastaScanOptions options;
         FASTAReaderC reader;
     };
@@ -40,15 +42,16 @@ namespace wtt01
                                                        std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
     {
         auto result = duckdb::make_unique<FastaScanBindData>();
-        auto file_name = input.inputs[0].GetValue<std::string>();
 
         auto &fs = duckdb::FileSystem::GetFileSystem(context);
-        if (!fs.FileExists(file_name))
-        {
-            throw duckdb::IOException("File does not exist: " + file_name);
-        }
+        auto glob = input.inputs[0].GetValue<std::string>();
 
-        result->file_path = file_name;
+        std::vector<std::string> glob_result = fs.Glob(glob);
+        if (glob_result.size() == 0)
+        {
+            throw duckdb::IOException("No files found for glob: " + glob);
+        }
+        result->file_paths = glob_result;
 
         for (auto &kv : input.named_parameters)
         {
@@ -62,7 +65,7 @@ namespace wtt01
             }
         };
 
-        auto reader = fasta_new(result->file_path.c_str(), result->options.compression.c_str());
+        auto reader = fasta_new(result->file_paths[0].c_str(), result->options.compression.c_str());
         result->reader = reader;
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
@@ -99,9 +102,8 @@ namespace wtt01
 
     void FastaScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
     {
-        auto bind_data = (const FastaScanBindData *)data.bind_data;
+        auto bind_data = (FastaScanBindData *)data.bind_data;
         auto local_state = (FastaScanLocalState *)data.local_state;
-        // auto gstate = (FastaScanGlobalState *)data.global_state;
 
         if (local_state->done)
         {
@@ -112,14 +114,21 @@ namespace wtt01
 
         while (output.size() < STANDARD_VECTOR_SIZE)
         {
-            // Record record = fasta_next(&bind_data->reader);
-
             fasta_next(&bind_data->reader, &record);
 
             if (record.done == true)
             {
-                local_state->done = true;
-                break;
+                if (bind_data->nth_file + 1 < bind_data->file_paths.size())
+                {
+                    bind_data->nth_file += 1;
+                    bind_data->reader = fasta_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
+                    continue;
+                }
+                else
+                {
+                    local_state->done = true;
+                    break;
+                }
             }
 
             output.SetValue(0, output.size(), duckdb::Value(record.id));

@@ -189,7 +189,7 @@ tableFunctions:
     arguments:
       - name: "filepath"
         type: "string"
-        description: "The path to the FASTQ file."
+        description: "The path to the FASTQ file. This can also be a glob, e.g. './*.fasta'"
       - name: "compression"
         type: "string"
         description: "The compression type of the FASTQ file. Inferred from the file name if a value is not provided."
@@ -214,6 +214,8 @@ tableFunctions:
     examples:
       - example: "SELECT * FROM 'path/to/file.fastq';"
         description: "Read a FASTQ file and return a table with the results using the default compression type."
+      - example: "SELECT * FROM 'path/to/*.fastq';"
+        description: "Read all the FASTQ files in `path/to`."
       - example: "SELECT * FROM 'path/to/file.fastq.gz';"
         description: "Read a FASTQ file and return a table with the results using the gzip compression type. This is inferred from the file name."
       - example: "SELECT * FROM read_fastq('path/to/file.fastq.gz', 'gzip');"
@@ -235,7 +237,7 @@ tableFunctions:
     arguments:
       - name: "filepath"
         type: "string"
-        description: "The path to the FASTA file."
+        description: "The path to the FASTA file. This can also be a UNIX style glob."
       - name: "compression"
         type: "string"
         description: "The compression type of the FASTA file. Inferred from the file name if a value is not provided."
@@ -257,6 +259,8 @@ tableFunctions:
     examples:
       - example: "SELECT * FROM 'path/to/file.fasta';"
         description: "Read a FASTA file and return a table with the results using the default compression type."
+      - example: "SELECT * FROM 'path/to/*.fasta';"
+        description: "Read all the FASTAs in the `path/to` path."
       - example: "SELECT * FROM 'path/to/file.fasta.gz';"
         description: "Read a FASTA file and return a table with the results using the gzip compression type. This is inferred from the file name."
       - example: "SELECT * FROM read_fasta('path/to/file.fasta.gz', 'gzip');"

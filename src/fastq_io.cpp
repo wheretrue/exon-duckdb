@@ -18,7 +18,9 @@ namespace wtt01
 
     struct FastqScanBindData : public duckdb::TableFunctionData
     {
-        std::string file_path;
+        std::vector<std::string> file_paths;
+        int nth_file = 0;
+
         FastqScanOptions options;
         FASTQReaderC reader;
     };
@@ -38,15 +40,16 @@ namespace wtt01
                                                        std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
     {
         auto result = duckdb::make_unique<FastqScanBindData>();
-        auto file_name = input.inputs[0].GetValue<std::string>();
 
         auto &fs = duckdb::FileSystem::GetFileSystem(context);
-        if (!fs.FileExists(file_name))
-        {
-            throw duckdb::IOException("File does not exist: " + file_name);
-        }
+        auto glob = input.inputs[0].GetValue<std::string>();
 
-        result->file_path = file_name;
+        auto glob_result = fs.Glob(glob);
+        if (glob_result.empty())
+        {
+            throw std::runtime_error("No files found for glob: " + glob);
+        }
+        result->file_paths = glob_result;
 
         for (auto &kv : input.named_parameters)
         {
@@ -60,7 +63,7 @@ namespace wtt01
             }
         };
 
-        auto reader = fastq_new(result->file_path.c_str(), result->options.compression.c_str());
+        auto reader = fastq_new(result->file_paths[0].c_str(), result->options.compression.c_str());
         result->reader = reader;
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
@@ -100,7 +103,7 @@ namespace wtt01
 
     void FastqScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
     {
-        auto bind_data = (const FastqScanBindData *)data.bind_data;
+        auto bind_data = (FastqScanBindData *)data.bind_data;
         auto local_state = (FastqScanLocalState *)data.local_state;
         auto gstate = (FastqScanGlobalState *)data.global_state;
 
@@ -115,8 +118,17 @@ namespace wtt01
 
             if (record.name == NULL)
             {
-                local_state->done = true;
-                break;
+                if (bind_data->nth_file + 1 < bind_data->file_paths.size())
+                {
+                    bind_data->nth_file += 1;
+                    bind_data->reader = fastq_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
+                    continue;
+                }
+                else
+                {
+                    local_state->done = true;
+                    break;
+                }
             }
 
             output.SetValue(0, output.size(), duckdb::Value(record.name));

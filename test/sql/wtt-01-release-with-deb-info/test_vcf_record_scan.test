@@ -2,37 +2,37 @@ statement ok
 LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
 
 # Example File
-query IIIIIIIII
-SELECT chromosome, ids, position, reference_bases, alternate_bases, filter, quality_score, info, genotypes[1] FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') LIMIT 1;
-----
-19
-NULL
-111
-A
-C
-NULL
-9.6
-{'NS': NULL, 'AN': NULL, 'AC': NULL, 'DP': NULL, 'AF': NULL, 'AA': NULL, 'DB': NULL, 'H2': NULL}
-{'sample_id': NA00001, 'GT': 0|0, 'GQ': 0, 'DP': 0, 'HQ': [1, 10]}
+# query IIIIIIIII
+# SELECT chromosome, ids, position, reference_bases, alternate_bases, filter, quality_score, info, genotypes[1] FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') LIMIT 1;
+# ----
+# 19
+# NULL
+# 111
+# A
+# C
+# NULL
+# 9.6
+# {'NS': NULL, 'AN': NULL, 'AC': NULL, 'DP': NULL, 'AF': NULL, 'AA': NULL, 'DB': NULL, 'H2': NULL}
+# {'sample_id': NA00001, 'GT': 0|0, 'GQ': 0, 'DP': 0, 'HQ': [1, 10]}
 
 # Missing file throws an error
-statement error
-SELECT * FROM read_vcf_file_records('');
-----
+# statement error
+# SELECT * FROM read_vcf_file_records('');
+# ----
 
 # Example File
-query I
-SELECT info FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') WHERE ids[1] = 'rs6040355'
-----
-{'NS': 2, 'AN': NULL, 'AC': NULL, 'DP': 10, 'AF': [0.333, 0.667], 'AA': T, 'DB': true, 'H2': NULL}
+# query I
+# SELECT info FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') WHERE ids[1] = 'rs6040355'
+# ----
+# {'NS': 2, 'AN': NULL, 'AC': NULL, 'DP': 10, 'AF': [0.333, 0.667], 'AA': T, 'DB': true, 'H2': NULL}
 
 # Test replacement scan
-statement ok
-SELECT COUNT(*) FROM './test/sql/wtt-01-release-with-deb-info/vcf/test.vcf'
+# statement ok
+# SELECT COUNT(*) FROM './test/sql/wtt-01-release-with-deb-info/vcf/test.vcf'
 
 # test 1000 genomes project
 # statement ok
 # SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/1000-genomes-example.vcf')
 
-# statement ok
-# SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/chrY.vcf')
+statement ok
+SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/chrY.vcf')

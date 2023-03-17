@@ -52,3 +52,15 @@ SELECT count(*) FROM read_fasta('./test/sql/wtt-01-release-with-deb-info/test.fa
 # Test that an error is thrown if the file does not exist
 statement error
 SELECT count(*) FROM read_fasta('');
+
+# Test glob
+query I
+SELECT COUNT(*) FROM read_fasta('./test/sql/wtt-01-release-with-deb-info/*.fasta');
+----
+4
+
+# Test glob
+query I
+SELECT COUNT(*) FROM read_fasta('./test/sql/wtt-01-release-with-deb-info/*.fasta.gz');
+----
+2
