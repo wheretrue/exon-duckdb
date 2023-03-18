@@ -2,37 +2,47 @@ statement ok
 LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
 
 # Example File
-# query IIIIIIIII
-# SELECT chromosome, ids, position, reference_bases, alternate_bases, filter, quality_score, info, genotypes[1] FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') LIMIT 1;
-# ----
-# 19
-# NULL
-# 111
-# A
-# C
-# NULL
-# 9.6
-# {'NS': NULL, 'AN': NULL, 'AC': NULL, 'DP': NULL, 'AF': NULL, 'AA': NULL, 'DB': NULL, 'H2': NULL}
-# {'sample_id': NA00001, 'GT': 0|0, 'GQ': 0, 'DP': 0, 'HQ': [1, 10]}
+query IIIIIIIII
+SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/vcf_meta_meta.vcf');
+----
+1
+NULL
+122
+TC
+[T]
+nan
+NULL
+NULL
+NULL
 
-# Missing file throws an error
-# statement error
-# SELECT * FROM read_vcf_file_records('');
-# ----
 
-# Example File
-# query I
-# SELECT info FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/test.vcf') WHERE ids[1] = 'rs6040355'
-# ----
-# {'NS': 2, 'AN': NULL, 'AC': NULL, 'DP': 10, 'AF': [0.333, 0.667], 'AA': T, 'DB': true, 'H2': NULL}
+query I
+SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf');
+----
+621
 
-# Test replacement scan
-# statement ok
-# SELECT COUNT(*) FROM './test/sql/wtt-01-release-with-deb-info/vcf/test.vcf'
+query IIIIIIIII
+SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
+----
+1
+NULL
+9999918
+G
+[<*>]
+0.0
+NULL
+{'INDEL': false, 'IDV': NULL, 'IMF': NULL, 'DP': 1, 'VDB': NULL, 'RPB': NULL, 'MQB': NULL, 'BQB': NULL, 'MQSB': NULL, 'SGB': NULL, 'MQ0F': 0.0, 'I16': [1.0, 0.0, 0.0, 0.0, 26.0, 676.0, 0.0, 0.0, 60.0, 3600.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'QS': [1.0, 0.0]}
+[{'PL': [0, 3, 26]}]
 
-# test 1000 genomes project
-# statement ok
-# SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/1000-genomes-example.vcf')
-
-statement ok
-SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/chrY.vcf')
+query IIIIIIIII
+SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
+----
+1
+NULL
+9999918
+G
+[<*>]
+0.0
+NULL
+{'INDEL': false, 'IDV': NULL, 'IMF': NULL, 'DP': 1, 'VDB': NULL, 'RPB': NULL, 'MQB': NULL, 'BQB': NULL, 'MQSB': NULL, 'SGB': NULL, 'MQ0F': 0.0, 'I16': [1.0, 0.0, 0.0, 0.0, 26.0, 676.0, 0.0, 0.0, 60.0, 3600.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'QS': [1.0, 0.0]}
+[{'PL': [0, 3, 26]}]

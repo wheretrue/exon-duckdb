@@ -35,6 +35,18 @@ release:
 	cmake --build build/release --config Release --target 'cargo-build_wtt01_rust' && \
 	cmake --build build/release --config Release -j 8
 
+debug:
+	mkdir -p build/debug && \
+	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/debug && \
+	cmake --build build/debug --config Release --target 'cargo-build_wtt01_rust' && \
+	cmake --build build/debug --config Debug -j 8 --target all
+
+test_debug:
+	mkdir -p ./test/sql/tmp/
+	rm -rf ./test/sql/tmp/*
+	./build/debug/test/unittest --test-dir . "[wtt-01-release-with-deb-info]"
+	rm -rf ./test/sql/tmp
+
 release_python: CLIENT_FLAGS=-DBUILD_PYTHON=1 -DBUILD_JSON_EXTENSION=1 -DBUILD_FTS_EXTENSION=1 -DBUILD_TPCH_EXTENSION=1 -DBUILD_VISUALIZER_EXTENSION=1 -DBUILD_TPCDS_EXTENSION=1
 release_python: release
 
