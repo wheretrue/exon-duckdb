@@ -385,7 +385,7 @@ namespace wtt01
 
             auto position = record->pos;
 
-            auto ref_all_unpack_op = bcf_unpack(record, BCF_UN_STR);
+            auto ref_all_unpack_op = bcf_unpack(record, BCF_UN_SHR);
             if (ref_all_unpack_op < 0)
             {
                 throw std::runtime_error("Could not unpack record");
@@ -394,17 +394,9 @@ namespace wtt01
             std::string id = record->d.id;
 
             auto als = record->d.als;
-            // auto als_vec = duckdb::StringUtil::Split(als, '\0');
 
             auto allele = record->d.allele;
             auto n_allele = record->n_allele;
-            // if (n_allele > 2)
-            // {
-            //     throw std::runtime_error("Only biallelic variants are supported");
-            // }
-            // printf("Allele: %s\n", allele[0]);
-            // printf("Allele: %s\n", allele[1]);
-            // printf("N Allele: %d\n", record->n_allele);
 
             output.SetValue(0, output.size(), duckdb::Value(chr_name_str));
 
@@ -427,24 +419,25 @@ namespace wtt01
                 als_vec.push_back(duckdb::Value(allele[i]));
             }
 
-            output.SetValue(4, output.size(), duckdb::Value::LIST(als_vec));
+            output.SetValue(4, output.size(), duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, als_vec));
 
             output.SetValue(5, output.size(), duckdb::Value::FLOAT(record->qual));
 
-            // if (n_filter > 0)
-            // {
-            //     std::vector<duckdb::Value> filter_vec;
-            //     for (int i = 0; i < record->d.n_flt; i++)
-            //     {
-            //         const char *filter_name = bcf_hdr_int2id(header, BCF_DT_ID, record->d.flt[i]);
-            //         filter_vec.push_back(duckdb::Value(std::string(filter_name)));
-            //     }
-            //     output.SetValue(6, output.size(), duckdb::Value::LIST(filter_vec));
-            // }
-            // else
-            // {
-            output.SetValue(6, output.size(), duckdb::Value());
-            // }
+            auto n_filter = record->d.n_flt;
+            if (n_filter > 0)
+            {
+                std::vector<duckdb::Value> filter_vec;
+                for (int i = 0; i < record->d.n_flt; i++)
+                {
+                    const char *filter_name = bcf_hdr_int2id(header, BCF_DT_ID, record->d.flt[i]);
+                    filter_vec.push_back(duckdb::Value(std::string(filter_name)));
+                }
+                output.SetValue(6, output.size(), duckdb::Value::LIST(filter_vec));
+            }
+            else
+            {
+                output.SetValue(6, output.size(), duckdb::Value());
+            }
 
             duckdb::child_list_t<duckdb::Value> struct_values;
 
@@ -486,7 +479,10 @@ namespace wtt01
                         struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
                     }
 
-                    free(field_value);
+                    if (field_value != nullptr)
+                    {
+                        free(field_value);
+                    }
                 }
                 else if (field_type == BCF_HT_FLAG)
                 {
@@ -513,7 +509,10 @@ namespace wtt01
                         struct_values.push_back(std::make_pair(name, duckdb::Value::BOOLEAN(false)));
                     }
 
-                    free(field_value);
+                    if (field_value != nullptr)
+                    {
+                        free(field_value);
+                    }
                 }
                 else if (field_type == BCF_HT_STR)
                 {
@@ -546,7 +545,10 @@ namespace wtt01
                         struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
                     }
 
-                    free(info_value);
+                    if (info_value != nullptr)
+                    {
+                        free(info_value);
+                    }
                 }
                 else if (field_type == BCF_HT_REAL)
                 {
@@ -578,7 +580,10 @@ namespace wtt01
                         struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(duckdb::LogicalType::FLOAT, field_values)));
                     }
 
-                    free(field_value);
+                    if (field_value != nullptr)
+                    {
+                        free(field_value);
+                    }
                 }
             }
 
@@ -695,7 +700,7 @@ namespace wtt01
                             struct_values.push_back(std::make_pair(tag, duckdb::Value()));
                         }
 
-                        free(arr.arr);
+                        // free(arr.arr);
                     }
 
                     if (float_maps.count(tag))
@@ -740,7 +745,7 @@ namespace wtt01
                             struct_values.push_back(std::make_pair(tag, duckdb::Value()));
                         }
 
-                        free(arr.arr);
+                        // free(arr.arr);
                     }
 
                     if (string_maps.count(tag))
@@ -782,7 +787,7 @@ namespace wtt01
 
                                 if (field_values.size() > 0)
                                 {
-                                    struct_values.push_back(std::make_pair(tag, duckdb::Value::LIST(field_values)));
+                                    struct_values.push_back(std::make_pair(tag, duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, field_values)));
                                 }
                                 else
                                 {
@@ -799,7 +804,7 @@ namespace wtt01
                         {
                             if (arr.arr[j] != NULL)
                             {
-                                free(arr.arr[j]);
+                                // free(arr.arr[j]);
                             }
                         }
                     }
