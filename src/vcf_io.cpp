@@ -842,7 +842,7 @@ namespace wtt01
 
         auto table_function = duckdb::make_unique<duckdb::TableFunctionRef>();
 
-        auto valid_vcf_filename = duckdb::StringUtil::EndsWith(table_name, ".vcf") || duckdb::StringUtil::EndsWith(table_name, ".vcf.gz") || duckdb::StringUtil::EndsWith(table_name, ".vcf.zst");
+        auto valid_vcf_filename = duckdb::StringUtil::EndsWith(table_name, ".vcf") || duckdb::StringUtil::EndsWith(table_name, ".vcf.gz") || duckdb::StringUtil::EndsWith(table_name, ".bcf");
 
         if (!valid_vcf_filename)
         {

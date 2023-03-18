@@ -125,9 +125,12 @@ tableFunctions:
       - name: "features"
         type: "string"
         nullable: true
+    examples:
+      - example: "SELECT * FROM 'path/to/file.gb';"
+        description: "Read a GenBank file and return a table with the results using the default compression type."
   - functionName: "read_vcf_file_records"
     functionType: "Table"
-    description: "Read a VCF file and return the records as rows in a table."
+    description: "Read a VCF/BCF/BGzipped-VCF file and return the records as rows in a table."
     arguments:
       - name: "filepath"
         type: "string"
@@ -139,7 +142,7 @@ tableFunctions:
         allowedValues:
           - "none"
           - "gzip"
-          - "zstd"
+          - "bcf"
     schema: &vcf_schema
       - name: "chromosome"
         type: "string"
@@ -154,14 +157,14 @@ tableFunctions:
         type: string
         nullable: false
       - name: "alternate_bases"
-        type: string
+        type: list<str>
         nullable: true
       - name: quality_score
         type: float
         nullable: true
       - name: filter
-        type: "string"
-        nullable: false
+        type: "list<str>"
+        nullable: true
       - name: info
         type: "struct"
         nullable: true
@@ -172,17 +175,13 @@ tableFunctions:
       - example: "SELECT * FROM 'path/to/file.vcf';"
         description: "Read a VCF file and return a table with the results using the default compression type."
       - example: "SELECT * FROM 'path/to/file.vcf.gz';"
-        description: "Read a VCF file and return a table with the results using the gzip compression type. This is inferred from the file name."
-      - example: "SELECT * FROM read_vcf_file_records('path/to/file.vcf.gz', 'gzip');"
-        description: "Read a VCF file and return a table with the results using the gzip compression type. This is explicitly provided."
-      - example: "SELECT * FROM read_vcf_file_records('path/to/file.vcf.zst', 'zstd');"
-        description: "Read a GFF file and return a table with the results using the zstd compression type. This is explicitly provided."
+        description: "Read a VCF file and return a table with the results using the (block-) gzip compression type. This is inferred from the file name."
     replacementScan:
       example: "SELECT * FROM 'path/to/file.vcf';"
       patterns:
         - "*.vcf"
         - "*.vcf.gz"
-        - "*.vcf.zst"
+        - "*.bcf"
   - functionName: "read_fastq"
     functionType: "Table"
     description: "Read a FASTQ file and return a table with the results."
@@ -279,6 +278,9 @@ tableFunctions:
   - functionName: "read_hmm_dom_tbl_out"
     functionType: "Table"
     description: "Read a HMMER3 domtblout file and return a table with the results."
+    examples:
+      - example: "SELECT COUNT(*) FROM read_hmm_dom_tbl_out('test.pfam.hmmout')"
+      - description: "Read a HMMER3 domtblout file and return a table with the results."
     arguments:
       - name: "filepath"
         type: "string"
