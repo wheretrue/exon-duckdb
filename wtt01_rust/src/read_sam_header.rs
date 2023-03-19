@@ -56,11 +56,11 @@ pub unsafe extern "C" fn sam_header_new_reader(
     // TODO: what is .header
 
     // Grab the reference sequences.
-    for reference_sequence in parsed_header.reference_sequences() {
+    for (reference_sequence_name, reference_sequence_value) in parsed_header.reference_sequences() {
         records.push(HeaderRecord {
             record_type: "SQ".to_string(),
             tag: None, // TODO, should be name?
-            value: reference_sequence.1.name().to_string(),
+            value: reference_sequence_name.to_string(),
         });
     }
 
@@ -69,7 +69,7 @@ pub unsafe extern "C" fn sam_header_new_reader(
         records.push(HeaderRecord {
             record_type: "RG".to_string(),
             tag: None, // TODO, should be name?
-            value: read_group.1.id().to_string(),
+            value: read_group.0.to_string(),
         });
     }
 
@@ -78,7 +78,7 @@ pub unsafe extern "C" fn sam_header_new_reader(
         records.push(HeaderRecord {
             record_type: "PG".to_string(),
             tag: None, // TODO, should be name?
-            value: program.1.id().to_string(),
+            value: program.0.to_string(),
         });
     }
 

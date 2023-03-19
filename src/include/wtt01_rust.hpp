@@ -29,6 +29,22 @@ struct BamRecordC {
   int64_t mate_alignment_start;
 };
 
+struct BEDReaderC {
+  void *inner_reader;
+  uint8_t n_columns;
+};
+
+struct BEDRecordC {
+  const char *reference_sequence_name;
+  uintptr_t start;
+  uintptr_t end;
+  const char *name;
+  int64_t score;
+  const char *strand;
+  uintptr_t thick_start;
+  uintptr_t thick_end;
+};
+
 struct FASTAReaderC {
   void *inner_reader;
   const char *error;
@@ -50,6 +66,30 @@ struct FastqRecord {
   const char *description;
   const char *sequence;
   const char *quality_scores;
+};
+
+struct GenbankReader {
+  void *inner_reader;
+  const char *error;
+};
+
+struct GenbankRecord {
+  char *seq;
+  char *accession;
+  char *comments;
+  char *contig;
+  char *date;
+  char *dblink;
+  char *definition;
+  char *division;
+  char *keywords;
+  char *molecule_type;
+  char *name;
+  char *titles;
+  char *source;
+  char *version;
+  char *topology;
+  char *features_json;
 };
 
 struct GFFReaderC {
@@ -123,35 +163,15 @@ struct NoodlesWriter {
   const char *error;
 };
 
-struct GenbankReader {
-  void *inner_reader;
-  const char *error;
-};
-
-struct GenbankRecord {
-  char *seq;
-  char *accession;
-  char *comments;
-  char *contig;
-  char *date;
-  char *dblink;
-  char *definition;
-  char *division;
-  char *keywords;
-  char *molecule_type;
-  char *name;
-  char *titles;
-  char *source;
-  char *version;
-  char *topology;
-  char *features_json;
-};
-
 extern "C" {
 
 BamRecordReaderC bam_record_new_reader(const char *filename, const char *compression);
 
 BamRecordC bam_record_read_records(const BamRecordReaderC *c_reader);
+
+BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
+
+BEDRecordC bed_next(const BEDReaderC *bam_reader, uint8_t n_columns);
 
 FASTAReaderC fasta_new(const char *filename, const char *compression);
 
@@ -168,6 +188,12 @@ FastqRecord fastq_next(const FASTQReaderC *fastq_reader);
 void fastq_free(FASTQReaderC fastq_reader);
 
 void fastq_record_free(FastqRecord record);
+
+GenbankReader genbank_new(const char *filename, const char *compression);
+
+void genbank_free(GenbankReader reader);
+
+GenbankRecord genbank_next(const GenbankReader *reader);
 
 GFFReaderC gff_new(const char *filename, const char *compression);
 
@@ -241,11 +267,5 @@ int32_t gff_writer_write(void *writer,
                          const char *attributes);
 
 void gff_writer_destroy(void *writer);
-
-GenbankReader genbank_new(const char *filename, const char *compression);
-
-void genbank_free(GenbankReader reader);
-
-GenbankRecord genbank_next(const GenbankReader *reader);
 
 } // extern "C"

@@ -16,24 +16,13 @@
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
+#include "bed_io.hpp"
 #include "wtt01_functions.hpp"
 
 #include "check_license.hpp"
 
 namespace duckdb
 {
-
-    inline void Wtt01ScalarFun(DataChunk &args, ExpressionState &state, Vector &result)
-    {
-        auto &name_vector = args.data[0];
-        UnaryExecutor::Execute<string_t, string_t>(
-            name_vector, result, args.size(),
-            [&](string_t name)
-            {
-                return StringVector::AddString(result, "Wtt01 " + name.GetString() + " 🐥");
-                ;
-            });
-    }
 
     static void LoadInternal(DatabaseInstance &instance)
     {
@@ -126,6 +115,12 @@ namespace duckdb
 
         auto get_hmm_scan_function = wtt01::HMMFunctions::GetHMMScanFunction();
         catalog.CreateTableFunction(*con.context, get_hmm_scan_function.get());
+
+        auto get_bed_scan_function = wtt01::BEDFunctions::GetBEDTableFunction();
+        catalog.CreateTableFunction(*con.context, get_bed_scan_function.get());
+
+        auto bed_replacement_scan = wtt01::BEDFunctions::GetBEDReplacementScanFunction;
+        config.replacement_scans.emplace_back(bed_replacement_scan);
 
         con.Commit();
     }

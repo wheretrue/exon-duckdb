@@ -2,9 +2,13 @@ use std::{
     ffi::{c_char, c_void, CStr, CString},
     fs::File,
     io::{BufRead, BufReader},
+    str::FromStr,
 };
 
-use noodles::{bam::Reader, sam::alignment::Record};
+use noodles::{
+    bam::Reader,
+    sam::{alignment::Record, Header},
+};
 
 #[repr(C)]
 pub struct BamRecordC {
@@ -73,11 +77,14 @@ pub unsafe extern "C" fn bam_record_new_reader(
 pub unsafe extern "C" fn bam_record_read_records(c_reader: &BamRecordReaderC) -> BamRecordC {
     let bam_reader_ptr = c_reader.bam_reader as *mut Reader<Box<dyn BufRead>>;
 
+    let header = CStr::from_ptr(c_reader.bam_header).to_str().unwrap();
+    let sam_header = Header::from_str(header).unwrap();
+
     match bam_reader_ptr.as_mut() {
         Some(reader) => {
             let mut record = Record::default();
 
-            let bytes_read_result = reader.read_record(&mut record);
+            let bytes_read_result = reader.read_record(&sam_header, &mut record);
 
             eprintln!("Read bytes: {:?}", bytes_read_result);
             eprintln!("Read record: {:?}", record);

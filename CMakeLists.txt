@@ -66,6 +66,7 @@ set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
   src/check_license.cpp
 
+  src/bed_io.cpp
   src/sequence_functions.cpp
   src/fasta_io.cpp
   src/fastq_io.cpp
