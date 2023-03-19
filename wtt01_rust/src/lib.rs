@@ -11,6 +11,4 @@ pub mod write_fasta;
 pub mod write_fastq;
 pub mod write_gff;
 
-pub mod vcf_reader;
-
 pub mod read_genbank;
