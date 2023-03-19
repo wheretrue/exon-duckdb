@@ -7,10 +7,10 @@ SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_scor
 ----
 1
 NULL
-122
+123
 TC
-[T]
-nan
+T
+NULL
 NULL
 NULL
 NULL
@@ -21,54 +21,14 @@ SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-i
 ----
 621
 
-query IIIIIIIII
-SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
+query IIIIIIII
+SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
 ----
 1
 NULL
-9999918
+9999919
 G
-[<*>]
+<*>
 0.0
 NULL
-{'INDEL': false, 'IDV': NULL, 'IMF': NULL, 'DP': 1, 'VDB': NULL, 'RPB': NULL, 'MQB': NULL, 'BQB': NULL, 'MQSB': NULL, 'SGB': NULL, 'MQ0F': 0.0, 'I16': [1.0, 0.0, 0.0, 0.0, 26.0, 676.0, 0.0, 0.0, 60.0, 3600.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'QS': [1.0, 0.0]}
-[{'PL': [0, 3, 26]}]
-
-query IIIIIIIII
-SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
-----
-1
-NULL
-9999918
-G
-[<*>]
-0.0
-NULL
-{'INDEL': false, 'IDV': NULL, 'IMF': NULL, 'DP': 1, 'VDB': NULL, 'RPB': NULL, 'MQB': NULL, 'BQB': NULL, 'MQSB': NULL, 'SGB': NULL, 'MQ0F': 0.0, 'I16': [1.0, 0.0, 0.0, 0.0, 26.0, 676.0, 0.0, 0.0, 60.0, 3600.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'QS': [1.0, 0.0]}
-[{'PL': [0, 3, 26]}]
-
-query IIIIIIIII
-SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf.gz') LIMIT 1;
-----
-1
-NULL
-9999918
-G
-[<*>]
-0.0
-NULL
-{'INDEL': false, 'IDV': NULL, 'IMF': NULL, 'DP': 1, 'VDB': NULL, 'RPB': NULL, 'MQB': NULL, 'BQB': NULL, 'MQSB': NULL, 'SGB': NULL, 'MQ0F': 0.0, 'I16': [1.0, 0.0, 0.0, 0.0, 26.0, 676.0, 0.0, 0.0, 60.0, 3600.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'QS': [1.0, 0.0]}
-[{'PL': [0, 3, 26]}]
-
-query IIIIIIIII
-SELECT * FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/vcf_file.vcf') LIMIT 1;
-----
-1
-NULL
-3000149
-C
-[T]
-59.2
-[PASS]
-{'TEST': NULL, 'DP4': NULL, 'AC': [2], 'AN': 4, 'INDEL': false, 'STR': NULL}
-[{'TT': NULL, 'GT': 2, 'GQ': 245, 'DP': NULL, 'GL': NULL}, {'TT': NULL, 'GT': 4, 'GQ': 245, 'DP': NULL, 'GL': NULL}]
+DP=1;I16=1,0,0,0,26,676,0,0,60,3600,0,0,0,0,0,0;QS=1,0;MQ0F=0

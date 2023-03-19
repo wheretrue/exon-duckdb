@@ -96,6 +96,23 @@ struct SamRecordC {
   int64_t mate_alignment_start;
 };
 
+struct VCFReaderC {
+  void *inner_reader;
+  const char *header;
+};
+
+struct VCFRecord {
+  const char *chromosome;
+  const char *ids;
+  uint64_t position;
+  const char *reference_bases;
+  const char *alternate_bases;
+  float quality_score;
+  const char *filters;
+  const char *infos;
+  const char *genotypes;
+};
+
 struct CResult {
   const char *value;
   const char *error;
@@ -163,6 +180,10 @@ HeaderRecordC sam_header_read_records(const SamHeaderReaderC *c_reader);
 SamRecordReaderC sam_record_new_reader(const char *filename, const char *compression);
 
 SamRecordC sam_record_read_records(const SamRecordReaderC *c_reader);
+
+VCFReaderC vcf_new(const char *filename, const char *compression);
+
+VCFRecord vcf_next(const VCFReaderC *vcf_reader);
 
 bool is_segmented(uint16_t flag);
 

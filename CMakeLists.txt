@@ -13,12 +13,6 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
-  execute_process(COMMAND brew --prefix htslib OUTPUT_VARIABLE HTSLIB_PREFIX)
-  string(STRIP ${HTSLIB_PREFIX} HTSLIB_ROOT_DIR)
-
-  include_directories(${HTSLIB_ROOT_DIR}/include)
-  link_directories(${HTSLIB_ROOT_DIR}/lib)
-
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
@@ -67,9 +61,6 @@ FetchContent_MakeAvailable(${available_contents})
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
-message("-- wtt: Found ${CMAKE_CURRENT_BINARY_DIR}/htslib/include")
-# include_directories(/Users/thauck/wheretrue/github.com/wheretrue/wtt01/build/htslib/include)
-
 include_directories(src/include)
 set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
@@ -93,11 +84,6 @@ set(PARAMETERS "-warnings")
 
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
-find_package(CURL REQUIRED)
-find_package(LibLZMA REQUIRED)
-find_package(BZip2 REQUIRED)
-find_package(ZLIB REQUIRED)
-
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
@@ -108,11 +94,6 @@ target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
   ${OPENSSL_LIBRARIES}
-  ${HTSLIB_ROOT_DIR}/lib/libhts.a
-  ${CURL_LIBRARIES}
-  ${LIBLZMA_LIBRARIES}
-  ${BZIP2_LIBRARIES}
-  ${ZLIB_LIBRARIES}
 )
 endif()
 
