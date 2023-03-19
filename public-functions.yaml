@@ -61,21 +61,18 @@ tableFunctions:
         - "*.gff"
         - "*.gff.gz"
         - "*.gff.zst"
-  - functionName: "read_gb_file"
+  - functionName: "read_genbank"
     function: Table
     description: "Read a GenBank file and return a table with the results."
     arguments:
       - name: "filepath"
         type: "string"
         description: "The path to the GenBank file."
-      - name: "compression"
-        type: "string"
-        description: "The compression type of the GenBank file. Inferred from the file name if a value is not provided."
-        default: "none"
-        allowedValues:
-          - "none"
-          - "gzip"
-          - "zstd"
+    replacementScan:
+      example: "SELECT * FROM 'path/to/file.gff';"
+      patterns:
+        - "*.gb"
+        - "*.genbank"
     schema:
       - name: "sequence"
         type: "string"
@@ -123,11 +120,13 @@ tableFunctions:
         type: "string"
         nullable: true
       - name: "features"
-        type: "string"
+        type: "string (json encoded)"
         nullable: true
     examples:
       - example: "SELECT * FROM 'path/to/file.gb';"
         description: "Read a GenBank file and return a table with the results using the default compression type."
+      - example: "SELECT json(features)->0->'$.qualifiers' FROM read_genbank('./file.gb')"
+        description: "Select the set of qualifiers from the features column."
   - functionName: "read_vcf_file_records"
     functionType: "Table"
     description: "Read a VCF/BCF/BGzipped-VCF file and return the records as rows in a table."
@@ -146,31 +145,31 @@ tableFunctions:
     schema: &vcf_schema
       - name: "chromosome"
         type: "string"
-        nullabel: false
+        nullable: false
       - name: "ids"
         type: "list<str>"
         nullable: true
       - name: "position"
-        type: integer
+        type: bigint
         nullable: false
       - name: "reference_bases"
         type: string
         nullable: false
       - name: "alternate_bases"
-        type: list<str>
-        nullable: true
+        type: string
+        nullable: false
       - name: quality_score
         type: float
         nullable: true
       - name: filter
-        type: "list<str>"
+        type: "string"
         nullable: true
       - name: info
-        type: "struct"
+        type: "string"
         nullable: true
       - name: "genotypes"
-        type: "list<struct>"
-        nullable: false
+        type: "string"
+        nullable: true
     examples:
       - example: "SELECT * FROM 'path/to/file.vcf';"
         description: "Read a VCF file and return a table with the results using the default compression type."
@@ -230,6 +229,63 @@ tableFunctions:
         - "*.fastq.gz"
         - "*.fq.zst"
         - "*.fastq.zst"
+  - functionName: read_bed_file
+    functionType: Table
+    description: Read a BED file and return a table with the results.
+    arguments:
+      - name: filepath
+        type: string
+        description: The path to the BED file.
+      - name: n_columns
+        type: integer
+        description: The number of columns in the BED file. Defaults to 8.
+        nullable: true
+      - name: compression
+        type: string
+        description: The compression type of the BED file. Inferred from the file name if a value is not provided.
+        default: none
+        allowedValues:
+          - none
+          - gzip
+          - zstd
+    schema:
+      - name: chromosome
+        type: string
+        nullable: false
+      - name: start
+        type: integer
+        nullable: false
+      - name: end
+        type: integer
+        nullable: false
+      - name: name
+        type: string
+        nullable: true
+      - name: score
+        type: float
+        nullable: true
+      - name: strand
+        type: string
+        nullable: true
+      - name: thick_start
+        type: integer
+        nullable: true
+      - name: thick_end
+        type: integer
+        nullable: true
+    examples:
+      - example: "SELECT * FROM 'path/to/file.bed';"
+        description: "Read a BED file and return a table with the results using the default compression type and 8 columns."
+      - example: "SELECT * FROM 'path/to/file.bed.gz';"
+        description: "Read a gzipped BED file and return a table with the results using the gzip compression type. This is inferred from the file name."
+      - example: "SELECT * FROM read_bed_file('path/to/file.fastq.gz', n_columns=3);"
+        description: "Read a BED file and return a table with only the first 3 standard columns."
+    replacementScan:
+      example: "SELECT * FROM 'path/to/file.bed';"
+      patterns:
+        - "*.bed"
+        - "*.bed.gz"
+        - "*.bed.zst"
   - functionName: "read_fasta"
     functionType: "Table"
     description: "Read a FASTA file and return a table with the results."
