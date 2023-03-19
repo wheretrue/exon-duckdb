@@ -126,7 +126,7 @@ tableFunctions:
       - example: "SELECT * FROM 'path/to/file.gb';"
         description: "Read a GenBank file and return a table with the results using the default compression type."
       - example: "SELECT json(features)->0->'$.qualifiers' FROM read_genbank('./file.gb')"
-        description: "Select the set of qualifiers from the features column."
+        description: "Select the set of qualifiers from the features column, requires loading the DuckDB JSON extension first."
   - functionName: "read_vcf_file_records"
     functionType: "Table"
     description: "Read a VCF/BCF/BGzipped-VCF file and return the records as rows in a table."
