@@ -7,6 +7,9 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 #include <duckdb/function/table/read_csv.hpp>
 
+// #include <duckdb/extension/json/include/json_common.hpp>
+// /thauck/wheretrue/github.com/wheretrue/wtt01/build/release/extension/wtt01
+
 #include <nlohmann/json.hpp>
 #include "genbank_io.hpp"
 #include "wtt01_rust.hpp"
@@ -21,7 +24,9 @@ namespace wtt01
 
     struct GenbankScanBindData : public duckdb::TableFunctionData
     {
-        std::string file_path;
+        std::vector<std::string> file_paths;
+        int nth_file = 0;
+
         GenbankScanOptions options;
         GenbankReader reader;
     };
@@ -30,6 +35,8 @@ namespace wtt01
     {
         bool done = false;
         GenbankReader reader;
+
+        duckdb::JSONAllocator *json_allocator;
     };
 
     struct GenbankScanGlobalState : public duckdb::GlobalTableFunctionState
@@ -41,15 +48,17 @@ namespace wtt01
                                                          std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
     {
         auto result = duckdb::make_unique<GenbankScanBindData>();
-        auto file_name = input.inputs[0].GetValue<std::string>();
+        auto glob = input.inputs[0].GetValue<std::string>();
 
         auto &fs = duckdb::FileSystem::GetFileSystem(context);
-        if (!fs.FileExists(file_name))
+        auto glob_result = fs.Glob(glob);
+
+        if (glob_result.empty())
         {
-            throw duckdb::IOException("File does not exist: " + file_name);
+            throw duckdb::IOException("No files found for glob: " + glob);
         }
 
-        result->file_path = file_name;
+        result->file_paths = glob_result;
 
         for (auto &kv : input.named_parameters)
         {
@@ -63,7 +72,7 @@ namespace wtt01
             }
         }
 
-        auto reader = genbank_new(result->file_path.c_str(), result->options.compression.c_str());
+        auto reader = genbank_new(result->file_paths[0].c_str(), result->options.compression.c_str());
         result->reader = reader;
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
@@ -111,8 +120,17 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         names.push_back("topology");
 
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        // return_types.push_back(duckdb::LogicalType::VARCHAR);
+        duckdb::child_list_t<duckdb::LogicalType> features_children;
+
+        features_children.push_back(std::make_pair("kind", duckdb::LogicalType::VARCHAR));
+        features_children.push_back(std::make_pair("location", duckdb::LogicalType::VARCHAR));
+
+        features_children.push_back(std::make_pair("qualifiers", duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR)));
+
         names.push_back("features");
+        return_types.push_back(
+            duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(features_children)));
 
         return move(result);
     }
@@ -135,12 +153,14 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
+        local_state->json_allocator = &duckdb::JSONAllocator(duckdb::Allocator::DefaultAllocator());
+
         return move(local_state);
     }
 
     void GenbankScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
     {
-        auto bind_data = (const GenbankScanBindData *)data.bind_data;
+        auto bind_data = (GenbankScanBindData *)data.bind_data;
         auto local_state = (GenbankScanLocalState *)data.local_state;
         auto gstate = (GenbankScanGlobalState *)data.global_state;
 
@@ -155,6 +175,14 @@ namespace wtt01
 
             if (record.seq == nullptr)
             {
+                if (bind_data->nth_file + 1 < bind_data->file_paths.size())
+                {
+                    bind_data->nth_file++;
+                    genbank_free(bind_data->reader);
+                    bind_data->reader = genbank_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
+                    continue;
+                }
+
                 local_state->done = true;
                 break;
             }
@@ -294,7 +322,82 @@ namespace wtt01
             }
             else
             {
-                output.SetValue(15, output.size(), duckdb::Value(feature_json));
+
+                std::vector<duckdb::Value> features_structs;
+
+                auto alc = local_state->json_allocator;
+                auto alc_instance = alc->GetYYJSONAllocator();
+
+                // auto doc = duckdb::JSONCommon::ReadDocument(feature_json, duckdb::JSONCommon::READ_FLAG, alc_instance);
+
+                yyjson_doc *doc = yyjson_read(feature_json, strlen(feature_json), 0);
+
+                auto root = yyjson_doc_get_root(doc);
+
+                auto n_documents = yyjson_arr_size(root);
+
+                yyjson_val *val;
+                yyjson_arr_iter iter;
+                yyjson_arr_iter_init(root, &iter);
+
+                // Iterate through the outer array
+                while ((val = yyjson_arr_iter_next(&iter)))
+                {
+                    duckdb::child_list_t<duckdb::Value> struct_values;
+
+                    // Iterate through the objects of {'kind': , 'qualifiers': []}
+                    yyjson_val *obj_key, *obj_val;
+                    yyjson_obj_iter iter;
+                    yyjson_obj_iter_init(obj_val, &iter);
+
+                    while ((obj_key = yyjson_obj_iter_next(&iter)))
+                    {
+
+                        auto key_str = yyjson_get_str(obj_key);
+
+                        obj_val = yyjson_obj_iter_get_val(obj_key);
+
+                        if (key_str == "kind")
+                        {
+                            struct_values.push_back(std::make_pair("kind", duckdb::Value(yyjson_get_str(obj_val))));
+                        }
+                        if (key_str == "location")
+                        {
+                            struct_values.push_back(std::make_pair("location", duckdb::Value(yyjson_get_str(obj_val))));
+                        }
+                        else if (key_str == "qualifiers")
+                        {
+                            std::vector<duckdb::Value> qualifiers_structs;
+
+                            yyjson_val *qualifier;
+                            yyjson_arr_iter qualifier_iter;
+                            yyjson_arr_iter_init(obj_val, &qualifier_iter);
+
+                            while ((qualifier = yyjson_arr_iter_next(&qualifier_iter)))
+                            {
+                                duckdb::child_list_t<duckdb::Value> qualifier_struct_values;
+
+                                yyjson_val *qualifier_key, *qualifier_val;
+                                yyjson_obj_iter qualifier_obj_iter;
+                                yyjson_obj_iter_init(qualifier, &qualifier_obj_iter);
+
+                                while ((qualifier_key = yyjson_obj_iter_next(&iter)))
+                                {
+                                    qualifier_struct_values.push_back(
+                                        std::make_pair(
+                                            yyjson_get_str(qualifier_key),
+                                            duckdb::Value(yyjson_get_str(yyjson_obj_iter_get_val(qualifier_key)))));
+                                }
+
+                                qualifiers_structs.push_back(duckdb::Value::STRUCT(qualifier_struct_values));
+                            }
+                        }
+                    }
+
+                    features_structs.push_back(duckdb::Value::STRUCT(struct_values));
+                };
+
+                // output.SetValue(15, output.size(), duckdb::Value(feature_json));
             }
 
             output.SetCardinality(output.size() + 1);

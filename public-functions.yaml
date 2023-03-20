@@ -129,7 +129,7 @@ tableFunctions:
         description: "Select the set of qualifiers from the features column, requires loading the DuckDB JSON extension first."
   - functionName: "read_vcf_file_records"
     functionType: "Table"
-    description: "Read a VCF/BCF/BGzipped-VCF file and return the records as rows in a table."
+    description: "Read a VCF/BGzipped-VCF file and return the records as rows in a table."
     arguments:
       - name: "filepath"
         type: "string"
@@ -187,7 +187,7 @@ tableFunctions:
     arguments:
       - name: "filepath"
         type: "string"
-        description: "The path to the FASTQ file. This can also be a glob, e.g. './*.fasta'"
+        description: "The path to the FASTQ file. This can also be a glob, e.g. './*.fastq'"
       - name: "compression"
         type: "string"
         description: "The compression type of the FASTQ file. Inferred from the file name if a value is not provided."
@@ -411,6 +411,44 @@ tableFunctions:
       - name: "description"
         type: "string"
         nullable: true
+  - functionName: "read_sam_file_records"
+    functionType: "Table"
+    description: "Read a SAM file and return a table with the results."
+    arguments:
+      - name: "filepath"
+        type: "string"
+        description: "The path to the SAM file."
+    schema:
+      - name: sequence
+        type: "string"
+        nullable: false
+      - name: read_name
+        type: "string"
+        nullable: false
+      - name: flags
+        type: "int"
+        nullable: false
+      - name: alignment_start
+        type: "int"
+        nullable: false
+      - name: alignment_end
+        type: "int"
+        nullable: false
+      - name: cigar_string
+        type: "string"
+        nullable: false
+      - name: quality_scores
+        type: "string"
+        nullable: false
+      - name: template_length
+        type: "int"
+        nullable: false
+      - name: mapping_quality
+        type: "string"
+        nullable: false
+      - name;: mate_alignment_start
+        type: "int"
+        nullable: false
   - functionName: "wtt01_third_party_acknowledgements"
     functionType: "Table"
     description: "Return a table with the third party acknowledgements for WTT-01."
@@ -433,7 +471,6 @@ tableFunctions:
       - name: "license_text"
         type: "string"
         nullable: false
-
 copyFunctions:
   - functionName: GFF COPY
     functionType: "Copy"

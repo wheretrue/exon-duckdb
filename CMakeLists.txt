@@ -58,10 +58,18 @@ list(APPEND available_contents httplib json)
 
 FetchContent_MakeAvailable(${available_contents})
 
+message("-- wtt source: ${CMAKE_CURRENT_SOURCE_DIR}")
+message("-- wtt include: ${CMAKE_INSTALL_INCLUDEDIR}")
+message("-- wtt libdir: ${CMAKE_INSTALL_LIBDIR}")
+message("-- wtt runtime: ${CMAKE_INSTALL_BINDIR}")
+message("-- wtt: CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+message("-- wtt: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
+
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
 include_directories(src/include)
+
 set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
   src/check_license.cpp
@@ -84,6 +92,8 @@ add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 set(PARAMETERS "-warnings")
 
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
+
+include_directories(wtt01_loadable_extension ${CMAKE_CURRENT_SOURCE_DIR}/duckdb/extension/json/include)
 
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}

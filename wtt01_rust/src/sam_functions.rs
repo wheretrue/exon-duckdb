@@ -41,6 +41,7 @@ pub extern "C" fn is_mate_reverse_complemented(flag: u16) -> bool {
 #[no_mangle]
 pub extern "C" fn is_first_segment(flag: u16) -> bool {
     let flag = Flags::from_bits_truncate(flag);
+
     flag.contains(Flags::FIRST_SEGMENT)
 }
 

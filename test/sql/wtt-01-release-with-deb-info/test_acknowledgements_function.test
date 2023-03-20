@@ -8,9 +8,10 @@ SELECT name FROM wtt01_third_party_acknowledgements() ORDER BY name;
 DuckDB
 brotli
 cpp-httplib
+gb-io
 nlohmann/json
 noodles
 openssl
 
 statement ok
-SELECT wtt01_version()
+SELECT wtt01_version();

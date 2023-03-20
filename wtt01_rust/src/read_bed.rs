@@ -24,8 +24,10 @@ pub struct BEDRecordC {
     strand: *const c_char,
     thick_start: usize,
     thick_end: usize,
-    // color: *const c_char,
-    // blocks: *const c_char,
+    color: *const c_char,
+    block_count: usize,
+    block_sizes: *const c_char,
+    block_starts: *const c_char,
 }
 
 impl Default for BEDRecordC {
@@ -39,6 +41,10 @@ impl Default for BEDRecordC {
             strand: std::ptr::null(),
             thick_start: 0,
             thick_end: 0,
+            color: std::ptr::null(),
+            block_count: 0,
+            block_sizes: std::ptr::null(),
+            block_starts: std::ptr::null(),
         }
     }
 }
@@ -52,6 +58,10 @@ pub struct BEDRecordCBuilder {
     strand: *const c_char,
     thick_start: usize,
     thick_end: usize,
+    color: *const c_char,
+    block_count: usize,
+    block_sizes: *const c_char,
+    block_starts: *const c_char,
 }
 
 impl BEDRecordCBuilder {
@@ -65,6 +75,10 @@ impl BEDRecordCBuilder {
             strand: std::ptr::null(),
             thick_start: 0,
             thick_end: 0,
+            color: std::ptr::null(),
+            block_count: 0,
+            block_sizes: std::ptr::null(),
+            block_starts: std::ptr::null(),
         }
     }
 
@@ -133,6 +147,34 @@ impl BEDRecordCBuilder {
         self
     }
 
+    pub fn color(mut self, color: Option<String>) -> BEDRecordCBuilder {
+        match color {
+            Some(color) => {
+                self.color = CString::new(color).unwrap().into_raw();
+            }
+            _ => {
+                self.color = std::ptr::null();
+            }
+        }
+
+        self
+    }
+
+    pub fn block_count(mut self, block_count: usize) -> BEDRecordCBuilder {
+        self.block_count = block_count;
+        self
+    }
+
+    pub fn block_sizes(mut self, block_sizes: String) -> BEDRecordCBuilder {
+        self.block_sizes = CString::new(block_sizes).unwrap().into_raw();
+        self
+    }
+
+    pub fn block_starts(mut self, block_starts: String) -> BEDRecordCBuilder {
+        self.block_starts = CString::new(block_starts).unwrap().into_raw();
+        self
+    }
+
     pub fn build(self) -> BEDRecordC {
         BEDRecordC {
             reference_sequence_name: self.reference_sequence_name,
@@ -143,6 +185,10 @@ impl BEDRecordCBuilder {
             strand: self.strand,
             thick_start: self.thick_start,
             thick_end: self.thick_end,
+            color: self.color,
+            block_count: self.block_count,
+            block_sizes: self.block_sizes,
+            block_starts: self.block_starts,
         }
     }
 }
@@ -230,6 +276,56 @@ impl From<Record<8>> for BEDRecordC {
             .strand(record.strand())
             .thick_start(record.thick_start())
             .thick_end(record.thick_end())
+            .build()
+    }
+}
+
+impl From<Record<9>> for BEDRecordC {
+    fn from(record: Record<9>) -> Self {
+        let builder = BEDRecordCBuilder::new();
+
+        builder
+            .reference_sequence_name(record.reference_sequence_name())
+            .start(record.start_position())
+            .end(record.end_position())
+            .name(record.name())
+            .score(record.score())
+            .strand(record.strand())
+            .thick_start(record.thick_start())
+            .thick_end(record.thick_end())
+            .color(record.color().and_then(|f| Some(f.to_string())))
+            .build()
+    }
+}
+
+impl From<Record<12>> for BEDRecordC {
+    fn from(record: Record<12>) -> Self {
+        let builder = BEDRecordCBuilder::new();
+
+        let mut block_starts = Vec::new();
+        let mut block_sizes = Vec::new();
+
+        record.blocks().iter().for_each(|(start, size)| {
+            block_starts.push(start.to_string());
+            block_sizes.push(size.to_string());
+        });
+
+        let block_start_csv = block_starts.join(",");
+        let block_size_csv = block_sizes.join(",");
+
+        builder
+            .reference_sequence_name(record.reference_sequence_name())
+            .start(record.start_position())
+            .end(record.end_position())
+            .name(record.name())
+            .score(record.score())
+            .strand(record.strand())
+            .thick_start(record.thick_start())
+            .thick_end(record.thick_end())
+            .color(record.color().and_then(|f| Some(f.to_string())))
+            .block_count(record.blocks().len())
+            .block_sizes(block_size_csv)
+            .block_starts(block_start_csv)
             .build()
     }
 }
@@ -353,8 +449,20 @@ pub unsafe extern "C" fn bed_next(bam_reader: &BEDReaderC, n_columns: u8) -> BED
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
+                9 => {
+                    let line: Record<9> = Record::from_str(&buffer).unwrap();
+
+                    let c_record = BEDRecordC::from(line);
+                    return c_record;
+                }
+                12 => {
+                    let line: Record<12> = Record::from_str(&buffer).unwrap();
+
+                    let c_record = BEDRecordC::from(line);
+                    return c_record;
+                }
                 _ => {
-                    eprintln!("bam_next: n_columns must be between 3 and 8");
+                    eprintln!("bed_next: n_columns must be between 3 and 9, or 12");
                     return BEDRecordC::default();
                 }
             }

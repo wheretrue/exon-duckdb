@@ -43,6 +43,10 @@ struct BEDRecordC {
   const char *strand;
   uintptr_t thick_start;
   uintptr_t thick_end;
+  const char *color;
+  uintptr_t block_count;
+  const char *block_sizes;
+  const char *block_starts;
 };
 
 struct FASTAReaderC {

@@ -12,14 +12,14 @@ namespace wtt01
 
     struct BEDRecordScanOptions
     {
-        uint8_t n_columns = 8;
+        uint8_t n_columns = 12;
         std::string compression = "auto_detect";
     };
 
     struct BEDRecordScanBindData : public duckdb::TableFunctionData
     {
         std::string file_path;
-        uint8_t n_columns = 8;
+        uint8_t n_columns = 12;
 
         BEDRecordScanOptions options;
         BEDReaderC reader;
@@ -60,14 +60,10 @@ namespace wtt01
             {
                 result->options.n_columns = kv.second.GetValue<int>();
 
-                if (result->options.n_columns < 3)
+                auto ok_n_columns = {3, 4, 5, 6, 7, 8, 9, 12};
+                if (std::find(ok_n_columns.begin(), ok_n_columns.end(), result->options.n_columns) == ok_n_columns.end())
                 {
-                    throw std::runtime_error("n_columns must be at least 3");
-                }
-
-                if (result->options.n_columns > 8)
-                {
-                    throw std::runtime_error("n_columns must be at most 8");
+                    throw std::runtime_error("n_columns must be one of 3, 4, 5, 6, 7, 8, 9, 12");
                 }
             }
             else
