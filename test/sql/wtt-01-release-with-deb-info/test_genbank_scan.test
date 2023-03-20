@@ -41,7 +41,7 @@ SELECT COUNT(*) FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/*.
 3
 
 query II
-SELECT accession, feature['kind'] FROM (SELECT accession, UNNEST(features) AS feature FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/*.gbk')) WHERE feature.kind = 'CDS' LIMIT 1;
+SELECT accession, feature['kind'] FROM (SELECT accession, UNNEST(features) AS feature FROM read_genbank('./test/sql/wtt-01-release-with-deb-info/gb/BGC0002747.gbk')) WHERE feature.kind = 'CDS' LIMIT 1;
 ----
 BGC0002747
 CDS
