@@ -382,7 +382,7 @@ pub unsafe extern "C" fn bed_new(
     let filename = CStr::from_ptr(filename).to_str().unwrap();
     let compression = CStr::from_ptr(compression).to_str().unwrap();
 
-    let mut reader = build_from_path(filename, compression).unwrap();
+    let reader = build_from_path(filename, compression).unwrap();
 
     return BEDReaderC {
         inner_reader: Box::into_raw(Box::new(reader)) as *mut c_void,

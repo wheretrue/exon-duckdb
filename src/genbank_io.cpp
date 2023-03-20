@@ -342,8 +342,6 @@ namespace wtt01
                         auto key = qualifier_i["key"];
                         auto value = qualifier_i["value"];
 
-                        printf("key: %s\n", key.get<std::string>().c_str());
-
                         duckdb::child_list_t<duckdb::Value> qualifier_struct_values;
 
                         qualifier_struct_values.push_back(std::make_pair("key", duckdb::Value(key.get<std::string>())));
@@ -368,7 +366,6 @@ namespace wtt01
                     features_structs.push_back(duckdb::Value::STRUCT(struct_values));
                 }
 
-                printf("Struct values size: %d\n", features_structs.size());
                 output.SetValue(15, output.size(), duckdb::Value::LIST(features_structs));
             }
 

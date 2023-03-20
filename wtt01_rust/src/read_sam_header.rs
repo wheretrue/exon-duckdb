@@ -56,7 +56,7 @@ pub unsafe extern "C" fn sam_header_new_reader(
     // TODO: what is .header
 
     // Grab the reference sequences.
-    for (reference_sequence_name, reference_sequence_value) in parsed_header.reference_sequences() {
+    for (reference_sequence_name, _) in parsed_header.reference_sequences() {
         records.push(HeaderRecord {
             record_type: "SQ".to_string(),
             tag: None, // TODO, should be name?
