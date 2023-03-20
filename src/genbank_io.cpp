@@ -7,9 +7,6 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 #include <duckdb/function/table/read_csv.hpp>
 
-// #include <duckdb/extension/json/include/json_common.hpp>
-// /thauck/wheretrue/github.com/wheretrue/wtt01/build/release/extension/wtt01
-
 #include <nlohmann/json.hpp>
 #include "genbank_io.hpp"
 #include "wtt01_rust.hpp"
@@ -35,8 +32,6 @@ namespace wtt01
     {
         bool done = false;
         GenbankReader reader;
-
-        duckdb::JSONAllocator *json_allocator;
     };
 
     struct GenbankScanGlobalState : public duckdb::GlobalTableFunctionState
@@ -120,7 +115,6 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         names.push_back("topology");
 
-        // return_types.push_back(duckdb::LogicalType::VARCHAR);
         duckdb::child_list_t<duckdb::LogicalType> features_children;
 
         features_children.push_back(std::make_pair("kind", duckdb::LogicalType::VARCHAR));
@@ -152,8 +146,6 @@ namespace wtt01
 
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
-
-        local_state->json_allocator = &duckdb::JSONAllocator(duckdb::Allocator::DefaultAllocator());
 
         return move(local_state);
     }
@@ -322,82 +314,62 @@ namespace wtt01
             }
             else
             {
-
                 std::vector<duckdb::Value> features_structs;
 
-                auto alc = local_state->json_allocator;
-                auto alc_instance = alc->GetYYJSONAllocator();
+                auto doc = nlohmann::json::parse(feature_json);
 
-                // auto doc = duckdb::JSONCommon::ReadDocument(feature_json, duckdb::JSONCommon::READ_FLAG, alc_instance);
-
-                yyjson_doc *doc = yyjson_read(feature_json, strlen(feature_json), 0);
-
-                auto root = yyjson_doc_get_root(doc);
-
-                auto n_documents = yyjson_arr_size(root);
-
-                yyjson_val *val;
-                yyjson_arr_iter iter;
-                yyjson_arr_iter_init(root, &iter);
-
-                // Iterate through the outer array
-                while ((val = yyjson_arr_iter_next(&iter)))
+                for (nlohmann::json::iterator it = doc.begin(); it != doc.end(); ++it)
                 {
+                    auto doc_i = it.value();
+
+                    auto kind = doc_i["kind"];
+
+                    auto location = doc_i["location"];
+
+                    auto qualifiers = doc_i["qualifiers"];
+
                     duckdb::child_list_t<duckdb::Value> struct_values;
 
-                    // Iterate through the objects of {'kind': , 'qualifiers': []}
-                    yyjson_val *obj_key, *obj_val;
-                    yyjson_obj_iter iter;
-                    yyjson_obj_iter_init(obj_val, &iter);
+                    struct_values.push_back(std::make_pair("kind", duckdb::Value(kind.get<std::string>())));
+                    struct_values.push_back(std::make_pair("location", duckdb::Value(location.get<std::string>())));
 
-                    while ((obj_key = yyjson_obj_iter_next(&iter)))
+                    // Collect the individual qualifiers into a map
+                    std::vector<duckdb::Value> qualifiers_structs;
+                    for (nlohmann::json::iterator it = qualifiers.begin(); it != qualifiers.end(); ++it)
                     {
+                        auto qualifier_i = it.value();
 
-                        auto key_str = yyjson_get_str(obj_key);
+                        auto key = qualifier_i["key"];
+                        auto value = qualifier_i["value"];
 
-                        obj_val = yyjson_obj_iter_get_val(obj_key);
+                        printf("key: %s\n", key.get<std::string>().c_str());
 
-                        if (key_str == "kind")
+                        duckdb::child_list_t<duckdb::Value> qualifier_struct_values;
+
+                        qualifier_struct_values.push_back(std::make_pair("key", duckdb::Value(key.get<std::string>())));
+
+                        if (value.is_null())
                         {
-                            struct_values.push_back(std::make_pair("kind", duckdb::Value(yyjson_get_str(obj_val))));
+                            qualifier_struct_values.push_back(std::make_pair("value", duckdb::Value()));
                         }
-                        if (key_str == "location")
+                        else
                         {
-                            struct_values.push_back(std::make_pair("location", duckdb::Value(yyjson_get_str(obj_val))));
+                            qualifier_struct_values.push_back(std::make_pair("value", duckdb::Value(value.get<std::string>())));
                         }
-                        else if (key_str == "qualifiers")
-                        {
-                            std::vector<duckdb::Value> qualifiers_structs;
 
-                            yyjson_val *qualifier;
-                            yyjson_arr_iter qualifier_iter;
-                            yyjson_arr_iter_init(obj_val, &qualifier_iter);
-
-                            while ((qualifier = yyjson_arr_iter_next(&qualifier_iter)))
-                            {
-                                duckdb::child_list_t<duckdb::Value> qualifier_struct_values;
-
-                                yyjson_val *qualifier_key, *qualifier_val;
-                                yyjson_obj_iter qualifier_obj_iter;
-                                yyjson_obj_iter_init(qualifier, &qualifier_obj_iter);
-
-                                while ((qualifier_key = yyjson_obj_iter_next(&iter)))
-                                {
-                                    qualifier_struct_values.push_back(
-                                        std::make_pair(
-                                            yyjson_get_str(qualifier_key),
-                                            duckdb::Value(yyjson_get_str(yyjson_obj_iter_get_val(qualifier_key)))));
-                                }
-
-                                qualifiers_structs.push_back(duckdb::Value::STRUCT(qualifier_struct_values));
-                            }
-                        }
+                        qualifiers_structs.push_back(duckdb::Value::STRUCT(qualifier_struct_values));
                     }
 
-                    features_structs.push_back(duckdb::Value::STRUCT(struct_values));
-                };
+                    duckdb::LogicalType map_type = duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR);
+                    auto outputValue = duckdb::Value::MAP(duckdb::ListType::GetChildType(map_type), std::move(qualifiers_structs));
 
-                // output.SetValue(15, output.size(), duckdb::Value(feature_json));
+                    struct_values.push_back(std::make_pair("qualifiers", outputValue));
+
+                    features_structs.push_back(duckdb::Value::STRUCT(struct_values));
+                }
+
+                printf("Struct values size: %d\n", features_structs.size());
+                output.SetValue(15, output.size(), duckdb::Value::LIST(features_structs));
             }
 
             output.SetCardinality(output.size() + 1);

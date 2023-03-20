@@ -111,6 +111,30 @@ namespace wtt01
             return_types.push_back(duckdb::LogicalType::INTEGER);
         }
 
+        if (result->options.n_columns > 8)
+        {
+            names.push_back("color");
+            return_types.push_back(duckdb::LogicalType::VARCHAR);
+        }
+
+        if (result->options.n_columns > 9)
+        {
+            names.push_back("block_count");
+            return_types.push_back(duckdb::LogicalType::INTEGER);
+        }
+
+        if (result->options.n_columns > 10)
+        {
+            names.push_back("block_sizes");
+            return_types.push_back(duckdb::LogicalType::VARCHAR);
+        }
+
+        if (result->options.n_columns > 11)
+        {
+            names.push_back("block_starts");
+            return_types.push_back(duckdb::LogicalType::VARCHAR);
+        }
+
         auto reader = bed_new(result->file_path.c_str(), result->options.n_columns, result->options.compression.c_str());
         result->reader = reader;
 
@@ -216,6 +240,54 @@ namespace wtt01
             if (bind_data->n_columns > 7)
             {
                 output.SetValue(7, output.size(), duckdb::Value::BIGINT(record.thick_end));
+            }
+
+            if (bind_data->n_columns > 8)
+            {
+                if (record.color == NULL)
+                {
+                    output.SetValue(8, output.size(), duckdb::Value());
+                }
+                else
+                {
+                    output.SetValue(8, output.size(), duckdb::Value(record.color));
+                }
+            }
+
+            if (bind_data->n_columns > 9)
+            {
+                if (record.block_count < 0)
+                {
+                    output.SetValue(9, output.size(), duckdb::Value());
+                }
+                else
+                {
+                    output.SetValue(9, output.size(), duckdb::Value::BIGINT(record.block_count));
+                }
+            }
+
+            if (bind_data->n_columns > 10)
+            {
+                if (record.block_sizes == NULL)
+                {
+                    output.SetValue(10, output.size(), duckdb::Value());
+                }
+                else
+                {
+                    output.SetValue(10, output.size(), duckdb::Value(record.block_sizes));
+                }
+            }
+
+            if (bind_data->n_columns > 11)
+            {
+                if (record.block_starts == NULL)
+                {
+                    output.SetValue(11, output.size(), duckdb::Value());
+                }
+                else
+                {
+                    output.SetValue(11, output.size(), duckdb::Value(record.block_starts));
+                }
             }
 
             output.SetCardinality(output.size() + 1);
