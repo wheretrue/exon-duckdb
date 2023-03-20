@@ -386,7 +386,7 @@ namespace wtt01
     {
         auto table_function = duckdb::make_unique<duckdb::TableFunctionRef>();
 
-        auto valid_fasta_filename = duckdb::StringUtil::EndsWith(table_name, ".genbank") || duckdb::StringUtil::EndsWith(table_name, ".gb");
+        auto valid_fasta_filename = duckdb::StringUtil::EndsWith(table_name, ".genbank") || duckdb::StringUtil::EndsWith(table_name, ".gb") || duckdb::StringUtil::EndsWith(table_name, ".gbk");
 
         if (!valid_fasta_filename)
         {

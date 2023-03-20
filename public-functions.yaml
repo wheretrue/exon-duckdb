@@ -120,13 +120,13 @@ tableFunctions:
         type: "string"
         nullable: true
       - name: "features"
-        type: "string (json encoded)"
+        type: "array<struct(kind varchar, location varchar, qualifiers map(varchar, varchar))>"
         nullable: true
     examples:
       - example: "SELECT * FROM 'path/to/file.gb';"
         description: "Read a GenBank file and return a table with the results using the default compression type."
-      - example: "SELECT json(features)->0->'$.qualifiers' FROM read_genbank('./file.gb')"
-        description: "Select the set of qualifiers from the features column, requires loading the DuckDB JSON extension first."
+      - example: "SELECT accession, UNNEST(features) features FROM 'path/to/file.gb';"
+        description: "Unnest the features column so rather than a list, there's one feature per row."
   - functionName: "read_vcf_file_records"
     functionType: "Table"
     description: "Read a VCF/BGzipped-VCF file and return the records as rows in a table."
@@ -238,7 +238,7 @@ tableFunctions:
         description: The path to the BED file.
       - name: n_columns
         type: integer
-        description: The number of columns in the BED file. Defaults to 8.
+        description: The number of columns in the BED file. Defaults to 12.
         nullable: true
       - name: compression
         type: string
@@ -273,9 +273,21 @@ tableFunctions:
       - name: thick_end
         type: integer
         nullable: true
+      - name: color
+        type: string
+        nullable: true
+      - name: block_count
+        type: integer
+        nullable: true
+      - name: block_sizes
+        type: string
+        nullable: true
+      - name: block_starts
+        type: string
+        nullable: true
     examples:
       - example: "SELECT * FROM 'path/to/file.bed';"
-        description: "Read a BED file and return a table with the results using the default compression type and 8 columns."
+        description: "Read a BED file and return a table with the results using the default compression type and 12 columns."
       - example: "SELECT * FROM 'path/to/file.bed.gz';"
         description: "Read a gzipped BED file and return a table with the results using the gzip compression type. This is inferred from the file name."
       - example: "SELECT * FROM read_bed_file('path/to/file.fastq.gz', n_columns=3);"
