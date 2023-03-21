@@ -41,7 +41,7 @@ impl Default for SamRecordC {
 #[repr(C)]
 pub struct SamRecordReaderC {
     sam_reader: *mut c_void,
-    sam_header: *const c_char,
+    sam_header: *const c_void,
 }
 
 #[no_mangle]
@@ -58,30 +58,30 @@ pub unsafe extern "C" fn sam_record_new_reader(
     // Other examples don't have this as mutable.
     let mut sam_reader = Reader::new(reader);
 
-    let header = sam_reader.read_header().unwrap();
-
-    let sam_header = CString::new(header.to_string()).unwrap();
+    let header: Header = sam_reader.read_header().unwrap().parse().unwrap();
 
     let boxxed_reader = Box::into_raw(Box::new(sam_reader));
 
     SamRecordReaderC {
         sam_reader: boxxed_reader as *mut c_void,
-        sam_header: sam_header.into_raw(),
+        sam_header: Box::into_raw(Box::new(header)) as *mut c_void,
     }
 }
+
+// #[no_mangle]
+// pub unsafe extern "C" fn sam_record_read_records_chunk(
+//     c_reader: &SamRecordReaderC,
+//     duckdb_ptr: &c_void,
+// ) {
+
+// }
 
 #[no_mangle]
 pub unsafe extern "C" fn sam_record_read_records(c_reader: &SamRecordReaderC) -> SamRecordC {
     let sam_reader_ptr = c_reader.sam_reader as *mut Reader<Box<dyn BufRead>>;
 
-    let sam_header_str = CStr::from_ptr(c_reader.sam_header)
-        .to_str()
-        .unwrap_or_else(|_| {
-            eprintln!("Error: sam_header is not a valid UTF-8 string");
-            std::process::exit(1);
-        });
-
-    let sam_header = Header::from_str(sam_header_str).unwrap();
+    let sam_header = c_reader.sam_header as *const Header;
+    let sam_header = &*sam_header;
 
     match sam_reader_ptr.as_mut() {
         Some(sam_reader) => {
