@@ -238,7 +238,7 @@ tableFunctions:
         description: The path to the BED file.
       - name: n_columns
         type: integer
-        description: The number of columns in the BED file. Defaults to 12.
+        description: The number of columns in the BED file. Defaults to 3. Must be between 3 and 9, or 12.
         nullable: true
       - name: compression
         type: string

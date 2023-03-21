@@ -95,18 +95,9 @@ NULL
 13
 NULL
 
-query IIIIIIIIIIII
+query III
 SELECT * FROM 'test/sql/wtt-01-release-with-deb-info/bed/test3.bed.zst' LIMIT 1;
 ----
 sq0
 8
 13
-NULL
-NULL
-NULL
-8
-13
-NULL
-2
-2,1
-0,3

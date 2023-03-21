@@ -12,14 +12,14 @@ namespace wtt01
 
     struct BEDRecordScanOptions
     {
-        uint8_t n_columns = 12;
+        uint8_t n_columns = 3;
         std::string compression = "auto_detect";
     };
 
     struct BEDRecordScanBindData : public duckdb::TableFunctionData
     {
         std::string file_path;
-        uint8_t n_columns = 12;
+        uint8_t n_columns = 3;
 
         BEDRecordScanOptions options;
         BEDReaderC reader;
