@@ -118,7 +118,11 @@ pub unsafe extern "C" fn sam_record_read_records(c_reader: &SamRecordReaderC) ->
                 None => -1,
             };
 
-            let cigar_string = record.cigar().to_string();
+            let cigar = record.cigar();
+            let cigar_string = match cigar.is_empty() {
+                true => std::ptr::null(),
+                false => CString::new(cigar.to_string()).unwrap().into_raw(),
+            };
 
             let quality_score = record
                 .quality_scores()
@@ -153,7 +157,7 @@ pub unsafe extern "C" fn sam_record_read_records(c_reader: &SamRecordReaderC) ->
                 flags: flag_bits,
                 alignment_start,
                 alignment_end,
-                cigar_string: CString::new(cigar_string).unwrap().into_raw(),
+                cigar_string,
                 quality_scores: CString::new(quality_score).unwrap().into_raw(),
                 template_length,
                 mapping_quality,

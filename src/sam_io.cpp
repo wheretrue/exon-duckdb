@@ -65,7 +65,7 @@ namespace wtt01
 
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::BIGINT);
+        return_types.push_back(duckdb::LogicalType::INTEGER);
         return_types.push_back(duckdb::LogicalType::BIGINT);
         return_types.push_back(duckdb::LogicalType::BIGINT);
         return_types.push_back(duckdb::LogicalType::VARCHAR);
@@ -132,10 +132,19 @@ namespace wtt01
 
             output.SetValue(0, output.size(), duckdb::Value(record.sequence));
             output.SetValue(1, output.size(), duckdb::Value(record.read_name));
-            output.SetValue(2, output.size(), duckdb::Value(record.flags));
+            output.SetValue(2, output.size(), duckdb::Value::INTEGER(record.flags));
             output.SetValue(3, output.size(), duckdb::Value::BIGINT(record.alignment_start));
             output.SetValue(4, output.size(), duckdb::Value::BIGINT(record.alignment_end));
-            output.SetValue(5, output.size(), duckdb::Value(record.cigar_string));
+
+            if (record.cigar_string == NULL)
+            {
+                output.SetValue(5, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(5, output.size(), duckdb::Value(record.cigar_string));
+            }
+
             output.SetValue(6, output.size(), duckdb::Value(record.quality_scores));
             output.SetValue(7, output.size(), duckdb::Value(record.template_length));
             output.SetValue(8, output.size(), duckdb::Value(record.mapping_quality));
