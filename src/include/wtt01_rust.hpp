@@ -54,22 +54,8 @@ struct FASTAReaderC {
   const char *error;
 };
 
-struct Record {
-  const char *id;
-  const char *description;
-  const char *sequence;
-  bool done;
-};
-
 struct FASTQReaderC {
   void *inner_reader;
-};
-
-struct FastqRecord {
-  const char *name;
-  const char *description;
-  const char *sequence;
-  const char *quality_scores;
 };
 
 struct GenbankReader {
@@ -173,15 +159,14 @@ void fasta_next(const FASTAReaderC *fasta_reader,
 
 void fasta_free(FASTAReaderC *fasta_reader);
 
-void fasta_record_free(Record record);
-
 FASTQReaderC fastq_new(const char *filename, const char *compression);
 
-FastqRecord fastq_next(const FASTQReaderC *fastq_reader);
+void fastq_next(const FASTQReaderC *fastq_reader,
+                void *chunk_ptr,
+                bool *done,
+                uintptr_t batch_size);
 
 void fastq_free(FASTQReaderC fastq_reader);
-
-void fastq_record_free(FastqRecord record);
 
 GenbankReader genbank_new(const char *filename, const char *compression);
 

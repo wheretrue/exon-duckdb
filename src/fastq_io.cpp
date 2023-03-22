@@ -109,38 +109,21 @@ namespace wtt01
 
         if (local_state->done)
         {
-            return;
-        }
-
-        while (output.size() < STANDARD_VECTOR_SIZE)
-        {
-            FastqRecord record = fastq_next(&bind_data->reader);
-
-            if (record.name == NULL)
+            if (bind_data->nth_file + 1 < bind_data->file_paths.size())
             {
-                if (bind_data->nth_file + 1 < bind_data->file_paths.size())
-                {
-                    bind_data->nth_file += 1;
-                    bind_data->reader = fastq_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
-                    continue;
-                }
-                else
-                {
-                    local_state->done = true;
-                    break;
-                }
+                bind_data->nth_file += 1;
+                bind_data->reader = fastq_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
+                local_state->done = false;
             }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.name));
-            output.SetValue(1, output.size(), duckdb::Value(record.description));
-            output.SetValue(2, output.size(), duckdb::Value(record.sequence));
-            output.SetValue(3, output.size(), duckdb::Value(record.quality_scores));
-
-            output.SetCardinality(output.size() + 1);
-
-            fastq_record_free(record);
+            else
+            {
+                local_state->done = true;
+                return;
+            }
         }
-    };
+
+        fastq_next(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
+    }
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> FastqFunctions::GetFastqTableFunction()
     {
