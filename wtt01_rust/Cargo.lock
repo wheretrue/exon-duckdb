@@ -843,6 +843,7 @@ version = "0.7.1"
 source = "git+https://github.com/wangfenjin/duckdb-rs#0c89e7f22b131d58b455785ae594ba9b6fb84412"
 dependencies = [
  "autocfg",
+ "cc",
  "flate2",
  "pkg-config",
  "serde",
