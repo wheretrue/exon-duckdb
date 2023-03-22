@@ -100,6 +100,13 @@ target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
+elseif(APPLE)
+target_link_libraries(${EXTENSION_NAME}
+  PUBLIC
+  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  "-framework CoreFoundation"
+  ${OPENSSL_LIBRARIES}
+)
 else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC

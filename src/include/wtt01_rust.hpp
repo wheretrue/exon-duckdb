@@ -124,20 +124,7 @@ struct HeaderRecordC {
 
 struct SamRecordReaderC {
   void *sam_reader;
-  const char *sam_header;
-};
-
-struct SamRecordC {
-  const char *sequence;
-  const char *read_name;
-  uint16_t flags;
-  int64_t alignment_start;
-  int64_t alignment_end;
-  const char *cigar_string;
-  const char *quality_scores;
-  int64_t template_length;
-  int64_t mapping_quality;
-  int64_t mate_alignment_start;
+  const void *sam_header;
 };
 
 struct VCFReaderC {
@@ -209,7 +196,10 @@ HeaderRecordC sam_header_read_records(const SamHeaderReaderC *c_reader);
 
 SamRecordReaderC sam_record_new_reader(const char *filename, const char *compression);
 
-SamRecordC sam_record_read_records(const SamRecordReaderC *c_reader);
+void sam_record_read_records_chunk(const SamRecordReaderC *c_reader,
+                                   void *ptr,
+                                   bool *done,
+                                   uintptr_t batch_size);
 
 VCFReaderC vcf_new(const char *filename, const char *compression);
 

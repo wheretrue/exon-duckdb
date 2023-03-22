@@ -2,10 +2,15 @@ use std::{
     ffi::{c_char, c_void, CStr, CString},
     fs::File,
     io::{BufRead, BufReader},
-    str::FromStr,
 };
 
 use noodles::sam::{alignment::Record, Header, Reader};
+
+use duckdb::{
+    self,
+    ffi::duckdb_data_chunk,
+    vtab::{FlatVector, Inserter},
+};
 
 #[repr(C)]
 pub struct SamRecordC {
@@ -68,102 +73,121 @@ pub unsafe extern "C" fn sam_record_new_reader(
     }
 }
 
-// #[no_mangle]
-// pub unsafe extern "C" fn sam_record_read_records_chunk(
-//     c_reader: &SamRecordReaderC,
-//     duckdb_ptr: &c_void,
-// ) {
-
-// }
-
 #[no_mangle]
-pub unsafe extern "C" fn sam_record_read_records(c_reader: &SamRecordReaderC) -> SamRecordC {
+pub unsafe extern "C" fn sam_record_read_records_chunk(
+    c_reader: &SamRecordReaderC,
+    ptr: *mut c_void,
+    done: &mut bool,
+    batch_size: usize,
+) {
     let sam_reader_ptr = c_reader.sam_reader as *mut Reader<Box<dyn BufRead>>;
 
     let sam_header = c_reader.sam_header as *const Header;
     let sam_header = &*sam_header;
 
+    let duckdb_ptr = ptr as duckdb_data_chunk;
+    let duckdb_chunk = duckdb::vtab::DataChunk::from(duckdb_ptr);
+
+    // sequences is a vector of strings
+    let sequences = duckdb_chunk.flat_vector(0);
+    let read_name: FlatVector = duckdb_chunk.flat_vector(1);
+    let mut flags = duckdb_chunk.flat_vector(2);
+    let mut alignment_start = duckdb_chunk.flat_vector(3);
+    let mut alignment_end = duckdb_chunk.flat_vector(4);
+    let mut cigar_vector: FlatVector = duckdb_chunk.flat_vector(5);
+    let mut quality_scores_vector: FlatVector = duckdb_chunk.flat_vector(6);
+    let mut template_length_vector = duckdb_chunk.flat_vector(7);
+    let mut mapping_quality_vector = duckdb_chunk.flat_vector(8);
+    let mut mate_alignment_start_vector = duckdb_chunk.flat_vector(9);
+
+    let mut actual = 0;
+
     match sam_reader_ptr.as_mut() {
         Some(sam_reader) => {
-            let mut record = Record::default();
+            for i in 0..batch_size {
+                actual = i;
 
-            match sam_reader.read_record(&sam_header, &mut record) {
-                Ok(byt) => {
-                    if byt == 0 {
-                        return SamRecordC::default();
+                let mut record = Record::default();
+
+                match sam_reader.read_record(&sam_header, &mut record) {
+                    Ok(byt) => {
+                        if byt == 0 {
+                            *done = true;
+                            return;
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Error reading record. {}", e);
+                        *done = true;
+                        return;
                     }
                 }
-                Err(_) => {
-                    return SamRecordC::default();
+
+                let sequence = record.sequence().to_string();
+                sequences.insert(i, sequence.as_str());
+
+                read_name.insert(i, record.read_name().unwrap().as_ref());
+
+                flags.as_mut_slice::<i32>()[i] = record.flags().bits() as i32;
+
+                // let alignment_start = record.alignment_start();
+                match record.alignment_start() {
+                    Some(alignment_start_position) => {
+                        alignment_start.as_mut_slice::<i64>()[i] =
+                            alignment_start_position.get() as i64;
+                    }
+                    None => alignment_start.set_null(i),
                 }
-            }
 
-            let sequence = record.sequence().to_string();
+                match record.alignment_end() {
+                    Some(alignment_end_position) => {
+                        alignment_end.as_mut_slice::<i64>()[i] =
+                            alignment_end_position.get() as i64;
+                    }
+                    None => alignment_end.set_null(i),
+                }
 
-            let read_name = match record.read_name() {
-                Some(name) => name.to_string(),
-                None => "".to_string(),
-            };
+                let cigar_string = record.cigar();
+                match cigar_string.is_empty() {
+                    true => cigar_vector.set_null(i),
+                    false => {
+                        cigar_vector.insert(i, cigar_string.to_string().as_ref());
+                    }
+                }
 
-            let flags = record.flags();
-            let flag_bits = flags.bits();
+                let quality_scores = record.quality_scores().to_string();
+                match quality_scores.is_empty() {
+                    true => quality_scores_vector.set_null(i),
+                    false => {
+                        quality_scores_vector.insert(i, quality_scores.as_ref());
+                    }
+                }
 
-            let alignment_start = match record.alignment_start() {
-                Some(start) => start.get() as i64,
-                None => -1,
-            };
+                template_length_vector.as_mut_slice::<i64>()[i] = record.template_length() as i64;
 
-            let alignment_end = match record.alignment_end() {
-                Some(end) => end.get() as i64,
-                None => -1,
-            };
+                let mapping_quality = record.mapping_quality();
+                match mapping_quality {
+                    Some(mapping_quality) => {
+                        mapping_quality_vector.as_mut_slice::<i32>()[i] =
+                            mapping_quality.get() as i32;
+                    }
+                    None => mapping_quality_vector.set_null(i),
+                }
 
-            let cigar = record.cigar();
-            let cigar_string = match cigar.is_empty() {
-                true => std::ptr::null(),
-                false => CString::new(cigar.to_string()).unwrap().into_raw(),
-            };
+                let mate_alignment_start = record.mate_alignment_start();
+                match mate_alignment_start {
+                    Some(mate_alignment_start) => {
+                        mate_alignment_start_vector.as_mut_slice::<i64>()[i] =
+                            mate_alignment_start.get() as i64;
+                    }
+                    None => mate_alignment_start_vector.set_null(i),
+                }
 
-            let quality_score = record
-                .quality_scores()
-                .as_ref()
-                .into_iter()
-                .map(|q| q.to_string())
-                .collect::<Vec<String>>()
-                .join("");
-
-            let template_length = record.template_length() as i64;
-
-            let mapping_quality = match record.mapping_quality() {
-                Some(q) => q.get(),
-                None => 0,
-            } as i64;
-
-            let mate_alignment_start = match record.mate_alignment_start() {
-                Some(start) => start.get() as i64,
-                None => -1,
-            };
-
-            // TODO: Add reference id
-            // let mate_reference_sequence_id = match record.mate_reference_sequence_id() {
-            //     Some(id) => id.get(),
-            //     None => -1,
-            // };
-            // record.data()
-
-            SamRecordC {
-                read_name: CString::new(read_name).unwrap().into_raw(),
-                sequence: CString::new(sequence).unwrap().into_raw(),
-                flags: flag_bits,
-                alignment_start,
-                alignment_end,
-                cigar_string,
-                quality_scores: CString::new(quality_score).unwrap().into_raw(),
-                template_length,
-                mapping_quality,
-                mate_alignment_start,
+                duckdb_chunk.set_len(actual + 1);
             }
         }
-        None => SamRecordC::default(),
+        None => {
+            *done = true;
+        }
     }
 }

@@ -1,10 +1,12 @@
 #include <iostream>
 
 #include <duckdb.hpp>
+#include <duckdb.h>
 #include <duckdb/common/file_system.hpp>
 #include <duckdb/parser/expression/constant_expression.hpp>
 #include <duckdb/parser/expression/function_expression.hpp>
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
+#include <duckdb/main/capi/capi_internal.hpp>
 
 #include "wtt01_rust.hpp"
 #include "sam_io.hpp"
@@ -63,27 +65,35 @@ namespace wtt01
         auto reader = sam_record_new_reader(result->file_path.c_str(), result->options.compression.c_str());
         result->reader = reader;
 
+        names.push_back("sequence");
         return_types.push_back(duckdb::LogicalType::VARCHAR);
+
+        names.push_back("read_name");
         return_types.push_back(duckdb::LogicalType::VARCHAR);
+
+        names.push_back("flags");
         return_types.push_back(duckdb::LogicalType::INTEGER);
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
+
+        names.push_back("alignment_start");
         return_types.push_back(duckdb::LogicalType::BIGINT);
 
-        names.push_back("sequence");
-        names.push_back("read_name");
-        names.push_back("flags");
-        names.push_back("alignment_start");
         names.push_back("alignment_end");
+        return_types.push_back(duckdb::LogicalType::BIGINT);
+
         names.push_back("cigar_string");
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+
         names.push_back("quality_scores");
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
+
         names.push_back("template_length");
+        return_types.push_back(duckdb::LogicalType::BIGINT);
+
         names.push_back("mapping_quality");
+        return_types.push_back(duckdb::LogicalType::INTEGER);
+
         names.push_back("mate_alignment_start");
+        return_types.push_back(duckdb::LogicalType::BIGINT);
 
         return move(result);
     }
@@ -120,38 +130,7 @@ namespace wtt01
             return;
         }
 
-        while (output.size() < STANDARD_VECTOR_SIZE)
-        {
-            SamRecordC record = sam_record_read_records(&bind_data->reader);
-
-            if (record.sequence == NULL)
-            {
-                local_state->done = true;
-                break;
-            }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.sequence));
-            output.SetValue(1, output.size(), duckdb::Value(record.read_name));
-            output.SetValue(2, output.size(), duckdb::Value::INTEGER(record.flags));
-            output.SetValue(3, output.size(), duckdb::Value::BIGINT(record.alignment_start));
-            output.SetValue(4, output.size(), duckdb::Value::BIGINT(record.alignment_end));
-
-            if (record.cigar_string == NULL)
-            {
-                output.SetValue(5, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(5, output.size(), duckdb::Value(record.cigar_string));
-            }
-
-            output.SetValue(6, output.size(), duckdb::Value(record.quality_scores));
-            output.SetValue(7, output.size(), duckdb::Value(record.template_length));
-            output.SetValue(8, output.size(), duckdb::Value(record.mapping_quality));
-            output.SetValue(9, output.size(), duckdb::Value(record.mate_alignment_start));
-
-            output.SetCardinality(output.size() + 1);
-        }
+        sam_record_read_records_chunk(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
     };
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> SamFunctions::GetSamRecordScanFunction()
