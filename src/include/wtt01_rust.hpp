@@ -166,7 +166,10 @@ BEDRecordC bed_next(const BEDReaderC *bam_reader, uint8_t n_columns);
 
 FASTAReaderC fasta_new(const char *filename, const char *compression);
 
-void fasta_next(const FASTAReaderC *fasta_reader, Record *record);
+void fasta_next(const FASTAReaderC *fasta_reader,
+                void *chunk_ptr,
+                bool *done,
+                uintptr_t batch_size);
 
 void fasta_free(FASTAReaderC *fasta_reader);
 

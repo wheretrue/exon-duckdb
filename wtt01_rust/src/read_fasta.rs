@@ -4,6 +4,7 @@ use std::{
     path::Path,
 };
 
+use duckdb::{ffi::duckdb_data_chunk, vtab::Inserter};
 use flate2::read::GzDecoder;
 use noodles::fasta::Reader;
 
@@ -110,7 +111,6 @@ pub unsafe extern "C" fn fasta_new(
             };
         }
         Err(e) => {
-            eprintln!("fasta_new: error={}", e);
             return FASTAReaderC {
                 inner_reader: std::ptr::null_mut(),
                 error: CString::new(e.to_string()).unwrap().into_raw(),
@@ -120,72 +120,86 @@ pub unsafe extern "C" fn fasta_new(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn fasta_next(fasta_reader: &FASTAReaderC, record: &mut Record) {
+pub unsafe extern "C" fn fasta_next(
+    fasta_reader: &FASTAReaderC,
+    chunk_ptr: *mut c_void,
+    done: &mut bool,
+    batch_size: usize,
+) {
     let fasta_reader_ptr = fasta_reader.inner_reader as *mut Reader<Box<dyn BufRead>>;
 
     if (fasta_reader_ptr as usize) == 0 {
         eprintln!("fasta_next: fasta_reader is null");
     }
 
+    let duckdb_ptr = chunk_ptr as duckdb_data_chunk;
+    let duckdb_chunk = duckdb::vtab::DataChunk::from(duckdb_ptr);
+
+    let id_vector = duckdb_chunk.flat_vector(0);
+    let mut description_vector = duckdb_chunk.flat_vector(1);
+    let sequence_vector = duckdb_chunk.flat_vector(2);
+
     match fasta_reader_ptr.as_mut() {
         Some(reader) => {
-            let mut full_definition = String::new();
+            for i in 0..batch_size {
+                let mut full_definition = String::new();
+                let mut sequence = Vec::new();
 
-            let mut sequence = Vec::new();
-
-            match reader.read_definition(&mut full_definition) {
-                Ok(bytes_read) => {
-                    if bytes_read == 0 {
-                        record.done = true;
+                match reader.read_definition(&mut full_definition) {
+                    Ok(bytes_read) => {
+                        if bytes_read == 0 {
+                            *done = true;
+                            return;
+                        }
+                    }
+                    Err(e) => {
+                        *done = true;
                         return;
                     }
                 }
-                Err(e) => {
-                    eprintln!("fasta_next: error={}\n", e);
-                    record.done = true;
-                    return;
-                }
-            }
 
-            match reader.read_sequence(&mut sequence) {
-                Ok(bytes_read) => {
-                    if bytes_read == 0 {
-                        record.done = true;
+                match reader.read_sequence(&mut sequence) {
+                    Ok(bytes_read) => {
+                        if bytes_read == 0 {
+                            *done = true;
+                            return;
+                        }
+                    }
+                    Err(e) => {
+                        *done = true;
                         return;
                     }
                 }
-                Err(e) => {
-                    eprintln!("fasta_next: error={}", e);
-                    record.done = true;
-                    return;
-                }
-            }
 
-            match full_definition.strip_prefix(">") {
-                Some(definition) => match definition.split_once(" ") {
-                    Some((id, description)) => {
-                        record.id = CString::new(id).unwrap().into_raw();
-                        record.description = CString::new(description).unwrap().into_raw();
-                        record.sequence = CString::new(sequence).unwrap().into_raw();
+                match full_definition.strip_prefix(">") {
+                    Some(definition) => match definition.split_once(" ") {
+                        Some((id, description)) => {
+                            let sequence_str = std::str::from_utf8(&sequence).unwrap();
+                            sequence_vector.insert(i, sequence_str);
 
-                        record.done = false;
-                    }
+                            id_vector.insert(i, id);
+                            description_vector.insert(i, description);
+
+                            duckdb_chunk.set_len(i + 1);
+                        }
+                        None => {
+                            let sequence_str = std::str::from_utf8(&sequence).unwrap();
+                            sequence_vector.insert(i, sequence_str);
+                            id_vector.insert(i, definition);
+
+                            description_vector.set_null(i);
+
+                            duckdb_chunk.set_len(i + 1);
+                        }
+                    },
                     None => {
-                        record.id = CString::new(definition).unwrap().into_raw();
-                        record.description = CString::new("").unwrap().into_raw();
-                        record.sequence = CString::new(sequence).unwrap().into_raw();
-
-                        record.done = false;
+                        *done = true;
                     }
-                },
-                None => {
-                    record.done = true;
-                    return;
                 }
             }
         }
         None => {
-            record.done = true;
+            *done = true;
             return;
         }
     }

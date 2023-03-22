@@ -107,46 +107,19 @@ namespace wtt01
 
         if (local_state->done)
         {
-            return;
-        }
-
-        Record record;
-
-        while (output.size() < STANDARD_VECTOR_SIZE)
-        {
-            fasta_next(&bind_data->reader, &record);
-
-            if (record.done == true)
+            if (bind_data->nth_file + 1 < bind_data->file_paths.size())
             {
-                if (bind_data->nth_file + 1 < bind_data->file_paths.size())
-                {
-                    bind_data->nth_file += 1;
-                    bind_data->reader = fasta_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
-                    continue;
-                }
-                else
-                {
-                    local_state->done = true;
-                    break;
-                }
-            }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.id));
-
-            if (record.description == NULL || strlen(record.description) == 0)
-            {
-                output.SetValue(1, output.size(), duckdb::Value());
+                bind_data->nth_file += 1;
+                bind_data->reader = fasta_new(bind_data->file_paths[bind_data->nth_file].c_str(), bind_data->options.compression.c_str());
             }
             else
             {
-                output.SetValue(1, output.size(), duckdb::Value(record.description));
+                local_state->done = true;
+                return;
             }
-
-            output.SetValue(2, output.size(), duckdb::Value(record.sequence));
-            output.SetCardinality(output.size() + 1);
-            fasta_record_free(record);
         }
-        // Free up the memory on the record pointers.
+
+        fasta_next(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
     };
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> FastaIO::GetFastaTableFunction()
