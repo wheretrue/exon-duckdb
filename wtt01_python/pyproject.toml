@@ -25,6 +25,9 @@ name = "wtt01"
 readme = "README.md"
 requires-python = ">=3.7"
 
+[project.scripts]
+wtt01 = "wtt01.cli:main"
+
 [tool.hatch.version]
 path = "wtt01/__about__.py"
 
