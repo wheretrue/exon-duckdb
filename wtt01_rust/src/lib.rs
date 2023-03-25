@@ -1,4 +1,5 @@
-pub mod read_bam_record;
+pub mod read_bam;
+// pub mod _read_bam_record;
 pub mod read_bed;
 pub mod read_fasta;
 pub mod read_fastq;

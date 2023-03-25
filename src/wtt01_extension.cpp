@@ -8,6 +8,8 @@
 
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
 
+#include "bam_io.hpp"
+#include "bed_io.hpp"
 #include "fasta_io.hpp"
 #include "fastq_io.hpp"
 #include "genbank_io.hpp"
@@ -16,7 +18,7 @@
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
-#include "bed_io.hpp"
+
 #include "wtt01_functions.hpp"
 
 #include "check_license.hpp"
@@ -109,6 +111,9 @@ namespace duckdb
         {
             catalog.CreateFunction(*con.context, func.get());
         }
+
+        auto get_bam_record_scan = wtt01::BamFunctions::GetBamRecordScanFunction();
+        catalog.CreateTableFunction(context, get_bam_record_scan.get());
 
         auto get_wtt01_version_function = wtt01::Wtt01Functions::GetWtt01VersionFunction();
         catalog.CreateFunction(*con.context, &get_wtt01_version_function);

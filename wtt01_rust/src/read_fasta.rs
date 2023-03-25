@@ -110,6 +110,7 @@ pub unsafe extern "C" fn fasta_next(
                         }
                     }
                     Err(e) => {
+                        eprintln!("fasta_next: error reading definition: {}", e);
                         *done = true;
                         return;
                     }

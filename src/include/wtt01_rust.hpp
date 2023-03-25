@@ -11,22 +11,10 @@ enum class WTTPhase {
   Two,
 };
 
-struct BamRecordReaderC {
+struct BAMReaderC {
   void *bam_reader;
-  const char *bam_header;
-};
-
-struct BamRecordC {
-  const char *sequence;
-  const char *read_name;
-  uint16_t flags;
-  int64_t alignment_start;
-  int64_t alignment_end;
-  const char *cigar_string;
-  const char *quality_scores;
-  int64_t template_length;
-  int64_t mapping_quality;
-  int64_t mate_alignment_start;
+  void *bam_header;
+  const char *error;
 };
 
 struct BEDReaderC {
@@ -142,9 +130,9 @@ struct NoodlesWriter {
 
 extern "C" {
 
-BamRecordReaderC bam_record_new_reader(const char *filename, const char *compression);
+BAMReaderC bam_new(const char *filename);
 
-BamRecordC bam_record_read_records(const BamRecordReaderC *c_reader);
+void bam_next(BAMReaderC *bam_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
 

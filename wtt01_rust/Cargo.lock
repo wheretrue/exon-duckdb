@@ -537,7 +537,7 @@ dependencies = [
 [[package]]
 name = "duckdb"
 version = "0.7.1"
-source = "git+https://github.com/wangfenjin/duckdb-rs#0c89e7f22b131d58b455785ae594ba9b6fb84412"
+source = "git+https://github.com/wangfenjin/duckdb-rs#f8b45b516fceb521019bad221c44f4d7934e3a6e"
 dependencies = [
  "arrow",
  "cast",
@@ -840,7 +840,7 @@ checksum = "201de327520df007757c1f0adce6e827fe8562fbc28bfd9c15571c66ca1f5f79"
 [[package]]
 name = "libduckdb-sys"
 version = "0.7.1"
-source = "git+https://github.com/wangfenjin/duckdb-rs#0c89e7f22b131d58b455785ae594ba9b6fb84412"
+source = "git+https://github.com/wangfenjin/duckdb-rs#f8b45b516fceb521019bad221c44f4d7934e3a6e"
 dependencies = [
  "autocfg",
  "cc",
@@ -941,6 +941,7 @@ checksum = "47a338361a01ec3ba68f4ebb5a1594444ba126478798d024d6fe8de35db108a5"
 dependencies = [
  "noodles-bam",
  "noodles-bed",
+ "noodles-bgzf",
  "noodles-core",
  "noodles-fasta",
  "noodles-fastq",

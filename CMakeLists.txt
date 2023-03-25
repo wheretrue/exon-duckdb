@@ -83,6 +83,7 @@ set(EXTENSION_SOURCES
   src/hmm_io.cpp
   src/sam_cigar_parse.cpp
   src/sam_io.cpp
+  src/bam_io.cpp
   src/vcf_io.cpp
   src/wtt01_acknowledgement_table.cpp
   src/wtt01_functions.cpp
