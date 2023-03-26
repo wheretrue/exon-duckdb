@@ -18,6 +18,7 @@
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
+#include "bcf_io.hpp"
 
 #include "wtt01_functions.hpp"
 
@@ -91,6 +92,9 @@ namespace duckdb
 
         auto vcf_scan = wtt01::VCFFunctions::GetVCFRecordScanFunction();
         catalog.CreateTableFunction(context, vcf_scan.get());
+
+        auto bcf_scan = wtt01::BcfFunctions::GetBcfRecordScanFunction();
+        catalog.CreateTableFunction(context, bcf_scan.get());
 
         config.replacement_scans.emplace_back(wtt01::VCFFunctions::GetVcfReplacementScanFunction);
 

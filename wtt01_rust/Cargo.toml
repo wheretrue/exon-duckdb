@@ -19,7 +19,7 @@ serde_json = "1.0"
 version = "0.7.1"
 
 [dependencies.noodles]
-features = ["fasta", "fastq", "gff", "core", "sam", "bam", "vcf", "bed", "bgzf"]
+features = ["fasta", "fastq", "gff", "core", "sam", "bam", "vcf", "bed", "bgzf", "bcf"]
 version = "0.34.0"
 
 [dependencies.flate2]

@@ -17,6 +17,13 @@ struct BAMReaderC {
   const char *error;
 };
 
+struct BcfReaderC {
+  void *bcf_reader;
+  void *bcf_header;
+  void *bcf_string_maps;
+  const char *error;
+};
+
 struct BEDReaderC {
   void *inner_reader;
   uint8_t n_columns;
@@ -103,19 +110,8 @@ struct SamRecordReaderC {
 
 struct VCFReaderC {
   void *inner_reader;
-  const char *header;
-};
-
-struct VCFRecord {
-  const char *chromosome;
-  const char *ids;
-  uint64_t position;
-  const char *reference_bases;
-  const char *alternate_bases;
-  float quality_score;
-  const char *filters;
-  const char *infos;
-  const char *genotypes;
+  void *header;
+  const char *error;
 };
 
 struct CResult {
@@ -133,6 +129,10 @@ extern "C" {
 BAMReaderC bam_new(const char *filename);
 
 void bam_next(BAMReaderC *bam_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
+
+BcfReaderC bcf_new(const char *filename);
+
+void bcf_next(BcfReaderC *bcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
 
@@ -179,7 +179,7 @@ void sam_record_read_records_chunk(const SamRecordReaderC *c_reader,
 
 VCFReaderC vcf_new(const char *filename, const char *compression);
 
-VCFRecord vcf_next(const VCFReaderC *vcf_reader);
+void vcf_next(VCFReaderC *vcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 bool is_segmented(uint16_t flag);
 

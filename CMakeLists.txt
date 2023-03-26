@@ -74,16 +74,17 @@ set(EXTENSION_SOURCES
   src/wtt01_extension.cpp
   src/check_license.cpp
 
+  src/bam_io.cpp
+  src/bcf_io.cpp
   src/bed_io.cpp
-  src/sequence_functions.cpp
   src/fasta_io.cpp
   src/fastq_io.cpp
-  src/gff_io.cpp
   src/genbank_io.cpp
+  src/gff_io.cpp
   src/hmm_io.cpp
   src/sam_cigar_parse.cpp
   src/sam_io.cpp
-  src/bam_io.cpp
+  src/sequence_functions.cpp
   src/vcf_io.cpp
   src/wtt01_acknowledgement_table.cpp
   src/wtt01_functions.cpp
