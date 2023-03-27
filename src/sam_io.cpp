@@ -201,7 +201,7 @@ namespace wtt01
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<SamHeaderScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamHeaderInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -215,7 +215,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void SamHeaderScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -318,7 +318,7 @@ namespace wtt01
         struct_children.push_back(std::make_pair("len", duckdb::LogicalType::INTEGER));
 
         auto record_type = duckdb::LogicalType::STRUCT(std::move(struct_children));
-        auto row_type = duckdb::LogicalType::LIST(move(record_type));
+        auto row_type = duckdb::LogicalType::LIST(std::move(record_type));
 
         set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR}, row_type, ParseCIGARString));
 

@@ -319,7 +319,7 @@ namespace wtt01
             return_types.push_back(duckdb::LogicalType::VARCHAR);
         }
 
-        return move(result);
+        return std::move(result);
     };
 
     void ThirdPartyAcknowledgementTableFunction(duckdb::ClientContext &context, duckdb::TableFunctionInput &bind_data, duckdb::DataChunk &output)

@@ -2,7 +2,6 @@ use std::ffi::{c_char, c_void, CStr};
 use std::fs::File;
 
 use duckdb::ffi::duckdb_data_chunk;
-use duckdb::vtab::{FlatVector, Inserter};
 use noodles::bcf::header::StringMaps;
 use noodles::bcf::Record;
 use noodles::vcf::Header;
@@ -34,8 +33,15 @@ pub unsafe extern "C" fn bcf_new(filename: *const c_char) -> BcfReaderC {
     let file = file.unwrap();
 
     let mut reader = bcf::Reader::new(file);
+    if let Err(e) = reader.read_file_format() {
+        return BcfReaderC {
+            bcf_reader: std::ptr::null_mut(),
+            bcf_header: std::ptr::null_mut(),
+            bcf_string_maps: std::ptr::null_mut(),
+            error: std::ffi::CString::new(format!("{}", e)).unwrap().into_raw(),
+        };
+    }
 
-    reader.read_file_format().unwrap();
     let header = reader.read_header().unwrap();
     let rust_header: Header = header.parse().unwrap();
 

@@ -13,6 +13,19 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
+  execute_process(COMMAND brew --prefix llvm@15 OUTPUT_VARIABLE LLVM_PREFIX)
+  string(STRIP ${LLVM_PREFIX} LLVM_ROOT_DIR)
+
+  # Set the required clang version to 16
+  set(CC ${LLVM_ROOT_DIR}/bin/clang)
+  set(CXX ${LLVM_ROOT_DIR}/bin/clang++)
+
+  set(CMAKE_C_COMPILER ${CC})
+  set(CMAKE_CXX_COMPILER ${CXX})
+
+  message("-- wtt: CC is ${CC}")
+  message("-- wtt: CXX is ${CXX}")
+
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
@@ -42,19 +55,28 @@ endif()
 
 add_subdirectory(wtt01_rust)
 
+# set(EXTRA_FLAGS "-ftree-vectorize -msse2 -mfpmath=sse -ftree-vectorizer-verbose=5")
+
 Include(FetchContent)
 
 FetchContent_Declare(
   httplib
   GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-  GIT_TAG v0.12.0)
+  GIT_TAG v0.12.0
+)
 
 FetchContent_Declare(
   json
   URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
 
-list(APPEND available_contents httplib json)
+FetchContent_Declare(wfa2
+  GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
+  GIT_TAG ec1ba114f6c336ca603425860137b1e79985da70
+)
+FetchContent_MakeAvailable(wfa2)
+
+list(APPEND available_contents httplib json wfa2)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -64,6 +86,7 @@ message("-- wtt libdir: ${CMAKE_INSTALL_LIBDIR}")
 message("-- wtt runtime: ${CMAKE_INSTALL_BINDIR}")
 message("-- wtt: CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 message("-- wtt: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
+message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
@@ -95,17 +118,20 @@ set(PARAMETERS "-warnings")
 
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
-include_directories(wtt01_loadable_extension ${CMAKE_CURRENT_SOURCE_DIR}/duckdb/extension/json/include)
-
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 elseif(APPLE)
+
+include_directories(${wfa2_SOURCE_DIR})
+
 target_link_libraries(${EXTENSION_NAME}
-  PUBLIC
+  PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+  "${wfa2_BINARY_DIR}/libwfa2.a"
   "-framework CoreFoundation"
   ${OPENSSL_LIBRARIES}
 )

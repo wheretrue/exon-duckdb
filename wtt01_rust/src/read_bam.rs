@@ -53,7 +53,17 @@ pub unsafe extern "C" fn bam_new(filename: *const c_char) -> BAMReaderC {
         }
     };
 
-    let reference_sequence = reader.read_reference_sequences();
+    // let reference_sequence = reader.read_reference_sequences();
+    match reader.read_reference_sequences() {
+        Ok(_) => (),
+        Err(e) => {
+            return BAMReaderC {
+                bam_reader: std::ptr::null_mut(),
+                bam_header: std::ptr::null_mut(),
+                error: std::ffi::CString::new(format!("{}", e)).unwrap().into_raw(),
+            }
+        }
+    };
 
     BAMReaderC {
         bam_reader: Box::into_raw(Box::new(reader)) as *mut c_void,

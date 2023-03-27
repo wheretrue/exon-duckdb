@@ -124,6 +124,7 @@ pub unsafe extern "C" fn fasta_next(
                         }
                     }
                     Err(e) => {
+                        eprintln!("fasta_next: error reading sequence: {}", e);
                         *done = true;
                         return;
                     }

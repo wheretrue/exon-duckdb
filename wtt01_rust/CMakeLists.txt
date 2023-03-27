@@ -1,4 +1,4 @@
-project(wtt_01_rust)
+project(wtt01_rust)
 
 include(FetchContent)
 

@@ -253,7 +253,7 @@ pub unsafe extern "C" fn vcf_next(
 
             let mut row = 0;
 
-            while (row < chunk_size) {
+            while row < chunk_size {
                 let mut buffer = String::new();
                 let line_read_result = reader.read_record(&mut buffer);
                 if line_read_result.is_err() {

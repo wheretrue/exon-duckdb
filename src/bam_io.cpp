@@ -88,14 +88,14 @@ namespace wtt01
         names.push_back("mate_alignment_start");
         return_types.push_back(duckdb::LogicalType::BIGINT);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> BamRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<BamRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> BamRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -106,7 +106,7 @@ namespace wtt01
 
         auto local_state = duckdb::make_unique<BamRecordScanLocalState>();
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void BamRecordScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
