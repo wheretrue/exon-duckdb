@@ -164,6 +164,11 @@ GenbankRecord genbank_next(const GenbankReader *reader);
 
 GFFReaderC gff_new(const char *filename, const char *compression);
 
+void gff_next_batch(const GFFReaderC *gff_reader,
+                    void *chunk_ptr,
+                    bool *done,
+                    uintptr_t batch_size);
+
 GFFRecord gff_next(const GFFReaderC *gff_reader);
 
 SamHeaderReaderC sam_header_new_reader(const char *filename, const char *compression);

@@ -537,7 +537,7 @@ dependencies = [
 [[package]]
 name = "duckdb"
 version = "0.7.1"
-source = "git+https://github.com/wangfenjin/duckdb-rs#f8b45b516fceb521019bad221c44f4d7934e3a6e"
+source = "git+https://github.com/tshauck/duckdb-rs?branch=make-func-public#6a0f7a4d3ed03f05672be8c10bb991e4dedd2350"
 dependencies = [
  "arrow",
  "cast",
@@ -546,6 +546,7 @@ dependencies = [
  "hashlink",
  "libduckdb-sys",
  "memchr",
+ "num",
  "rust_decimal",
  "smallvec",
  "strum",
@@ -840,7 +841,7 @@ checksum = "201de327520df007757c1f0adce6e827fe8562fbc28bfd9c15571c66ca1f5f79"
 [[package]]
 name = "libduckdb-sys"
 version = "0.7.1"
-source = "git+https://github.com/wangfenjin/duckdb-rs#f8b45b516fceb521019bad221c44f4d7934e3a6e"
+source = "git+https://github.com/tshauck/duckdb-rs?branch=make-func-public#6a0f7a4d3ed03f05672be8c10bb991e4dedd2350"
 dependencies = [
  "autocfg",
  "cc",
@@ -1878,6 +1879,7 @@ checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
 name = "wtt01_rust"
 version = "1.0.0"
 dependencies = [
+ "arrow",
  "bytes",
  "cbindgen",
  "duckdb",

@@ -12,6 +12,7 @@ crate-type = ["staticlib"]
 name = "wtt01_rust"
 
 [dependencies]
+arrow = {version = "35", default-features = false, features = ["prettyprint", "ffi"]}
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 
@@ -35,5 +36,6 @@ version = "1.0.1"
 cbindgen = "0.24.3"
 
 [dependencies.duckdb]
-features = ["vtab", "bundled"]
-git = "https://github.com/wangfenjin/duckdb-rs"
+branch = "make-func-public"
+features = ["vtab", "bundled", "vtab-arrow"]
+git = "https://github.com/tshauck/duckdb-rs"
