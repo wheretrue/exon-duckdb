@@ -58,7 +58,7 @@ jobs:
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
