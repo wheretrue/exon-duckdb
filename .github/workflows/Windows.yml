@@ -69,7 +69,9 @@ jobs:
       - name: Install OpenSSL
         shell: bash
         run: |
-          choco install openssl -y --force
+          choco install openssl strawberryperl -y --force
+          refreshenv
+          perl -MCPAN -e install CPAN
 
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
