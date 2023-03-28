@@ -85,14 +85,14 @@ namespace wtt01
         names.push_back("phase");
         names.push_back("attributes");
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> GffInitGlobalState(duckdb::ClientContext &context,
                                                                             duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<GffScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> GffInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -106,7 +106,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void GffScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -237,7 +237,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_gff", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_gff", std::move(children));
 
         return table_function;
     }
@@ -305,7 +305,7 @@ namespace wtt01
             fs.RemoveFile(result->file_name);
         }
 
-        return move(result);
+        return std::move(result);
     }
 
     static duckdb::unique_ptr<duckdb::GlobalFunctionData> GffWriteInitializeGlobal(duckdb::ClientContext &context, duckdb::FunctionData &bind_data, const std::string &file_path)
@@ -321,13 +321,13 @@ namespace wtt01
 
         global_state->writer = new_writer;
 
-        return move(global_state);
+        return std::move(global_state);
     }
 
     static duckdb::unique_ptr<duckdb::LocalFunctionData> GffWriteInitializeLocal(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data)
     {
         auto local_data = duckdb::make_unique<duckdb::LocalFunctionData>();
-        return move(local_data);
+        return std::move(local_data);
     }
 
     static void GffWriteSink(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, duckdb::GlobalFunctionData &gstate,
@@ -421,7 +421,7 @@ namespace wtt01
         result->file_name = info.file_path;
         result->reader = gff_new(info.file_path.c_str(), "auto_detect");
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::CopyFunction CreateGffCopyFunction()
@@ -513,7 +513,7 @@ namespace wtt01
 
         result->FinalizeRead(context);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GFFunctions::GetGFFRawTableFunction()

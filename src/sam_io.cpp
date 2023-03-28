@@ -95,14 +95,14 @@ namespace wtt01
         names.push_back("mate_alignment_start");
         return_types.push_back(duckdb::LogicalType::BIGINT);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<SamRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -116,7 +116,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void SamRecordScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -194,7 +194,7 @@ namespace wtt01
         names.push_back("tag");
         names.push_back("value");
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamHeaderInitGlobalState(duckdb::ClientContext &context,

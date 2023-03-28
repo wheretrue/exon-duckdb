@@ -89,14 +89,14 @@ namespace wtt01
         names.push_back("genotypes");
         return_types.push_back(duckdb::LogicalType::VARCHAR);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> VCFRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<VCFRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> VCFRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -157,7 +157,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_vcf_file_records", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_vcf_file_records", std::move(children));
 
         return table_function;
     }

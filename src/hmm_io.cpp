@@ -77,7 +77,7 @@ namespace wtt01
 
         result->FinalizeRead(context);
 
-        return move(result);
+        return std::move(result);
     };
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> HMMFunctions::GetHMMScanFunction()
