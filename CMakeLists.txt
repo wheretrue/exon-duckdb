@@ -91,6 +91,8 @@ message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
+include_directories(${wfa2_SOURCE_DIR})
+
 include_directories(src/include)
 
 set(EXTENSION_SOURCES
@@ -124,8 +126,6 @@ target_link_libraries(${EXTENSION_NAME}
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 elseif(APPLE)
-
-include_directories(${wfa2_SOURCE_DIR})
 
 target_link_libraries(${EXTENSION_NAME}
   PRIVATE
