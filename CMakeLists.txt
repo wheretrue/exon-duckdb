@@ -139,6 +139,8 @@ else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+  "${wfa2_BINARY_DIR}/libwfa2.a"
   ${OPENSSL_LIBRARIES}
 )
 endif()
