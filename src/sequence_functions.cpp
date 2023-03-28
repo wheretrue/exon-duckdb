@@ -13,9 +13,18 @@
 
 using duckdb::LogicalType;
 
+// Get the WFA2_ENABLED compile flag
+#ifdef WFA2_ENABLED
+#define WFA2_ENABLED_BOOL true
+#else
+#define WFA2_ENABLED_BOOL false
+#endif
+
 namespace wtt01
 {
 
+// Don't enable if WF2 is not enabled
+#if WFA2_ENABLED_BOOL
     bool SequenceFunctions::AlignBindData::Equals(const duckdb::FunctionData &other_p) const
     {
         // TODO: implement this or add the underlying accessors
@@ -190,6 +199,7 @@ namespace wtt01
 
         return duckdb::CreateScalarFunctionInfo(set);
     }
+#endif
 
     void ReverseComplementFunction(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
     {
@@ -542,7 +552,11 @@ namespace wtt01
         functions.push_back(GetReverseComplementFunction());
         functions.push_back(GetComplementFunction());
         functions.push_back(GetReverseTranscribeRnaToDnaFunction());
+
+#ifdef WFA2_ENABLED
         functions.push_back(GetAlignFunction());
+#endif
+
         return functions;
     }
 }
