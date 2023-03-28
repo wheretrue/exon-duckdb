@@ -74,7 +74,6 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         return_types.push_back(duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR));
-        // return_types.push_back(duckdb::LogicalType::VARCHAR);
 
         names.push_back("reference_sequence_name");
         names.push_back("source");
@@ -121,92 +120,90 @@ namespace wtt01
             return;
         }
 
-        gff_next_batch(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
+        while (output.size() < STANDARD_VECTOR_SIZE)
+        {
+            GFFRecord record = gff_next(&bind_data->reader);
 
-        // while (output.size() < STANDARD_VECTOR_SIZE)
-        // {
-        //     GFFRecord record = gff_next(&bind_data->reader);
+            if (record.reference_sequence_name == NULL)
+            {
+                local_state->done = true;
+                break;
+            }
 
-        //     if (record.reference_sequence_name == NULL)
-        //     {
-        //         local_state->done = true;
-        //         break;
-        //     }
+            output.SetValue(0, output.size(), duckdb::Value(record.reference_sequence_name));
+            output.SetValue(1, output.size(), duckdb::Value(record.source));
+            output.SetValue(2, output.size(), duckdb::Value(record.annotation_type));
+            output.SetValue(3, output.size(), duckdb::Value::BIGINT(record.start));
+            output.SetValue(4, output.size(), duckdb::Value::BIGINT(record.end));
 
-        //     output.SetValue(0, output.size(), duckdb::Value(record.reference_sequence_name));
-        //     output.SetValue(1, output.size(), duckdb::Value(record.source));
-        //     output.SetValue(2, output.size(), duckdb::Value(record.annotation_type));
-        //     output.SetValue(3, output.size(), duckdb::Value::BIGINT(record.start));
-        //     output.SetValue(4, output.size(), duckdb::Value::BIGINT(record.end));
+            if (std::isnan(record.score))
+            {
+                output.SetValue(5, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(5, output.size(), duckdb::Value::FLOAT(record.score));
+            }
 
-        //     if (std::isnan(record.score))
-        //     {
-        //         output.SetValue(5, output.size(), duckdb::Value());
-        //     }
-        //     else
-        //     {
-        //         output.SetValue(5, output.size(), duckdb::Value::FLOAT(record.score));
-        //     }
+            output.SetValue(6, output.size(), duckdb::Value(record.strand));
 
-        //     output.SetValue(6, output.size(), duckdb::Value(record.strand));
+            // Match on the phase value and set the record type.
+            if (record.phase == WTTPhase::None)
+            {
+                output.SetValue(7, output.size(), duckdb::Value());
+            }
+            else if (record.phase == WTTPhase::Zero)
+            {
+                output.SetValue(7, output.size(), duckdb::Value("0"));
+            }
+            else if (record.phase == WTTPhase::One)
+            {
+                output.SetValue(7, output.size(), duckdb::Value("1"));
+            }
+            else if (record.phase == WTTPhase::Two)
+            {
+                output.SetValue(7, output.size(), duckdb::Value("2"));
+            }
+            else
+            {
+                throw std::runtime_error("Unknown phase value");
+            }
 
-        //     // Match on the phase value and set the record type.
-        //     if (record.phase == WTTPhase::None)
-        //     {
-        //         output.SetValue(7, output.size(), duckdb::Value());
-        //     }
-        //     else if (record.phase == WTTPhase::Zero)
-        //     {
-        //         output.SetValue(7, output.size(), duckdb::Value("0"));
-        //     }
-        //     else if (record.phase == WTTPhase::One)
-        //     {
-        //         output.SetValue(7, output.size(), duckdb::Value("1"));
-        //     }
-        //     else if (record.phase == WTTPhase::Two)
-        //     {
-        //         output.SetValue(7, output.size(), duckdb::Value("2"));
-        //     }
-        //     else
-        //     {
-        //         throw std::runtime_error("Unknown phase value");
-        //     }
+            // split attributes by ;
+            auto attributes = duckdb::StringUtil::Split(record.attributes, ";");
 
-        //     // split attributes by ;
-        //     auto attributes = duckdb::StringUtil::Split(record.attributes, ";");
+            // create a vector of Values to hold the attribute keys and values
+            std::vector<duckdb::Value> items;
 
-        //     // create a vector of Values to hold the attribute keys and values
-        //     std::vector<duckdb::Value> items;
+            // iterate over the attributes
+            for (auto attribute : attributes)
+            {
+                // split the attribute by =
+                auto attribute_split = duckdb::StringUtil::Split(attribute, "=");
 
-        //     // iterate over the attributes
-        //     for (auto attribute : attributes)
-        //     {
-        //         // split the attribute by =
-        //         auto attribute_split = duckdb::StringUtil::Split(attribute, "=");
+                // if the attribute is not a key value pair, skip it
+                if (attribute_split.size() != 2)
+                {
+                    throw std::runtime_error("Invalid attribute: " + attribute);
+                }
 
-        //         // if the attribute is not a key value pair, skip it
-        //         if (attribute_split.size() != 2)
-        //         {
-        //             throw std::runtime_error("Invalid attribute: " + attribute);
-        //         }
+                duckdb::child_list_t<duckdb::Value> map_struct;
 
-        //         duckdb::child_list_t<duckdb::Value> map_struct;
+                auto new_key = duckdb::Value(attribute_split[0]);
+                auto new_value = duckdb::Value(attribute_split[1]);
 
-        //         auto new_key = duckdb::Value(attribute_split[0]);
-        //         auto new_value = duckdb::Value(attribute_split[1]);
+                map_struct.emplace_back(std::make_pair("key", std::move(new_key)));
+                map_struct.emplace_back(std::make_pair("value", std::move(new_value)));
 
-        //         map_struct.emplace_back(std::make_pair("key", std::move(new_key)));
-        //         map_struct.emplace_back(std::make_pair("value", std::move(new_value)));
+                items.push_back(duckdb::Value::STRUCT(std::move(map_struct)));
+            }
 
-        //         items.push_back(duckdb::Value::STRUCT(std::move(map_struct)));
-        //     }
+            duckdb::LogicalType map_type = duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR);
+            auto outputValue = duckdb::Value::MAP(duckdb::ListType::GetChildType(map_type), std::move(items));
+            output.SetValue(8, output.size(), outputValue);
 
-        //     duckdb::LogicalType map_type = duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR);
-        //     auto outputValue = duckdb::Value::MAP(duckdb::ListType::GetChildType(map_type), std::move(items));
-        //     output.SetValue(8, output.size(), outputValue);
-
-        //     output.SetCardinality(output.size() + 1);
-        // }
+            output.SetCardinality(output.size() + 1);
+        }
     };
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GFFunctions::GetGffTableFunction()

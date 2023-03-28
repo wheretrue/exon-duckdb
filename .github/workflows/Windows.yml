@@ -66,28 +66,10 @@ jobs:
           fetch-depth: 0
           submodules: "true"
 
-      - name: Install OpenSSL & Perl
+      - name: Install OpenSSL
         shell: bash
         run: |
-          choco install openssl strawberryperl -y --force
-
-      - name: Set up Perl environment
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: '5.32'
-
-      - name: Install CPAN::Author module
-        run: cpanm CPAN::Author
-
-      - name: Install CPAN
-        shell: bash
-        run: |
-          perl -MCPAN -e install CPAN
-
-      - name: Install Pod::Usage
-        shell: bash
-        run: |
-          cpan Pod::Usage
+          choco install openssl -y --force
 
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1

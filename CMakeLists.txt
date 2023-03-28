@@ -26,12 +26,19 @@ if (APPLE)
   message("-- wtt: CC is ${CC}")
   message("-- wtt: CXX is ${CXX}")
 
+  set(WFA2_ENABLED ON)
+  add_compile_definitions(WFA2_ENABLED)
+
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
+
+  set(WFA2_ENABLED ON)
+  add_compile_definitions(WFA2_ENABLED)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 elseif(WIN32)
+  set(WFA2_ENABLED OFF)
 endif()
 
 find_package(OpenSSL REQUIRED)
@@ -70,13 +77,7 @@ FetchContent_Declare(
   URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
 
-FetchContent_Declare(wfa2
-  GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
-  GIT_TAG 706c9db58f2f5d831cf97a02cdfdda11b1a0c8db
-)
-FetchContent_MakeAvailable(wfa2)
-
-list(APPEND available_contents httplib json wfa2)
+list(APPEND available_contents httplib json)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -91,7 +92,16 @@ message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 
-include_directories(${wfa2_SOURCE_DIR})
+if(WFA2_ENABLED)
+  message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
+  FetchContent_Declare(wfa2
+    GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
+    GIT_TAG 706c9db58f2f5d831cf97a02cdfdda11b1a0c8db
+  )
+
+  FetchContent_MakeAvailable(wfa2)
+  include_directories(${wfa2_SOURCE_DIR})
+endif()
 
 include_directories(src/include)
 
@@ -125,8 +135,8 @@ target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
-elseif(APPLE)
 
+elseif(APPLE)
 target_link_libraries(${EXTENSION_NAME}
   PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
@@ -135,6 +145,7 @@ target_link_libraries(${EXTENSION_NAME}
   "-framework CoreFoundation"
   ${OPENSSL_LIBRARIES}
 )
+
 else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
