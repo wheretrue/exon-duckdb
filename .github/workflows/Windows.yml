@@ -66,12 +66,20 @@ jobs:
           fetch-depth: 0
           submodules: "true"
 
-      - name: Install OpenSSL
+      - name: Install OpenSSL & Perl
         shell: bash
         run: |
           choco install openssl strawberryperl -y --force
-          refreshenv
+
+      - name: Install CPAN
+        shell: bash
+        run: |
           perl -MCPAN -e install CPAN
+
+      - name: Install Pod::Usage
+        shell: bash
+        run: |
+          cpan Pod::Usage
 
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
