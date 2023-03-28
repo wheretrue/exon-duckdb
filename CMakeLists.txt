@@ -72,7 +72,7 @@ FetchContent_Declare(
 
 FetchContent_Declare(wfa2
   GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
-  GIT_TAG ec1ba114f6c336ca603425860137b1e79985da70
+  GIT_TAG 706c9db58f2f5d831cf97a02cdfdda11b1a0c8db
 )
 FetchContent_MakeAvailable(wfa2)
 
