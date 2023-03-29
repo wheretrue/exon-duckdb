@@ -8,7 +8,9 @@
 
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
 
+#include "alignment_functions.hpp"
 #include "bam_io.hpp"
+#include "bcf_io.hpp"
 #include "bed_io.hpp"
 #include "fasta_io.hpp"
 #include "fastq_io.hpp"
@@ -18,7 +20,6 @@
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
-#include "bcf_io.hpp"
 
 #include "wtt01_functions.hpp"
 
@@ -130,6 +131,11 @@ namespace duckdb
 
         auto bed_replacement_scan = wtt01::BEDFunctions::GetBEDReplacementScanFunction;
         config.replacement_scans.emplace_back(bed_replacement_scan);
+
+#if defined(WFA2_ENABLED)
+        auto get_align_function = wtt01::AlignmentFunctions::GetAlignFunction();
+        catalog.CreateFunction(*con.context, get_align_function.get());
+#endif
 
         con.Commit();
     }

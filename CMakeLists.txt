@@ -62,8 +62,6 @@ endif()
 
 add_subdirectory(wtt01_rust)
 
-# set(EXTRA_FLAGS "-ftree-vectorize -msse2 -mfpmath=sse -ftree-vectorizer-verbose=5")
-
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -124,6 +122,13 @@ set(EXTENSION_SOURCES
   src/wtt01_acknowledgement_table.cpp
   src/wtt01_functions.cpp
 )
+
+if(WFA2_ENABLED)
+  set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
+    src/alignment_functions.cpp
+  )
+endif()
+
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 set(PARAMETERS "-warnings")
