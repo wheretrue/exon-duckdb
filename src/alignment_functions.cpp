@@ -21,7 +21,7 @@ namespace wtt01
         int match;
         int mismatch;
         int gap_opening;
-        int gap_closing;
+        int gap_extension;
         wfa::WFAligner::MemoryModel memory_model;
 
         std::string ToString()
@@ -30,7 +30,7 @@ namespace wtt01
             result += "match: " + std::to_string(match) + ", ";
             result += "mismatch: " + std::to_string(mismatch) + ", ";
             result += "gap_opening: " + std::to_string(gap_opening) + ", ";
-            result += "gap_closing: " + std::to_string(gap_closing) + ", ";
+            result += "gap_extension: " + std::to_string(gap_extension) + ", ";
             result += "memory_model: " + std::to_string(memory_model) + ")";
             return result;
         }
@@ -43,7 +43,7 @@ namespace wtt01
                 match = 6;
                 mismatch = 2;
                 gap_opening = 6;
-                gap_closing = 2;
+                gap_extension = 2;
                 memory_model = wfa::WFAligner::MemoryHigh;
             }
             else if (arguments.size() == 6)
@@ -54,8 +54,8 @@ namespace wtt01
                 duckdb::Value gap_opening_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[4]);
                 gap_opening = duckdb::IntegerValue::Get(gap_opening_value);
 
-                duckdb::Value gap_closing_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[4]);
-                gap_closing = duckdb::IntegerValue::Get(gap_closing_value);
+                duckdb::Value gap_extension_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[4]);
+                gap_extension = duckdb::IntegerValue::Get(gap_extension_value);
 
                 duckdb::Value memory_model_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[5]);
                 std::string memory_model = memory_model_value.ToString();
@@ -93,8 +93,8 @@ namespace wtt01
                 duckdb::Value gap_opening_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[4]);
                 gap_opening = duckdb::IntegerValue::Get(gap_opening_value);
 
-                duckdb::Value gap_closing_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[5]);
-                gap_closing = duckdb::IntegerValue::Get(gap_closing_value);
+                duckdb::Value gap_extension_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[5]);
+                gap_extension = duckdb::IntegerValue::Get(gap_extension_value);
 
                 duckdb::Value memory_model_value = duckdb::ExpressionExecutor::EvaluateScalar(context, *arguments[6]);
                 std::string memory_model = memory_model_value.ToString();
@@ -163,13 +163,13 @@ namespace wtt01
     std::unique_ptr<duckdb::FunctionData> AlignmentStringBindMatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
     {
         auto options = WFAOptions(context, arguments);
-        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.mismatch, options.gap_opening, options.gap_closing, options.memory_model);
+        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
     }
 
     std::unique_ptr<duckdb::FunctionData> AlignmentStringBindMismatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
     {
         auto options = WFAOptions(context, arguments);
-        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.match, options.mismatch, options.gap_opening, options.gap_closing, options.memory_model);
+        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
     }
 
     duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentStringFunction()
@@ -240,13 +240,13 @@ namespace wtt01
         if (arguments.size() == 6)
         {
             auto options = WFAOptions(context, arguments);
-            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.mismatch, options.gap_opening, options.gap_closing, options.memory_model);
+            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
         }
 
         if (arguments.size() == 7)
         {
             auto options = WFAOptions(context, arguments);
-            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.match, options.mismatch, options.gap_opening, options.gap_closing, options.memory_model);
+            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
         }
 
         throw duckdb::InvalidInputException("Invalid number of arguments for align function");

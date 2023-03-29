@@ -18,8 +18,8 @@ namespace wtt01
         {
             AlignmentStringBindData() : aligner(4, 6, 2, wfa::WFAligner::Alignment, wfa::WFAligner::MemoryHigh) {}
 
-            AlignmentStringBindData(int32_t mismatch, int32_t gap_opening, int32_t gap_closing, wfa::WFAligner::MemoryModel memory_model) : aligner(mismatch, gap_opening, gap_closing, wfa::WFAligner::Alignment, memory_model) {}
-            AlignmentStringBindData(int32_t match, int32_t mismatch, int32_t gap_opening, int32_t gap_closing, wfa::WFAligner::MemoryModel memory_model) : aligner(match, mismatch, gap_opening, gap_closing, wfa::WFAligner::Alignment, memory_model) {}
+            AlignmentStringBindData(int32_t mismatch, int32_t gap_opening, int32_t gap_extension, wfa::WFAligner::MemoryModel memory_model) : aligner(mismatch, gap_opening, gap_extension, wfa::WFAligner::Alignment, memory_model) {}
+            AlignmentStringBindData(int32_t match, int32_t mismatch, int32_t gap_opening, int32_t gap_extension, wfa::WFAligner::MemoryModel memory_model) : aligner(match, mismatch, gap_opening, gap_extension, wfa::WFAligner::Alignment, memory_model) {}
 
             wfa::WFAlignerGapAffine aligner;
 
@@ -33,8 +33,8 @@ namespace wtt01
         {
             AlignmentScoreBindData() : aligner(4, 6, 2, wfa::WFAligner::Alignment, wfa::WFAligner::MemoryHigh) {}
 
-            AlignmentScoreBindData(int32_t mismatch, int32_t gap_opening, int32_t gap_closing, wfa::WFAligner::MemoryModel memory_model) : aligner(mismatch, gap_opening, gap_closing, wfa::WFAligner::Alignment, memory_model) {}
-            AlignmentScoreBindData(int32_t match, int32_t mismatch, int32_t gap_opening, int32_t gap_closing, wfa::WFAligner::MemoryModel memory_model) : aligner(match, mismatch, gap_opening, gap_closing, wfa::WFAligner::Alignment, memory_model) {}
+            AlignmentScoreBindData(int32_t mismatch, int32_t gap_opening, int32_t gap_extension, wfa::WFAligner::MemoryModel memory_model) : aligner(mismatch, gap_opening, gap_extension, wfa::WFAligner::Alignment, memory_model) {}
+            AlignmentScoreBindData(int32_t match, int32_t mismatch, int32_t gap_opening, int32_t gap_extension, wfa::WFAligner::MemoryModel memory_model) : aligner(match, mismatch, gap_opening, gap_extension, wfa::WFAligner::Alignment, memory_model) {}
 
             wfa::WFAlignerGapAffine aligner;
 

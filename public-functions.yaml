@@ -535,7 +535,6 @@ copyFunctions:
       force:
         - "true"
         - "false"
-
 scalarFunctions:
   - functionName: complement
     functionType: Scalar
@@ -772,6 +771,74 @@ scalarFunctions:
         description: "Returns [{'op': M, 'len': 1}, {'op': M, 'len': 2}, {'op': S, 'len': 123}]"
       - example: "SELECT parse_cigar('MMM')"
         description: "Throws an error because the CIGAR string is invalid."
+  - functionName: alignment_string_wfa_gap_affine
+    functionType: Scalar
+    description: "Return the alignment string for the given sequences using the WFA algorithm with affine gap penalties. Note: this function has multiple arguments configurations. Also it is only available on Linux and Mac builds."
+    returnType: "string"
+    examples:
+      - example: "SELECT alignment_string_wfa_gap_affine('ACGT', 'ACGT');"
+        description: "Returns 'MMMM'."
+      - example: "SELECT alignment_string_wfa_gap_affine('ACGT', 'ACGT', -1, 1, 1, 1, 'memory_low');"
+        description: "Align the sequences with with match score -1, mismatch score 1, gap open score 1, and gap extend score 1. The memory mode is set to 'memory_low'."
+      - example: "SELECT alignment_string_wfa_gap_affine('ACGT', 'ACGT', 1, 1, 1, 'memory_low');"
+        description: "Align the sequences with with mismatch score 1, gap open score 1, and gap extend score 1. The memory mode is set to 'memory_low'. Note that the match score isn't supplied here."
+    arguments:
+      - name: "seq1"
+        type: "string"
+        description: "The first sequence."
+      - name: "seq2"
+        type: "string"
+        description: "The second sequence."
+      - name: "match"
+        type: "int"
+        description: "The match score. Optional."
+      - name: "mismatch"
+        type: "int"
+        description: "The mismatch score. Optional."
+      - name: "gap_open"
+        type: "int"
+        description: "The gap open score. Optional."
+      - name: "gap_extend"
+        type: "int"
+        description: "The gap extend score. Optional."
+      - name: "memory_mode"
+        type: "string"
+        description: "The memory mode. Can be 'memory_low', 'memory_medium', or 'memory_high'."
+  - functionName: alignment_score_wfa_gap_affine
+    functionType: Scalar
+    description: "Return the alignment score for the second sequence against the first sequence using the WFA algorithm with affine gap penalties. The lower the score the worse alignment. Note: this function has multiple arguments configurations. Also it is only available on Linux and Mac builds."
+    returnType: "float"
+    examples:
+      - example: "SELECT alignment_score_wfa_gap_affine('ACGT', 'ACGT');"
+        description: "Returns 0.0'."
+      - example: "SELECT alignment_score_wfa_gap_affine('TCTTTACTCGCGCGTTGGAGAAATACAATAGT', 'TCTATACTGCGCGTTTGGAGAAATAAAATAGT');"
+        description: "Returns -24.0'."
+      - example: "SELECT alignment_score_wfa_gap_affine('TCTTTACTCGCGCGTTGGAGAAATACAATAGT', 'TCTATACTGCGCGTTTGGAGAAATAAAATAGT', -1, 1, 1, 1, 'memory_low');"
+        description: "Align the sequences with with match score -1, mismatch score 1, gap open score 1, and gap extend score 1. The memory mode is set to 'memory_low'."
+      - example: "SELECT alignment_score_wfa_gap_affine('ACGT', 'ACGT', 1, 1, 1, 'memory_low');"
+        description: "Align the sequences with with mismatch score 1, gap open score 1, and gap extend score 1. The memory mode is set to 'memory_low'. Note that the match score isn't supplied here."
+    arguments:
+      - name: "seq1"
+        type: "string"
+        description: "The first sequence."
+      - name: "seq2"
+        type: "string"
+        description: "The second sequence."
+      - name: "match"
+        type: "int"
+        description: "The match score. Optional."
+      - name: "mismatch"
+        type: "int"
+        description: "The mismatch score. Optional."
+      - name: "gap_open"
+        type: "int"
+        description: "The gap open score. Optional."
+      - name: "gap_extend"
+        type: "int"
+        description: "The gap extend score. Optional."
+      - name: "memory_mode"
+        type: "string"
+        description: "The memory mode. Can be 'memory_low', 'memory_medium', or 'memory_high'."
   - functionName: wtt01_version
     functionType: Scalar
     description: "Return the version of the WTT-01."

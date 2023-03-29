@@ -6,10 +6,9 @@ SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC')
 ----
 MMIMM
 
-# statement error
-# SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'memory_low')
-# ----
-#
+statement error
+SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'memory_low')
+----
 
 query I
 SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', -1, 1, 2, 3, 'memory_low')
