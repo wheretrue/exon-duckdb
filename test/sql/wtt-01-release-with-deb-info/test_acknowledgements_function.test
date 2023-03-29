@@ -6,6 +6,7 @@ query I
 SELECT name FROM wtt01_third_party_acknowledgements() ORDER BY name;
 ----
 DuckDB
+WFA2-lib
 brotli
 cpp-httplib
 gb-io
