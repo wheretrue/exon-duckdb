@@ -126,14 +126,14 @@ namespace wtt01
         return_types.push_back(
             duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(features_children)));
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> GenbankInitGlobalState(duckdb::ClientContext &context,
                                                                                 duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<GenbankScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> GenbankInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -147,7 +147,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void GenbankScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -403,7 +403,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_genbank", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_genbank", std::move(children));
 
         return table_function;
     }

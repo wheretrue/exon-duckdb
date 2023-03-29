@@ -1,3 +1,5 @@
+#ifdef WFA2_ENABLED
+
 #pragma once
 
 #include <duckdb.hpp>
@@ -26,3 +28,5 @@ namespace wtt01
         };
     };
 }
+
+#endif

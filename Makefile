@@ -59,6 +59,9 @@ test_release: release
 	./build/release/test/unittest --test-dir . "[wtt-01-release-with-deb-info]"
 	rm -rf ./test/sql/tmp
 
+test_align:
+	./build/release/test/unittest --test-dir . "[wtt-01-align]"
+
 update:
 	git submodule update --remote --merge
 

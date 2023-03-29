@@ -76,14 +76,14 @@ namespace wtt01
         names.push_back("sequence");
         names.push_back("quality_scores");
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> FastqInitGlobalState(duckdb::ClientContext &context,
                                                                               duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<FastqScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> FastqInitLocalState(duckdb::ExecutionContext &context,
@@ -98,7 +98,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void FastqScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -203,7 +203,7 @@ namespace wtt01
             }
         }
 
-        return move(result);
+        return std::move(result);
     }
 
     static duckdb::unique_ptr<duckdb::GlobalFunctionData> FastqWriteInitializeGlobal(duckdb::ClientContext &context, duckdb::FunctionData &bind_data, const std::string &file_path)
@@ -219,13 +219,13 @@ namespace wtt01
 
         global_state->writer = new_writer;
 
-        return move(global_state);
+        return std::move(global_state);
     }
 
     static duckdb::unique_ptr<duckdb::LocalFunctionData> FastqWriteInitializeLocal(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data)
     {
         auto local_data = duckdb::make_unique<duckdb::LocalFunctionData>();
-        return move(local_data);
+        return std::move(local_data);
     }
 
     static void FastqWriteSink(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, duckdb::GlobalFunctionData &gstate,
@@ -295,7 +295,7 @@ namespace wtt01
 
         result->reader = fastq_new(info.file_path.c_str(), result->options.compression.c_str());
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::CopyFunction CreateFastqCopyFunction()
@@ -351,7 +351,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_fastq", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_fastq", std::move(children));
 
         return table_function;
     }

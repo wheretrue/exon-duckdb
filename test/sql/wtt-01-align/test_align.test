@@ -1,0 +1,21 @@
+statement ok
+LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+
+query I
+SELECT align_wfa_gap_affine('AACC', 'AAACC')
+----
+MMIMM
+
+statement error
+SELECT align_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'alignment', 'memory_low')
+----
+
+query I
+SELECT align_wfa_gap_affine('AACC', 'AAACC', -1, 1, 1, 1, 'alignment', 'memory_low')
+----
+MMIMM
+
+query I
+SELECT align_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 'alignment', 'memory_low')
+----
+MMIMM
