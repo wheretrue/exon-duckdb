@@ -73,7 +73,8 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::FLOAT);
         return_types.push_back(duckdb::LogicalType::VARCHAR);
         return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR));
+        // return_types.push_back(duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR));
+        return_types.push_back(duckdb::LogicalType::VARCHAR);
 
         names.push_back("reference_sequence_name");
         names.push_back("source");
@@ -120,89 +121,16 @@ namespace wtt01
             return;
         }
 
-        while (output.size() < STANDARD_VECTOR_SIZE)
+        auto result = gff_insert_record_batch(&bind_data->reader, &output, STANDARD_VECTOR_SIZE);
+
+        if (result.done)
         {
-            GFFRecord record = gff_next(&bind_data->reader);
+            local_state->done = true;
+        }
 
-            if (record.reference_sequence_name == NULL)
-            {
-                local_state->done = true;
-                break;
-            }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.reference_sequence_name));
-            output.SetValue(1, output.size(), duckdb::Value(record.source));
-            output.SetValue(2, output.size(), duckdb::Value(record.annotation_type));
-            output.SetValue(3, output.size(), duckdb::Value::BIGINT(record.start));
-            output.SetValue(4, output.size(), duckdb::Value::BIGINT(record.end));
-
-            if (std::isnan(record.score))
-            {
-                output.SetValue(5, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(5, output.size(), duckdb::Value::FLOAT(record.score));
-            }
-
-            output.SetValue(6, output.size(), duckdb::Value(record.strand));
-
-            // Match on the phase value and set the record type.
-            if (record.phase == WTTPhase::None)
-            {
-                output.SetValue(7, output.size(), duckdb::Value());
-            }
-            else if (record.phase == WTTPhase::Zero)
-            {
-                output.SetValue(7, output.size(), duckdb::Value("0"));
-            }
-            else if (record.phase == WTTPhase::One)
-            {
-                output.SetValue(7, output.size(), duckdb::Value("1"));
-            }
-            else if (record.phase == WTTPhase::Two)
-            {
-                output.SetValue(7, output.size(), duckdb::Value("2"));
-            }
-            else
-            {
-                throw std::runtime_error("Unknown phase value");
-            }
-
-            // split attributes by ;
-            auto attributes = duckdb::StringUtil::Split(record.attributes, ";");
-
-            // create a vector of Values to hold the attribute keys and values
-            std::vector<duckdb::Value> items;
-
-            // iterate over the attributes
-            for (auto attribute : attributes)
-            {
-                // split the attribute by =
-                auto attribute_split = duckdb::StringUtil::Split(attribute, "=");
-
-                // if the attribute is not a key value pair, skip it
-                if (attribute_split.size() != 2)
-                {
-                    throw std::runtime_error("Invalid attribute: " + attribute);
-                }
-
-                duckdb::child_list_t<duckdb::Value> map_struct;
-
-                auto new_key = duckdb::Value(attribute_split[0]);
-                auto new_value = duckdb::Value(attribute_split[1]);
-
-                map_struct.emplace_back(std::make_pair("key", std::move(new_key)));
-                map_struct.emplace_back(std::make_pair("value", std::move(new_value)));
-
-                items.push_back(duckdb::Value::STRUCT(std::move(map_struct)));
-            }
-
-            duckdb::LogicalType map_type = duckdb::LogicalType::MAP(duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR);
-            auto outputValue = duckdb::Value::MAP(duckdb::ListType::GetChildType(map_type), std::move(items));
-            output.SetValue(8, output.size(), outputValue);
-
-            output.SetCardinality(output.size() + 1);
+        if (result.error)
+        {
+            throw std::runtime_error(result.error);
         }
     };
 
@@ -374,30 +302,32 @@ namespace wtt01
 
             auto phase_value = phase.GetValue(i).ToString();
 
-            auto attr_children = duckdb::ListValue::GetChildren(attributes.GetValue(i));
-            auto n_children = attr_children.size();
+            auto attributes_str = attributes.GetValue(i).ToString();
 
-            std::string attributes_str = "";
-            for (duckdb::idx_t j = 0; j < n_children; j++)
-            {
-                auto attr = attr_children[j];
-                auto attr_kids = duckdb::StructValue::GetChildren(attr);
+            // auto attr_children = duckdb::ListValue::GetChildren(attributes.GetValue(i));
+            // auto n_children = attr_children.size();
 
-                auto attr_key = attr_kids[0].ToString();
-                auto attr_value = attr_kids[1].ToString();
+            // std::string attributes_str = "";
+            // for (duckdb::idx_t j = 0; j < n_children; j++)
+            // {
+            //     auto attr = attr_children[j];
+            //     auto attr_kids = duckdb::StructValue::GetChildren(attr);
 
-                attributes_str += attr_key + "=" + attr_value;
-                if (j < n_children - 1)
-                {
-                    attributes_str += ";";
-                }
-            }
+            //     auto attr_key = attr_kids[0].ToString();
+            //     auto attr_value = attr_kids[1].ToString();
+
+            //     attributes_str += attr_key + "=" + attr_value;
+            //     if (j < n_children - 1)
+            //     {
+            //         attributes_str += ";";
+            //     }
+            // }
 
             auto write_value = gff_writer_write(global_state.writer, reference_sequence_name_str.c_str(), source_str.c_str(), feature_type_str.c_str(), start_int, end_int, score_float_value, strand_str.c_str(), phase_value.c_str(), attributes_str.c_str());
 
             if (write_value != 0)
             {
-                throw duckdb::Exception("Error writing to FASTA file");
+                throw duckdb::Exception("Error writing to GFF file");
             }
         }
     };

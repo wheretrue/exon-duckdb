@@ -13,22 +13,22 @@ SELECT * FROM read_gff('./test/sql/tmp/test.gff');
 ----
 sq0
 caat
-test
+gene
 8
 13
 NULL
 +
 NULL
-{gene_id=caat1, gene_name=gene0}
+gene_id=caat1;gene_name=gene0;
 sq1
 caat
-test
+gene
 8
 14
 0.1
 +
 0
-{gene_id=caat2, gene_name=gene0}
+gene_id=caat2;gene_name=gene0;
 
 # Test writing to a GFF file, gzipped
 query I

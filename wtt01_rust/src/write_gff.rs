@@ -91,7 +91,21 @@ pub extern "C" fn gff_writer_write(
         _ => None,
     };
 
-    let parsed_attributes = noodles::gff::record::Attributes::from_str(attributes).unwrap();
+    // trim the right semicolon off of attributes if it exists.
+    let attributes = if attributes.ends_with(';') {
+        &attributes[..attributes.len() - 1]
+    } else {
+        attributes
+    };
+
+    let parsed_attributes = noodles::gff::record::Attributes::from_str(attributes);
+    let attrs = match parsed_attributes {
+        Ok(attributes) => attributes,
+        Err(e) => {
+            eprintln!("error parsing attributes {} with error: {}", attributes, e);
+            return 1;
+        }
+    };
 
     let mut record_builder = Record::builder()
         .set_reference_sequence_name(String::from(reference_sequence_name))
@@ -100,7 +114,7 @@ pub extern "C" fn gff_writer_write(
         .set_start(start_position)
         .set_end(end_position)
         .set_strand(strand.parse().unwrap())
-        .set_attributes(parsed_attributes);
+        .set_attributes(attrs);
 
     if let Some(phase_type) = phase_type {
         record_builder = record_builder.set_phase(phase_type)

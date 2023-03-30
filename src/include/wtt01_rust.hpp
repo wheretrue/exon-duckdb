@@ -4,13 +4,6 @@
 #include <ostream>
 #include <new>
 
-enum class WTTPhase {
-  None,
-  Zero,
-  One,
-  Two,
-};
-
 struct BAMReaderC {
   void *bam_reader;
   void *bam_header;
@@ -81,16 +74,9 @@ struct GFFReaderC {
   void *inner_reader;
 };
 
-struct GFFRecord {
-  const char *reference_sequence_name;
-  const char *source;
-  const char *annotation_type;
-  uint64_t start;
-  uint64_t end;
-  float score;
-  const char *strand;
-  WTTPhase phase;
-  const char *attributes;
+struct GFFResult {
+  char *error;
+  bool done;
 };
 
 struct SamHeaderReaderC {
@@ -164,12 +150,9 @@ GenbankRecord genbank_next(const GenbankReader *reader);
 
 GFFReaderC gff_new(const char *filename, const char *compression);
 
-void gff_next_batch(const GFFReaderC *gff_reader,
-                    void *chunk_ptr,
-                    bool *done,
-                    uintptr_t batch_size);
-
-GFFRecord gff_next(const GFFReaderC *gff_reader);
+GFFResult gff_insert_record_batch(const GFFReaderC *gff_reader,
+                                  void *chunk_ptr,
+                                  uintptr_t batch_size);
 
 SamHeaderReaderC sam_header_new_reader(const char *filename, const char *compression);
 

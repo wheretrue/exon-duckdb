@@ -99,7 +99,6 @@ pub unsafe extern "C" fn vcf_new(
     match reader.read_header() {
         Ok(header) => {
             let header: Header = header.parse().unwrap();
-
             let reader = Box::into_raw(Box::new(reader)) as *mut c_void;
 
             VCFReaderC {

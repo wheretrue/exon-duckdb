@@ -44,7 +44,7 @@ tableFunctions:
         type: "string"
         nullable: true
       - name: "attributes"
-        type: "map<string, string>"
+        type: "string"
         nullable: true
     examples:
       - example: "SELECT * FROM 'path/to/file.gff';"
