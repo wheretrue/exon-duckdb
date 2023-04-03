@@ -55,8 +55,29 @@ pub unsafe extern "C" fn fasta_new(
     filename: *const c_char,
     compression: *const c_char,
 ) -> FASTAReaderC {
-    let filename = CStr::from_ptr(filename).to_str().unwrap();
-    let compression = CStr::from_ptr(compression).to_str().unwrap();
+    let filename = match CStr::from_ptr(filename).to_str() {
+        Ok(filename) => filename,
+        Err(_) => {
+            return FASTAReaderC {
+                inner_reader: std::ptr::null_mut(),
+                error: CString::new("fasta_new: filename is not valid UTF-8")
+                    .unwrap()
+                    .into_raw(),
+            }
+        }
+    };
+
+    let compression = match CStr::from_ptr(compression).to_str() {
+        Ok(compression) => compression,
+        Err(_) => {
+            return FASTAReaderC {
+                inner_reader: std::ptr::null_mut(),
+                error: CString::new("fasta_new: compression is not valid UTF-8")
+                    .unwrap()
+                    .into_raw(),
+            }
+        }
+    };
 
     match build_from_path(filename, compression) {
         Ok(reader) => {

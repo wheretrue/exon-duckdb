@@ -78,3 +78,8 @@ FROM read_fasta('./test/sql/tmp/test.mixed-desc.fasta') WHERE description IS NUL
 b
 NULL
 ATCG
+
+query I
+COPY (FROM read_fasta('./test/sql/wtt-01-release-with-deb-info/test.mixed-desc.fasta') LIMIT 1) TO STDOUT (FORMAT 'fasta');
+----
+1
