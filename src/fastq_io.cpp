@@ -212,12 +212,12 @@ namespace wtt01
 
         auto global_state = duckdb::make_unique<FastqCopyWriteGlobalState>();
         auto new_writer = fastq_writer_new(fastq_write_bind.file_name.c_str(), fastq_write_bind.compression.c_str());
-        if (!new_writer)
+        if (new_writer.error)
         {
-            throw std::runtime_error("Could not create FASTQ writer");
+            throw std::runtime_error(new_writer.error);
         }
 
-        global_state->writer = new_writer;
+        global_state->writer = new_writer.writer;
 
         return std::move(global_state);
     }

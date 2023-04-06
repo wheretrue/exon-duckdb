@@ -203,7 +203,7 @@ pub unsafe extern "C" fn gff_insert_record_batch(
     }
 
     let duckdb_ptr = chunk_ptr as duckdb_data_chunk;
-    let mut duckdb_chunk = duckdb::vtab::DataChunk::from(duckdb_ptr);
+    let duckdb_chunk = duckdb::vtab::DataChunk::from(duckdb_ptr);
 
     let mut gff_record_batch = GFFRecordBatch::new(duckdb_chunk);
 

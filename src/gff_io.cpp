@@ -242,12 +242,12 @@ namespace wtt01
 
         auto global_state = duckdb::make_unique<GffWriteGlobalState>();
         auto new_writer = gff_writer_new(gff_write_bind.file_name.c_str(), "auto_detect");
-        if (!new_writer)
+        if (new_writer.error)
         {
-            throw std::runtime_error("Could not create GFF writer");
+            throw std::runtime_error("Could not create GFF writer for file " + gff_write_bind.file_name + ": " + new_writer.error);
         }
 
-        global_state->writer = new_writer;
+        global_state->writer = new_writer.writer;
 
         return std::move(global_state);
     }
@@ -323,9 +323,9 @@ namespace wtt01
             //     }
             // }
 
-            auto write_value = gff_writer_write(global_state.writer, reference_sequence_name_str.c_str(), source_str.c_str(), feature_type_str.c_str(), start_int, end_int, score_float_value, strand_str.c_str(), phase_value.c_str(), attributes_str.c_str());
+            auto write_response = gff_writer_write(global_state.writer, reference_sequence_name_str.c_str(), source_str.c_str(), feature_type_str.c_str(), start_int, end_int, score_float_value, strand_str.c_str(), phase_value.c_str(), attributes_str.c_str());
 
-            if (write_value != 0)
+            if (write_response.result != 0)
             {
                 throw duckdb::Exception("Error writing to GFF file");
             }

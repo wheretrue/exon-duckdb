@@ -9,17 +9,53 @@ use std::{
 use noodles::core::Position;
 use noodles::gff::{Record, Writer};
 
+#[repr(C)]
+pub struct GffWriter {
+    pub writer: *mut c_void,
+    pub error: *const c_char,
+}
+
+impl GffWriter {
+    pub fn new(writer: *mut c_void, error: *const c_char) -> Self {
+        Self { writer, error }
+    }
+
+    pub fn error(error: &str) -> Self {
+        Self {
+            writer: std::ptr::null_mut(),
+            error: CStr::from_bytes_with_nul(error.as_bytes())
+                .unwrap()
+                .as_ptr(),
+        }
+    }
+
+    pub fn from_writer(writer: Writer<Box<dyn Write>>) -> Self {
+        Self::new(
+            Box::into_raw(Box::new(writer)) as *mut c_void,
+            std::ptr::null(),
+        )
+    }
+}
+
 #[no_mangle]
-pub extern "C" fn gff_writer_new(
-    filename: *const c_char,
-    compression: *const c_char,
-) -> *mut c_void {
-    let filename = unsafe { CStr::from_ptr(filename) }.to_str().unwrap();
-    let compression = unsafe { CStr::from_ptr(compression) }.to_str().unwrap();
+pub extern "C" fn gff_writer_new(filename: *const c_char, compression: *const c_char) -> GffWriter {
+    let filename = match unsafe { CStr::from_ptr(filename) }.to_str() {
+        Ok(filename) => filename,
+        Err(_) => {
+            return GffWriter::error("gff_writer_new: filename is not valid UTF-8");
+        }
+    };
+
+    let compression = match unsafe { CStr::from_ptr(compression) }.to_str() {
+        Ok(compression) => compression,
+        Err(_) => {
+            return GffWriter::error("gff_writer_new: compression is not valid UTF-8");
+        }
+    };
 
     let file = match File::create(filename) {
         Ok(file) => file,
-        Err(_) => return std::ptr::null_mut(),
+        Err(e) => return GffWriter::error(&format!("gff_writer_new: {}", e)),
     };
 
     let boxxed_writer = match compression {
@@ -28,19 +64,33 @@ pub extern "C" fn gff_writer_new(
             Box::new(BufWriter::new(encoder)) as Box<dyn Write>
         }
         "zstd" => {
-            let encoder = zstd::stream::write::Encoder::new(file, 0).unwrap();
+            let encoder = match zstd::stream::write::Encoder::new(file, 0) {
+                Ok(encoder) => encoder,
+                Err(e) => return GffWriter::error(&format!("gff_writer_new: {}", e)),
+            };
             Box::new(BufWriter::new(encoder)) as Box<dyn Write>
         }
         _ => {
             // match based on the extension.
-            let extension = Path::new(filename).extension().unwrap().to_str().unwrap();
+            let extension = match Path::new(filename).extension() {
+                Some(extension) => match extension.to_str() {
+                    Some(extension) => Some(extension),
+                    None => {
+                        return GffWriter::error(
+                            "gff_writer_new: filename extension is not valid UTF-8",
+                        )
+                    }
+                },
+                None => None,
+            };
+
             match extension {
-                "gz" => {
+                Some("gz") => {
                     let encoder =
                         flate2::write::GzEncoder::new(file, flate2::Compression::default());
                     Box::new(BufWriter::new(encoder)) as Box<dyn Write>
                 }
-                "zst" => {
+                Some("zst") => {
                     let encoder = zstd::stream::write::Encoder::new(file, 0).unwrap();
                     let auto_finish_encoder = encoder.auto_finish();
 
@@ -52,8 +102,35 @@ pub extern "C" fn gff_writer_new(
     };
 
     let gff_writer = Writer::new(boxxed_writer);
+    GffWriter::from_writer(gff_writer)
+}
 
-    Box::into_raw(Box::new(gff_writer)) as *mut c_void
+#[repr(C)]
+pub struct GffWriterResult {
+    pub result: i32,
+    pub error: *const c_char,
+}
+
+impl GffWriterResult {
+    pub fn new(result: i32, error: *const c_char) -> Self {
+        Self { result, error }
+    }
+
+    pub fn error(error: &str) -> Self {
+        Self {
+            result: 1,
+            error: CStr::from_bytes_with_nul(error.as_bytes())
+                .unwrap()
+                .as_ptr(),
+        }
+    }
+
+    pub fn from_result(result: Result<(), String>) -> Self {
+        match result {
+            Ok(_) => Self::new(0, std::ptr::null()),
+            Err(e) => Self::error(&e),
+        }
+    }
 }
 
 #[no_mangle]
@@ -68,12 +145,13 @@ pub extern "C" fn gff_writer_write(
     strand: *const c_char,
     phase: *const c_char,
     attributes: *const c_char,
-) -> i32 {
+) -> GffWriterResult {
     let writer = unsafe { &mut *(writer as *mut Writer<Box<dyn Write>>) };
 
     let reference_sequence_name = unsafe { CStr::from_ptr(reference_sequence_name) }
         .to_str()
         .unwrap();
+
     let source = unsafe { CStr::from_ptr(source) }.to_str().unwrap();
     let feature_type = unsafe { CStr::from_ptr(feature_type) }.to_str().unwrap();
     let strand = unsafe { CStr::from_ptr(strand) }.to_str().unwrap();
@@ -102,8 +180,7 @@ pub extern "C" fn gff_writer_write(
     let attrs = match parsed_attributes {
         Ok(attributes) => attributes,
         Err(e) => {
-            eprintln!("error parsing attributes {} with error: {}", attributes, e);
-            return 1;
+            return GffWriterResult::error(&format!("gff_writer_write: {}", e));
         }
     };
 
@@ -127,8 +204,8 @@ pub extern "C" fn gff_writer_write(
     let record = record_builder.build();
 
     match writer.write_record(&record) {
-        Ok(_) => 0,
-        Err(_) => 1,
+        Ok(_) => GffWriterResult::new(0, std::ptr::null()),
+        Err(e) => GffWriterResult::error(&format!("gff_writer_write: {}", e)),
     }
 }
 
