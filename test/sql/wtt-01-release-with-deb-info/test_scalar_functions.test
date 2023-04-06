@@ -102,3 +102,15 @@ Invalid Error: Invalid CIGAR string: MMM
 
 statement ok
 SELECT parse_cigar('100M') as cigar;
+
+# Test extracting from a sequence
+query I
+SELECT extract_from_cigar('AACCAA', '2I2M2I')
+----
+{'sequence_start': 2, 'sequence_end': 4, 'sequence': CC}
+
+# Test extracting from a sequence
+query I
+SELECT extract_from_cigar('AACCAAC', '2I2M2I1M')
+----
+{'sequence_start': 2, 'sequence_end': 7, 'sequence': CCAAC}

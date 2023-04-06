@@ -102,6 +102,9 @@ namespace duckdb
         auto parse_cigar_string = wtt01::SamFunctions::GetParseCIGARStringFunction();
         catalog.CreateFunction(context, parse_cigar_string.get());
 
+        auto extract_sequence_from_cigar = wtt01::SamFunctions::GetExtractFromCIGARFunction();
+        catalog.CreateFunction(context, extract_sequence_from_cigar.get());
+
         auto sam_record_scan = wtt01::SamFunctions::GetSamRecordScanFunction();
         catalog.CreateTableFunction(context, sam_record_scan.get());
 

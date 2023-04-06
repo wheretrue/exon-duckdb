@@ -105,6 +105,13 @@ struct CResult {
   const char *error;
 };
 
+struct CExtractResponse {
+  uintptr_t sequence_start;
+  uintptr_t sequence_len;
+  const char *extracted_sequence;
+  const char *error;
+};
+
 struct NoodlesWriter {
   void *writer;
   const char *error;
@@ -209,6 +216,8 @@ bool is_duplicate(uint16_t flag);
 bool is_supplementary(uint16_t flag);
 
 CResult parse_cigar(const char *cigar);
+
+CExtractResponse extract_from_cigar(const char *sequence_str, const char *cigar_str);
 
 NoodlesWriter fasta_writer_new(const char *filename, const char *compression);
 

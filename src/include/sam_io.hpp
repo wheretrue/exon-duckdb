@@ -15,6 +15,7 @@ namespace wtt01
         static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamRecordScanFunction();
         static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetSamHeaderScanFunction();
         static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetParseCIGARStringFunction();
+        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetExtractFromCIGARFunction();
         static std::vector<duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo>> GetSamFunctions();
     };
 

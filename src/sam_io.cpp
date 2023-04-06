@@ -309,6 +309,46 @@ namespace wtt01
         }
     }
 
+    void ExtractSequence(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
+    {
+        for (duckdb::idx_t i = 0; i < args.size(); i++)
+        {
+            auto sequence = args.data[0].GetValue(i).ToString();
+            auto cigar = args.data[1].GetValue(i).ToString();
+
+            auto extract_result = extract_from_cigar(sequence.c_str(), cigar.c_str());
+            if (extract_result.error)
+            {
+                throw std::runtime_error("Invalid CIGAR string");
+            }
+
+            duckdb::child_list_t<duckdb::Value> struct_values;
+            struct_values.push_back(std::make_pair("sequence_start", duckdb::Value::INTEGER(extract_result.sequence_start)));
+            struct_values.push_back(std::make_pair("sequence_end", duckdb::Value::INTEGER(extract_result.sequence_len)));
+            struct_values.push_back(std::make_pair("sequence", duckdb::Value(extract_result.extracted_sequence)));
+
+            auto struct_value = duckdb::Value::STRUCT(struct_values);
+
+            result.SetValue(i, struct_value);
+        }
+    }
+
+    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> SamFunctions::GetExtractFromCIGARFunction()
+    {
+        duckdb::ScalarFunctionSet set("extract_from_cigar");
+
+        duckdb::child_list_t<duckdb::LogicalType> struct_children;
+        struct_children.push_back(std::make_pair("sequence_start", duckdb::LogicalType::INTEGER));
+        struct_children.push_back(std::make_pair("sequence_end", duckdb::LogicalType::INTEGER));
+        struct_children.push_back(std::make_pair("sequence", duckdb::LogicalType::VARCHAR));
+
+        auto record_type = duckdb::LogicalType::STRUCT(std::move(struct_children));
+
+        set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR}, record_type, ExtractSequence));
+
+        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+    }
+
     duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> SamFunctions::GetParseCIGARStringFunction()
     {
         duckdb::ScalarFunctionSet set("parse_cigar");

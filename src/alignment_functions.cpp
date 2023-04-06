@@ -133,6 +133,37 @@ namespace wtt01
         return std::move(result);
     }
 
+    // AACCTTGGAAACCC -> 2A2C2T2G3A3C
+    std::string compressCigarString(std::string str)
+    {
+        if (str.empty())
+        {
+            return "";
+        }
+
+        std::string compressedStr = "";
+        int count = 1;
+        char prevChar = str[0];
+
+        for (int i = 1; i < str.length(); i++)
+        {
+            if (str[i] == prevChar)
+            {
+                count++;
+            }
+            else
+            {
+                compressedStr += std::to_string(count) + prevChar;
+                count = 1;
+                prevChar = str[i];
+            }
+        }
+
+        compressedStr += std::to_string(count) + prevChar;
+
+        return compressedStr;
+    }
+
     void AlignmentStringFunction(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
     {
         auto &func_expr = (duckdb::BoundFunctionExpression &)state.expr;
@@ -142,13 +173,20 @@ namespace wtt01
         for (duckdb::idx_t row_i = 0; row_i < args.size(); row_i++)
         {
             auto string_value = args.data[0].GetValue(row_i);
-            auto sequence = string_value.ToString();
+            auto text = string_value.ToString();
 
             auto second_string_value = args.data[1].GetValue(row_i);
-            auto second_sequence = second_string_value.ToString();
+            auto pattern = second_string_value.ToString();
 
-            aligner.alignEnd2End(sequence, second_sequence);
+            int pattern_begin_free = 0;
+            int pattern_end_free = 0;
+            int text_begin_free = 0;
+            int text_end_free = 0;
+
+            aligner.alignEndsFree(pattern, pattern_begin_free, pattern_end_free, text, text_begin_free, text_end_free);
+
             auto alignment = aligner.getAlignmentCigar();
+            alignment = compressCigarString(alignment);
 
             result.SetValue(row_i, duckdb::Value(alignment));
         }
@@ -218,12 +256,13 @@ namespace wtt01
         for (duckdb::idx_t row_i = 0; row_i < args.size(); row_i++)
         {
             auto string_value = args.data[0].GetValue(row_i);
-            auto sequence = string_value.ToString();
+            auto text = string_value.ToString();
 
             auto second_string_value = args.data[1].GetValue(row_i);
-            auto second_sequence = second_string_value.ToString();
+            auto pattern = second_string_value.ToString();
 
-            aligner.alignEnd2End(sequence, second_sequence);
+            // Align the pattern against the text.
+            aligner.alignEnd2End(pattern, text);
             auto score = aligner.getAlignmentScore();
 
             result.SetValue(row_i, duckdb::Value::FLOAT(score));
