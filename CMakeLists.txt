@@ -97,14 +97,11 @@ include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-constexpr-not-const")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-extensions")
-
 if(WFA2_ENABLED)
   message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
   FetchContent_Declare(wfa2
     GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
-    GIT_TAG 706c9db58f2f5d831cf97a02cdfdda11b1a0c8db
+    GIT_TAG 4784d5892c25f1967174b4deb7a3a7f1f34a9cb8
   )
 
   FetchContent_MakeAvailable(wfa2)
