@@ -97,9 +97,6 @@ include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 
-find_package(Arrow REQUIRED)
-message(STATUS "Found Arrow: ${Arrow_FOUND}")
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-constexpr-not-const")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-extensions")
 
