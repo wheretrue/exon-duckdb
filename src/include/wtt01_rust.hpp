@@ -1,3 +1,5 @@
+#include <arrow/c/abi.h>
+
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
@@ -77,6 +79,17 @@ struct GFFReaderC {
 struct GFFResult {
   char *error;
   bool done;
+};
+
+struct GTFReaderC {
+  void *inner_reader;
+};
+
+struct GTFResult {
+  char *error;
+  bool done;
+  ArrowArray array;
+  ArrowSchema schema;
 };
 
 struct SamHeaderReaderC {
@@ -175,6 +188,10 @@ GFFReaderC gff_new(const char *filename, const char *compression);
 GFFResult gff_insert_record_batch(const GFFReaderC *gff_reader,
                                   void *chunk_ptr,
                                   uintptr_t batch_size);
+
+GTFReaderC gtf_new(const char *filename, const char *compression);
+
+GTFResult gtf_insert_record_batch(const GTFReaderC *gtf_reader, uintptr_t batch_size);
 
 SamHeaderReaderC sam_header_new_reader(const char *filename, const char *compression);
 

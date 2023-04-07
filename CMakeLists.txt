@@ -75,7 +75,13 @@ FetchContent_Declare(
   URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
 )
 
-list(APPEND available_contents httplib json)
+FetchContent_Declare(
+  arrow
+  GIT_REPOSITORY https://github.com/apache/arrow.git
+  GIT_TAG apache-arrow-11.0.0
+)
+
+list(APPEND available_contents httplib json arrow)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -89,6 +95,13 @@ message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
+include_directories(${arrow_SOURCE_DIR}/cpp/src)
+
+find_package(Arrow REQUIRED)
+message(STATUS "Found Arrow: ${Arrow_FOUND}")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-constexpr-not-const")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-extensions")
 
 if(WFA2_ENABLED)
   message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
@@ -114,6 +127,7 @@ set(EXTENSION_SOURCES
   src/fastq_io.cpp
   src/genbank_io.cpp
   src/gff_io.cpp
+  src/gtf_io.cpp
   src/hmm_io.cpp
   src/sam_cigar_parse.cpp
   src/sam_io.cpp

@@ -16,6 +16,7 @@
 #include "fastq_io.hpp"
 #include "genbank_io.hpp"
 #include "gff_io.hpp"
+#include "gtf_io.hpp"
 #include "hmm_io.hpp"
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
@@ -76,6 +77,9 @@ namespace duckdb
         auto genbank_table = wtt01::GenbankFunctions::GetGenbankTableFunction();
         catalog.CreateTableFunction(context, genbank_table.get());
         config.replacement_scans.emplace_back(wtt01::GenbankFunctions::GetGenbankReplacementScanFunction);
+
+        auto gtf_scan = wtt01::GTFunctions::GetGtfTableFunction();
+        catalog.CreateTableFunction(context, gtf_scan.get());
 
         auto gff_scan = wtt01::GFFunctions::GetGffTableFunction();
         catalog.CreateTableFunction(context, gff_scan.get());

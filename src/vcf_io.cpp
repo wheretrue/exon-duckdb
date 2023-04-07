@@ -66,7 +66,8 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
 
         names.push_back("ids");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
+        auto varchar_list = duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR);
+        return_types.push_back(varchar_list);
 
         names.push_back("position");
         return_types.push_back(duckdb::LogicalType::BIGINT);

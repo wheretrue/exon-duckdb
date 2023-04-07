@@ -122,7 +122,7 @@ pub struct VCFRecordBatch {
     duckdb_chunk: duckdb::vtab::DataChunk,
 
     chromosome_vector: duckdb::vtab::FlatVector,
-    ids_vector: duckdb::vtab::FlatVector,
+    ids_vector: duckdb::vtab::ListVector,
     position_vector: duckdb::vtab::FlatVector,
     reference_bases_vector: duckdb::vtab::FlatVector,
     alternate_bases_vector: duckdb::vtab::FlatVector,
@@ -135,7 +135,7 @@ pub struct VCFRecordBatch {
 impl VCFRecordBatch {
     pub fn new(duckdb_chunk: duckdb::vtab::DataChunk) -> Self {
         let chromosome_vector = duckdb_chunk.flat_vector(0);
-        let ids_vector = duckdb_chunk.flat_vector(1);
+        let ids_vector = duckdb_chunk.list_vector(1);
         let position_vector = duckdb_chunk.flat_vector(2);
         let reference_bases_vector = duckdb_chunk.flat_vector(3);
         let alternate_bases_vector = duckdb_chunk.flat_vector(4);
@@ -166,10 +166,20 @@ impl VCFRecordBatch {
         // IDs
         let ids = record.ids();
         if ids.is_empty() {
-            self.ids_vector.set_null(i);
+            // let mut child = self.ids_vector.child(1);
         } else {
-            let str_ids = ids.to_string();
-            self.ids_vector.insert(i, str_ids.as_str());
+            let n_ids = ids.len();
+
+            eprintln!("n_ids: {}", n_ids);
+
+            let child = self.ids_vector.child(n_ids);
+
+            for (j, id) in ids.iter().enumerate() {
+                let id_str = id.to_string();
+                eprintln!("id_str: {}", id_str);
+
+                child.insert(j, id_str.as_str());
+            }
         }
 
         // POS
@@ -187,7 +197,6 @@ impl VCFRecordBatch {
             .insert(i, alternate_bases.as_str());
 
         // QUAL
-        let quality_score = record.quality_score();
         match record.quality_score() {
             Some(quality_score) => {
                 self.quality_score_vector.as_mut_slice::<f32>()[i] = f32::from(quality_score);

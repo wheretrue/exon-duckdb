@@ -954,6 +954,7 @@ dependencies = [
  "noodles-fasta",
  "noodles-fastq",
  "noodles-gff",
+ "noodles-gtf",
  "noodles-sam",
  "noodles-vcf",
 ]
@@ -1053,6 +1054,15 @@ checksum = "d6befb1186be031f48baffa083d63c39246210e5dfac3a1f8a2305f272efe12b"
 dependencies = [
  "noodles-core",
  "percent-encoding",
+]
+
+[[package]]
+name = "noodles-gtf"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c1e0ef9d6f39ed0d5ed65db93f1cf9264b0c18acfa1567fccf97488ae7bb958b"
+dependencies = [
+ "noodles-core",
 ]
 
 [[package]]
@@ -1885,6 +1895,7 @@ checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
 name = "wtt01_rust"
 version = "1.0.0"
 dependencies = [
+ "arrow",
  "bytes",
  "cbindgen",
  "duckdb",

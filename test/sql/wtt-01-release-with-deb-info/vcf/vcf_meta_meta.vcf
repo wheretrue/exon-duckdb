@@ -6,4 +6,4 @@
 ##META=<ID=Tissue,Number=.,Type=String,Values=[Blood, Breast, Colon, Lung, ?]>
 ##contig=<ID=1>
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-1	123	.	TC	T	.	.	.
+1	123	test	TC	T	.	.	.

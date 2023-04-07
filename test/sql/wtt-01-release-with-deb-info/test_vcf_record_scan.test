@@ -6,7 +6,7 @@ query IIIIIIIII
 SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info, genotypes FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/vcf_meta_meta.vcf');
 ----
 1
-NULL
+[test]
 123
 TC
 T
