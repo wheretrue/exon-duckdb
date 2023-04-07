@@ -97,8 +97,8 @@ include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-constexpr-not-const")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-extensions")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-constexpr-not-const")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-extensions")
 
 if(WFA2_ENABLED)
   message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")

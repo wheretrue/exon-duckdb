@@ -28,18 +28,18 @@ FROM builder AS extension_builder
 COPY ./ /app
 WORKDIR /app
 
-ARG CHECK_LICENSE
-ENV CHECK_LICENSE=${CHECK_LICENSE}
+# ARG CHECK_LICENSE
+# ENV CHECK_LICENSE=${CHECK_LICENSE}
 
-ARG WTT_01_LICENSE_SERVER_URL
-ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
+# ARG WTT_01_LICENSE_SERVER_URL
+# ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
-RUN make release
+# RUN make release
 
-FROM builder AS duckdb
+# FROM builder AS duckdb
 
-COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
-COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
+# COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
+# COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
 
-WORKDIR /tmp
-ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
+# WORKDIR /tmp
+# ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
