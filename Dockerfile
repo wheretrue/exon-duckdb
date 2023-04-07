@@ -21,6 +21,8 @@ RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+RUN apt-get install -y -qq pkg-config
+
 FROM builder AS extension_builder
 
 COPY ./ /app
