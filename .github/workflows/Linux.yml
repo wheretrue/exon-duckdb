@@ -69,16 +69,12 @@ jobs:
           echo ${{ env.WTT_01_LICENSE_URL}}
           exit 0
 
-      - name: Install python and pip
-        # if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-        uses: actions/setup-python@v4
+      - name: Setup mamba
+        uses: mamba-org/provision-with-micromamba@main
         with:
-          python-version: 3.9
-
-      - name: Install boto3
-        # if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-        run: |
-          pip install boto3
+          environment-file: environment.yml
+          cache-downloads: true
+          cache-env: true
 
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
@@ -149,7 +145,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
       - name: upload to s3
-        shell: bash
+        shell: bash -l {0}
         env:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
