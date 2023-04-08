@@ -21,7 +21,7 @@ namespace wtt01
 
         set.AddFunction(duckdb::ScalarFunction({}, duckdb::LogicalType::VARCHAR, duckdb_function));
 
-        return duckdb::CreateScalarFunctionInfo(move(set));
+        return duckdb::CreateScalarFunctionInfo(std::move(set));
     }
 
 }

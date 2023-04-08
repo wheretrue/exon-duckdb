@@ -140,14 +140,14 @@ namespace wtt01
 
         result->n_columns = result->options.n_columns;
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> BEDRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<BEDRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> BEDRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -325,7 +325,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_bed_file", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_bed_file", std::move(children));
 
         return table_function;
     }

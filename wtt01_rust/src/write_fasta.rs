@@ -28,12 +28,40 @@ pub extern "C" fn fasta_writer_new(
     filename: *const c_char,
     compression: *const c_char,
 ) -> NoodlesWriter {
-    let filename = unsafe { CStr::from_ptr(filename) }.to_str().unwrap();
+    let filename = unsafe { CStr::from_ptr(filename) }.to_str();
+    let filename = match filename {
+        Ok(filename) => filename,
+        Err(_) => {
+            return NoodlesWriter::new(
+                std::ptr::null_mut(),
+                CString::new("fasta_writer_new: filename is not valid UTF-8")
+                    .unwrap()
+                    .into_raw(),
+            )
+        }
+    };
+
+    if filename == "/dev/stdout" {
+        let stdout = std::io::stdout();
+        let boxxed_writer = Box::new(BufWriter::new(stdout)) as Box<dyn Write>;
+        let fasta_writer = Writer::new(boxxed_writer);
+
+        return NoodlesWriter::new(
+            Box::into_raw(Box::new(fasta_writer)) as *mut c_void,
+            std::ptr::null(),
+        );
+    };
+
     let compression = unsafe { CStr::from_ptr(compression) }.to_str().unwrap();
 
     let file = match File::create(filename) {
         Ok(file) => file,
-        Err(e) => return NoodlesWriter::new(std::ptr::null_mut(), CString::new(e.to_string()).unwrap().into_raw()),
+        Err(e) => {
+            return NoodlesWriter::new(
+                std::ptr::null_mut(),
+                CString::new(e.to_string()).unwrap().into_raw(),
+            )
+        }
     };
 
     let boxxed_writer = match compression {
@@ -49,7 +77,18 @@ pub extern "C" fn fasta_writer_new(
         }
         _ => {
             // match based on the extension.
-            let extension = Path::new(filename).extension().unwrap().to_str().unwrap();
+            let extension = match Path::new(filename).extension() {
+                Some(extension) => extension.to_str().unwrap(),
+                None => {
+                    return NoodlesWriter::new(
+                        std::ptr::null_mut(),
+                        CString::new("fasta_writer_new: filename missing or has no extension")
+                            .unwrap()
+                            .into_raw(),
+                    )
+                }
+            };
+
             match extension {
                 "gz" => {
                     let encoder =
@@ -69,7 +108,10 @@ pub extern "C" fn fasta_writer_new(
 
     let fasta_writer = Writer::new(boxxed_writer);
 
-    NoodlesWriter::new(Box::into_raw(Box::new(fasta_writer)) as *mut c_void, std::ptr::null())
+    NoodlesWriter::new(
+        Box::into_raw(Box::new(fasta_writer)) as *mut c_void,
+        std::ptr::null(),
+    )
 }
 
 #[no_mangle]

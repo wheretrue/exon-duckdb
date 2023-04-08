@@ -95,14 +95,14 @@ namespace wtt01
         names.push_back("mate_alignment_start");
         return_types.push_back(duckdb::LogicalType::BIGINT);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<SamRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -116,7 +116,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void SamRecordScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -194,14 +194,14 @@ namespace wtt01
         names.push_back("tag");
         names.push_back("value");
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamHeaderInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<SamHeaderScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamHeaderInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -215,7 +215,7 @@ namespace wtt01
         // should this be init here or use the bind data?
         local_state->reader = bind_data->reader;
 
-        return move(local_state);
+        return std::move(local_state);
     }
 
     void SamHeaderScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
@@ -309,6 +309,46 @@ namespace wtt01
         }
     }
 
+    void ExtractSequence(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
+    {
+        for (duckdb::idx_t i = 0; i < args.size(); i++)
+        {
+            auto sequence = args.data[0].GetValue(i).ToString();
+            auto cigar = args.data[1].GetValue(i).ToString();
+
+            auto extract_result = extract_from_cigar(sequence.c_str(), cigar.c_str());
+            if (extract_result.error)
+            {
+                throw std::runtime_error("Invalid CIGAR string");
+            }
+
+            duckdb::child_list_t<duckdb::Value> struct_values;
+            struct_values.push_back(std::make_pair("sequence_start", duckdb::Value::INTEGER(extract_result.sequence_start)));
+            struct_values.push_back(std::make_pair("sequence_end", duckdb::Value::INTEGER(extract_result.sequence_len)));
+            struct_values.push_back(std::make_pair("sequence", duckdb::Value(extract_result.extracted_sequence)));
+
+            auto struct_value = duckdb::Value::STRUCT(struct_values);
+
+            result.SetValue(i, struct_value);
+        }
+    }
+
+    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> SamFunctions::GetExtractFromCIGARFunction()
+    {
+        duckdb::ScalarFunctionSet set("extract_from_cigar");
+
+        duckdb::child_list_t<duckdb::LogicalType> struct_children;
+        struct_children.push_back(std::make_pair("sequence_start", duckdb::LogicalType::INTEGER));
+        struct_children.push_back(std::make_pair("sequence_end", duckdb::LogicalType::INTEGER));
+        struct_children.push_back(std::make_pair("sequence", duckdb::LogicalType::VARCHAR));
+
+        auto record_type = duckdb::LogicalType::STRUCT(std::move(struct_children));
+
+        set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR}, record_type, ExtractSequence));
+
+        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+    }
+
     duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> SamFunctions::GetParseCIGARStringFunction()
     {
         duckdb::ScalarFunctionSet set("parse_cigar");
@@ -318,7 +358,7 @@ namespace wtt01
         struct_children.push_back(std::make_pair("len", duckdb::LogicalType::INTEGER));
 
         auto record_type = duckdb::LogicalType::STRUCT(std::move(struct_children));
-        auto row_type = duckdb::LogicalType::LIST(move(record_type));
+        auto row_type = duckdb::LogicalType::LIST(std::move(record_type));
 
         set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR}, row_type, ParseCIGARString));
 

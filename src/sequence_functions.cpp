@@ -3,7 +3,13 @@
 #include <string>
 #include <map>
 
+#include "duckdb/execution/expression_executor.hpp"
+#include "duckdb/function/function_binder.hpp"
+#include "duckdb/planner/expression/bound_function_expression.hpp"
+
 #include "sequence_functions.hpp"
+
+using duckdb::LogicalType;
 
 namespace wtt01
 {
@@ -358,6 +364,7 @@ namespace wtt01
         functions.push_back(GetReverseComplementFunction());
         functions.push_back(GetComplementFunction());
         functions.push_back(GetReverseTranscribeRnaToDnaFunction());
+
         return functions;
     }
 }

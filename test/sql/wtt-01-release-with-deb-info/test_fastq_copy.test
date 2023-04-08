@@ -9,7 +9,7 @@ COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fas
 
 # Test writing to a FASTQ file, gzipped
 query I
-COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gz' (FORMAT 'fastq');
+COPY (FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gz' (FORMAT 'fastq');
 ----
 2
 
@@ -24,6 +24,12 @@ query I
 COPY (SELECT * FROM read_fastq('./test/sql/wtt-01-release-with-deb-info/test.fastq')) TO './test/sql/tmp/test.fastq.gzip' (FORMAT 'fastq', COMPRESSION 'gzip');
 ----
 2
+
+# Test writing to a FASTQ gzipped fastq file to stdout
+query I
+COPY (FROM './test/sql/wtt-01-release-with-deb-info/test.fastq' LIMIT 1) TO STDOUT (FORMAT 'fastq');
+----
+1
 
 # Test writing to a FASTQ file, force its creation
 # query I

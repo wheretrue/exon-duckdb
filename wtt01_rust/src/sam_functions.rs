@@ -115,3 +115,72 @@ pub extern "C" fn parse_cigar(cigar: *const c_char) -> CResult {
 
     CResult::new(serialized_obj.as_str())
 }
+
+#[repr(C)]
+pub struct CExtractResponse {
+    sequence_start: usize,
+    sequence_len: usize,
+    extracted_sequence: *const c_char,
+    error: *const c_char,
+}
+
+impl CExtractResponse {
+    fn new(sequence_start: usize, sequence_len: usize, extracted_sequence: &str) -> Self {
+        Self {
+            sequence_start,
+            sequence_len,
+            extracted_sequence: CString::new(extracted_sequence).unwrap().into_raw(),
+            error: std::ptr::null(),
+        }
+    }
+
+    fn error(error: &str) -> Self {
+        Self {
+            sequence_start: 0,
+            sequence_len: 0,
+            extracted_sequence: std::ptr::null(),
+            error: CString::new(error).unwrap().into_raw(),
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn extract_from_cigar(
+    sequence_str: *const c_char,
+    cigar_str: *const c_char,
+) -> CExtractResponse {
+    let cigar = unsafe { std::ffi::CStr::from_ptr(cigar_str) };
+    let cigar = match cigar.to_str() {
+        Ok(cigar) => cigar,
+        Err(e) => return CExtractResponse::error(&e.to_string()),
+    };
+
+    let cigar_obj: Cigar = match cigar.parse() {
+        Ok(cigar) => cigar,
+        Err(e) => return CExtractResponse::error(&e.to_string()),
+    };
+
+    let total_ops = cigar_obj.len();
+    let first_ops = cigar_obj[0];
+    let last_ops = cigar_obj[total_ops - 1];
+
+    let sequence = unsafe { std::ffi::CStr::from_ptr(sequence_str) };
+    let sequence = match sequence.to_str() {
+        Ok(sequence) => sequence,
+        Err(e) => return CExtractResponse::error(&e.to_string()),
+    };
+
+    let sequence_start = match first_ops.kind() {
+        noodles::sam::record::cigar::op::Kind::Insertion => first_ops.len(),
+        _ => 0,
+    };
+
+    let sequence_len = match last_ops.kind() {
+        noodles::sam::record::cigar::op::Kind::Insertion => sequence.len() - last_ops.len(),
+        _ => sequence.len(),
+    };
+
+    let sequence = &sequence[sequence_start..sequence_len];
+
+    CExtractResponse::new(sequence_start, sequence_len, sequence)
+}

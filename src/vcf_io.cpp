@@ -66,7 +66,8 @@ namespace wtt01
         return_types.push_back(duckdb::LogicalType::VARCHAR);
 
         names.push_back("ids");
-        return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR));
+        auto varchar_list = duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR);
+        return_types.push_back(varchar_list);
 
         names.push_back("position");
         return_types.push_back(duckdb::LogicalType::BIGINT);
@@ -89,14 +90,14 @@ namespace wtt01
         names.push_back("genotypes");
         return_types.push_back(duckdb::LogicalType::VARCHAR);
 
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::GlobalTableFunctionState> VCFRecordInitGlobalState(duckdb::ClientContext &context,
                                                                                   duckdb::TableFunctionInitInput &input)
     {
         auto result = duckdb::make_unique<VCFRecordScanGlobalState>();
-        return move(result);
+        return std::move(result);
     }
 
     duckdb::unique_ptr<duckdb::LocalTableFunctionState> VCFRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
@@ -119,85 +120,12 @@ namespace wtt01
         auto local_state = (VCFRecordScanLocalState *)data.local_state;
         auto gstate = (VCFRecordScanGlobalState *)data.global_state;
 
-        auto header = bind_data->reader.header;
-
         if (local_state->done)
         {
             return;
         }
 
-        while (output.size() < STANDARD_VECTOR_SIZE)
-        {
-            VCFRecord record = vcf_next(&bind_data->reader);
-
-            if (record.chromosome == NULL || strcmp(record.chromosome, "") == 0)
-            {
-                local_state->done = true;
-                break;
-            }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.chromosome));
-
-            if (record.ids == NULL)
-            {
-                output.SetValue(1, output.size(), duckdb::Value());
-            }
-            else
-            {
-                // split the string on ';' and add to a list
-                auto ids = duckdb::StringUtil::Split(record.ids, ';');
-                std::vector<duckdb::Value> values;
-
-                for (auto id : ids)
-                {
-                    values.push_back(duckdb::Value(id));
-                }
-
-                output.SetValue(1, output.size(), duckdb::Value::LIST(values));
-            }
-
-            output.SetValue(2, output.size(), duckdb::Value::BIGINT(record.position));
-            output.SetValue(3, output.size(), duckdb::Value(record.reference_bases));
-            output.SetValue(4, output.size(), duckdb::Value(record.alternate_bases));
-
-            if (std::isnan(record.quality_score))
-            {
-                output.SetValue(5, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(5, output.size(), duckdb::Value::FLOAT(record.quality_score));
-            }
-
-            if (record.filters == NULL || strcmp(record.filters, "") == 0)
-            {
-                output.SetValue(6, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(6, output.size(), duckdb::Value(record.filters));
-            }
-
-            if (strcmp(record.infos, ".") == 0)
-            {
-                output.SetValue(7, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(7, output.size(), duckdb::Value(record.infos));
-            }
-
-            if (strcmp(record.genotypes, "") == 0)
-            {
-                output.SetValue(8, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(8, output.size(), duckdb::Value(record.genotypes));
-            }
-
-            output.SetCardinality(output.size() + 1);
-        }
+        vcf_next(&local_state->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
     };
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> VCFFunctions::GetVCFRecordScanFunction()
@@ -230,7 +158,7 @@ namespace wtt01
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
 
-        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_vcf_file_records", move(children));
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_vcf_file_records", std::move(children));
 
         return table_function;
     }

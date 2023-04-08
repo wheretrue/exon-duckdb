@@ -8,49 +8,6 @@ use duckdb::{ffi::duckdb_data_chunk, vtab::Inserter};
 use flate2::read::GzDecoder;
 use noodles::fasta::Reader;
 
-#[repr(C)]
-pub struct Record {
-    pub id: *const c_char,
-    pub description: *const c_char,
-    pub sequence: *const c_char,
-    pub done: bool,
-}
-
-// Implement new for Record.
-impl Record {
-    pub fn new(id: String, description: String, sequence: String) -> Self {
-        Self {
-            id: CString::new(id).unwrap().into_raw(),
-            description: CString::new(description).unwrap().into_raw(),
-            sequence: CString::new(sequence).unwrap().into_raw(),
-            done: false,
-        }
-    }
-}
-
-// Implement default for Record.
-impl Default for Record {
-    fn default() -> Self {
-        Self {
-            id: std::ptr::null(),
-            description: std::ptr::null(),
-            sequence: std::ptr::null(),
-            done: false,
-        }
-    }
-}
-
-// Implement drop for Record.
-impl Drop for Record {
-    fn drop(&mut self) {
-        unsafe {
-            let _ = CString::from_raw(self.id as *mut c_char);
-            let _ = CString::from_raw(self.description as *mut c_char);
-            let _ = CString::from_raw(self.sequence as *mut c_char);
-        }
-    }
-}
-
 pub fn build_from_path<P>(src: P, compression: &str) -> std::io::Result<Reader<Box<dyn BufRead>>>
 where
     P: AsRef<Path>,
@@ -98,8 +55,29 @@ pub unsafe extern "C" fn fasta_new(
     filename: *const c_char,
     compression: *const c_char,
 ) -> FASTAReaderC {
-    let filename = CStr::from_ptr(filename).to_str().unwrap();
-    let compression = CStr::from_ptr(compression).to_str().unwrap();
+    let filename = match CStr::from_ptr(filename).to_str() {
+        Ok(filename) => filename,
+        Err(_) => {
+            return FASTAReaderC {
+                inner_reader: std::ptr::null_mut(),
+                error: CString::new("fasta_new: filename is not valid UTF-8")
+                    .unwrap()
+                    .into_raw(),
+            }
+        }
+    };
+
+    let compression = match CStr::from_ptr(compression).to_str() {
+        Ok(compression) => compression,
+        Err(_) => {
+            return FASTAReaderC {
+                inner_reader: std::ptr::null_mut(),
+                error: CString::new("fasta_new: compression is not valid UTF-8")
+                    .unwrap()
+                    .into_raw(),
+            }
+        }
+    };
 
     match build_from_path(filename, compression) {
         Ok(reader) => {
@@ -153,6 +131,7 @@ pub unsafe extern "C" fn fasta_next(
                         }
                     }
                     Err(e) => {
+                        eprintln!("fasta_next: error reading definition: {}", e);
                         *done = true;
                         return;
                     }
@@ -166,6 +145,7 @@ pub unsafe extern "C" fn fasta_next(
                         }
                     }
                     Err(e) => {
+                        eprintln!("fasta_next: error reading sequence: {}", e);
                         *done = true;
                         return;
                     }
@@ -221,9 +201,4 @@ pub unsafe extern "C" fn fasta_free(fasta_reader: &mut FASTAReaderC) {
             eprintln!("fasta_free: fasta_reader is null");
         }
     }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn fasta_record_free(record: Record) {
-    drop(record)
 }

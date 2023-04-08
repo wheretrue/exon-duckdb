@@ -1,32 +1,22 @@
+#include <arrow/c/abi.h>
+
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
 #include <ostream>
 #include <new>
 
-enum class WTTPhase {
-  None,
-  Zero,
-  One,
-  Two,
-};
-
-struct BamRecordReaderC {
+struct BAMReaderC {
   void *bam_reader;
-  const char *bam_header;
+  void *bam_header;
+  const char *error;
 };
 
-struct BamRecordC {
-  const char *sequence;
-  const char *read_name;
-  uint16_t flags;
-  int64_t alignment_start;
-  int64_t alignment_end;
-  const char *cigar_string;
-  const char *quality_scores;
-  int64_t template_length;
-  int64_t mapping_quality;
-  int64_t mate_alignment_start;
+struct BcfReaderC {
+  void *bcf_reader;
+  void *bcf_header;
+  void *bcf_string_maps;
+  const char *error;
 };
 
 struct BEDReaderC {
@@ -54,22 +44,8 @@ struct FASTAReaderC {
   const char *error;
 };
 
-struct Record {
-  const char *id;
-  const char *description;
-  const char *sequence;
-  bool done;
-};
-
 struct FASTQReaderC {
   void *inner_reader;
-};
-
-struct FastqRecord {
-  const char *name;
-  const char *description;
-  const char *sequence;
-  const char *quality_scores;
 };
 
 struct GenbankReader {
@@ -100,16 +76,20 @@ struct GFFReaderC {
   void *inner_reader;
 };
 
-struct GFFRecord {
-  const char *reference_sequence_name;
-  const char *source;
-  const char *annotation_type;
-  uint64_t start;
-  uint64_t end;
-  float score;
-  const char *strand;
-  WTTPhase phase;
-  const char *attributes;
+struct GFFResult {
+  char *error;
+  bool done;
+};
+
+struct GTFReaderC {
+  void *inner_reader;
+};
+
+struct GTFResult {
+  char *error;
+  bool done;
+  ArrowArray array;
+  ArrowSchema schema;
 };
 
 struct SamHeaderReaderC {
@@ -129,23 +109,19 @@ struct SamRecordReaderC {
 
 struct VCFReaderC {
   void *inner_reader;
-  const char *header;
-};
-
-struct VCFRecord {
-  const char *chromosome;
-  const char *ids;
-  uint64_t position;
-  const char *reference_bases;
-  const char *alternate_bases;
-  float quality_score;
-  const char *filters;
-  const char *infos;
-  const char *genotypes;
+  void *header;
+  const char *error;
 };
 
 struct CResult {
   const char *value;
+  const char *error;
+};
+
+struct CExtractResponse {
+  uintptr_t sequence_start;
+  uintptr_t sequence_len;
+  const char *extracted_sequence;
   const char *error;
 };
 
@@ -154,11 +130,30 @@ struct NoodlesWriter {
   const char *error;
 };
 
+struct FastqWriter {
+  void *writer;
+  const char *error;
+};
+
+struct GffWriter {
+  void *writer;
+  const char *error;
+};
+
+struct GffWriterResult {
+  int32_t result;
+  const char *error;
+};
+
 extern "C" {
 
-BamRecordReaderC bam_record_new_reader(const char *filename, const char *compression);
+BAMReaderC bam_new(const char *filename);
 
-BamRecordC bam_record_read_records(const BamRecordReaderC *c_reader);
+void bam_next(BAMReaderC *bam_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
+
+BcfReaderC bcf_new(const char *filename);
+
+void bcf_next(BcfReaderC *bcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
 
@@ -173,15 +168,14 @@ void fasta_next(const FASTAReaderC *fasta_reader,
 
 void fasta_free(FASTAReaderC *fasta_reader);
 
-void fasta_record_free(Record record);
-
 FASTQReaderC fastq_new(const char *filename, const char *compression);
 
-FastqRecord fastq_next(const FASTQReaderC *fastq_reader);
+void fastq_next(const FASTQReaderC *fastq_reader,
+                void *chunk_ptr,
+                bool *done,
+                uintptr_t batch_size);
 
 void fastq_free(FASTQReaderC fastq_reader);
-
-void fastq_record_free(FastqRecord record);
 
 GenbankReader genbank_new(const char *filename, const char *compression);
 
@@ -191,7 +185,13 @@ GenbankRecord genbank_next(const GenbankReader *reader);
 
 GFFReaderC gff_new(const char *filename, const char *compression);
 
-GFFRecord gff_next(const GFFReaderC *gff_reader);
+GFFResult gff_insert_record_batch(const GFFReaderC *gff_reader,
+                                  void *chunk_ptr,
+                                  uintptr_t batch_size);
+
+GTFReaderC gtf_new(const char *filename, const char *compression);
+
+GTFResult gtf_insert_record_batch(const GTFReaderC *gtf_reader, uintptr_t batch_size);
 
 SamHeaderReaderC sam_header_new_reader(const char *filename, const char *compression);
 
@@ -206,7 +206,7 @@ void sam_record_read_records_chunk(const SamRecordReaderC *c_reader,
 
 VCFReaderC vcf_new(const char *filename, const char *compression);
 
-VCFRecord vcf_next(const VCFReaderC *vcf_reader);
+void vcf_next(VCFReaderC *vcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 bool is_segmented(uint16_t flag);
 
@@ -234,13 +234,15 @@ bool is_supplementary(uint16_t flag);
 
 CResult parse_cigar(const char *cigar);
 
+CExtractResponse extract_from_cigar(const char *sequence_str, const char *cigar_str);
+
 NoodlesWriter fasta_writer_new(const char *filename, const char *compression);
 
 int32_t fasta_writer_write(void *writer, const char *id, const char *description, const char *seq);
 
 void destroy_writer(void *writer);
 
-void *fastq_writer_new(const char *filename, const char *compression);
+FastqWriter fastq_writer_new(const char *filename, const char *compression);
 
 int32_t fastq_writer_write(void *writer,
                            const char *id,
@@ -250,18 +252,18 @@ int32_t fastq_writer_write(void *writer,
 
 void fastq_writer_destroy(void *writer);
 
-void *gff_writer_new(const char *filename, const char *compression);
+GffWriter gff_writer_new(const char *filename, const char *compression);
 
-int32_t gff_writer_write(void *writer,
-                         const char *reference_sequence_name,
-                         const char *source,
-                         const char *feature_type,
-                         int32_t start,
-                         int32_t end,
-                         float score,
-                         const char *strand,
-                         const char *phase,
-                         const char *attributes);
+GffWriterResult gff_writer_write(void *writer,
+                                 const char *reference_sequence_name,
+                                 const char *source,
+                                 const char *feature_type,
+                                 int32_t start,
+                                 int32_t end,
+                                 float score,
+                                 const char *strand,
+                                 const char *phase,
+                                 const char *attributes);
 
 void gff_writer_destroy(void *writer);
 

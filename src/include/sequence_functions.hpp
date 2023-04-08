@@ -14,6 +14,8 @@ namespace wtt01
         static duckdb::CreateScalarFunctionInfo GetReverseTranscribeRnaToDnaFunction();
         static duckdb::CreateScalarFunctionInfo GetTranslateDnaToAminoAcidFunction();
 
+        static duckdb::CreateScalarFunctionInfo GetAlignFunction();
+
         static duckdb::CreateScalarFunctionInfo GetTranscribeDnaToRnaFunction();
 
         static std::vector<duckdb::CreateScalarFunctionInfo> GetSequenceFunctions();

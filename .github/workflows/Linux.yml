@@ -26,11 +26,10 @@ jobs:
         # Add commits/tags to build against other DuckDB versions
         duckdb_version: ["v0.7.1"]
         # arch: ["linux_amd64", "linux_arm64", "linux_amd64_gcc4"]
-        # arch: ["linux_amd64", "linux_amd64_gcc4"]
-        arch: ["linux_amd64_gcc4"]
+        arch: ["linux_amd64", "linux_amd64_gcc4"]
         include:
-          # - arch: "linux_amd64"
-          # container: "ubuntu:16.04"
+          - arch: "linux_amd64"
+            container: "ubuntu:16.04"
           # - arch: "linux_arm64"
           #   container: "ubuntu:18.04"
           - arch: "linux_amd64_gcc4"
@@ -58,7 +57,7 @@ jobs:
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
@@ -79,7 +78,7 @@ jobs:
           apt-get install -y -qq software-properties-common
           add-apt-repository ppa:git-core/ppa
           apt-get update -y -qq
-          apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client
+          apt-get install -y -qq ninja-build make gcc-multilib g++-multilib libssl-dev wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client pkg-config extra-cmake-modules
 
       - name: Install Git 2.18.5
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
@@ -115,7 +114,7 @@ jobs:
       - if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
         uses: ./duckdb/.github/actions/ubuntu_16_setup
         with:
-          openssl: 1
+          openssl: 0
           aarch64_cross_compile: ${{ matrix.arch == 'linux_arm64' && 1 }}
 
         # Build extension
@@ -134,6 +133,7 @@ jobs:
         if: env.CHECK_LICENSE == 0
         run: |
           make test
+
 
       - uses: actions/upload-artifact@v2
         with:

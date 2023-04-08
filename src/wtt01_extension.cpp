@@ -8,15 +8,20 @@
 
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
 
+#include "alignment_functions.hpp"
+#include "bam_io.hpp"
+#include "bcf_io.hpp"
+#include "bed_io.hpp"
 #include "fasta_io.hpp"
 #include "fastq_io.hpp"
 #include "genbank_io.hpp"
 #include "gff_io.hpp"
+#include "gtf_io.hpp"
 #include "hmm_io.hpp"
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
-#include "bed_io.hpp"
+
 #include "wtt01_functions.hpp"
 
 #include "check_license.hpp"
@@ -73,6 +78,9 @@ namespace duckdb
         catalog.CreateTableFunction(context, genbank_table.get());
         config.replacement_scans.emplace_back(wtt01::GenbankFunctions::GetGenbankReplacementScanFunction);
 
+        auto gtf_scan = wtt01::GTFunctions::GetGtfTableFunction();
+        catalog.CreateTableFunction(context, gtf_scan.get());
+
         auto gff_scan = wtt01::GFFunctions::GetGffTableFunction();
         catalog.CreateTableFunction(context, gff_scan.get());
 
@@ -90,10 +98,16 @@ namespace duckdb
         auto vcf_scan = wtt01::VCFFunctions::GetVCFRecordScanFunction();
         catalog.CreateTableFunction(context, vcf_scan.get());
 
+        auto bcf_scan = wtt01::BcfFunctions::GetBcfRecordScanFunction();
+        catalog.CreateTableFunction(context, bcf_scan.get());
+
         config.replacement_scans.emplace_back(wtt01::VCFFunctions::GetVcfReplacementScanFunction);
 
         auto parse_cigar_string = wtt01::SamFunctions::GetParseCIGARStringFunction();
         catalog.CreateFunction(context, parse_cigar_string.get());
+
+        auto extract_sequence_from_cigar = wtt01::SamFunctions::GetExtractFromCIGARFunction();
+        catalog.CreateFunction(context, extract_sequence_from_cigar.get());
 
         auto sam_record_scan = wtt01::SamFunctions::GetSamRecordScanFunction();
         catalog.CreateTableFunction(context, sam_record_scan.get());
@@ -110,6 +124,9 @@ namespace duckdb
             catalog.CreateFunction(*con.context, func.get());
         }
 
+        auto get_bam_record_scan = wtt01::BamFunctions::GetBamRecordScanFunction();
+        catalog.CreateTableFunction(context, get_bam_record_scan.get());
+
         auto get_wtt01_version_function = wtt01::Wtt01Functions::GetWtt01VersionFunction();
         catalog.CreateFunction(*con.context, &get_wtt01_version_function);
 
@@ -121,6 +138,14 @@ namespace duckdb
 
         auto bed_replacement_scan = wtt01::BEDFunctions::GetBEDReplacementScanFunction;
         config.replacement_scans.emplace_back(bed_replacement_scan);
+
+#if defined(WFA2_ENABLED)
+        auto get_align_function = wtt01::AlignmentFunctions::GetAlignmentStringFunction();
+        catalog.CreateFunction(*con.context, get_align_function.get());
+
+        auto get_align_score_function = wtt01::AlignmentFunctions::GetAlignmentScoreFunction();
+        catalog.CreateFunction(*con.context, get_align_score_function.get());
+#endif
 
         con.Commit();
     }
