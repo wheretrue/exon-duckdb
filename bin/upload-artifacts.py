@@ -6,6 +6,8 @@ import zipfile
 import platform
 from pathlib import Path
 
+import sys
+
 import boto3
 
 client = boto3.client("s3")
@@ -15,6 +17,11 @@ if __name__ == "__main__":
     name = "wtt01"
     version = "0.2.3"
     handler = "WTTArtifactHandler"
+
+    args = sys.argv[1:]
+
+    arch = args[0]
+    duckdb_version = args[1]
 
     environment = os.environ["ENVIRONMENT"]
     bucket = f"wtt-01-dist-{environment}"
@@ -43,7 +50,9 @@ if __name__ == "__main__":
             / f"{name}.duckdb_extension"
         )
     else:
-        build_target = Path("build") / "release" / "extension" / name / f"{name}.duckdb_extension"
+        build_target = (
+            Path("build") / "release" / "extension" / name / f"{name}.duckdb_extension"
+        )
 
     with zipfile.ZipFile(local_file, "w") as zip_file:
         print(f"Adding {build_target} to {local_file}.")
@@ -55,11 +64,7 @@ if __name__ == "__main__":
     client.upload_file(str(local_file), bucket, upload_key)
 
     # Change the ACL of the file to public-read.
-    client.put_object_acl(
-        ACL="public-read",
-        Bucket=bucket,
-        Key=upload_key,
-    )
+    client.put_object_acl(ACL="public-read", Bucket=bucket, Key=upload_key)
 
     body = json.dumps(
         {
@@ -78,8 +83,16 @@ if __name__ == "__main__":
     print(body)
 
     # Invoke the lambda function ARTIFACT_HANDLER with the body.
-    response = lambda_client.invoke(
-        FunctionName=handler,
-        Payload=bytes(body, "utf-8"),
-    )
+    response = lambda_client.invoke(FunctionName=handler, Payload=bytes(body, "utf-8"))
     print(response)
+
+    # Invoke the lambda function ARTIFACT_HANDLER with the body.
+    response = lambda_client.invoke(FunctionName=handler, Payload=bytes(body, "utf-8"))
+    print(response)
+
+    # aws s3 cp $1.duckdb_extension.gz s3://$5/$1/$2/$3/$4/$1.duckdb_extension.gz --acl public-read
+    duckdb_path = f"{name}/{version}/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
+    client.upload_file(str(local_file), bucket, duckdb_path)
+
+    duckdb_path = f"{name}/latest/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
+    client.upload_file(str(local_file), bucket, duckdb_path)
