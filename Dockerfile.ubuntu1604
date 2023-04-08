@@ -8,50 +8,48 @@ ENV CHECK_LICENSE=${CHECK_LICENSE}
 ARG WTT_01_LICENSE_SERVER_URL
 ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential python-dev
+# RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential python-dev
 
-ADD ./wtt01.duckdb_extension /tmp/wtt01.duckdb_extension
+# ADD ./wtt01.duckdb_extension /tmp/wtt01.duckdb_extension
 
-RUN apt-get install -y -qq software-properties-common && \
-        add-apt-repository ppa:git-core/ppa && \
-        apt-get update -y -qq && \
-        apt-get install -y -qq ninja-build make gcc-multilib g++-multilib wget openjdk-8-jdk zip maven unixodbc-dev libc6-dev-i386 lib32readline6-dev libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip build-essential checkinstall libffi-dev curl libz-dev openssh-client ccache git
+RUN apt-get update -y -qq && \
+        apt-get install -y -qq ninja-build make build-essential
 
-RUN apt-get install -y -qq vim
+# RUN apt-get install -y -qq vim
 
-RUN wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz && \
-        tar xvf Python-3.7.12.tgz && \
-        cd Python-3.7.12 && \
-        mkdir -p pythonbin && \
-        ./configure --with-ensurepip=install && \
-        make -j && \
-        make install && \
-        python3.7 --version && \
-        python3.7 -m pip install pip && \
-        python3.7 -m pip install requests awscli
+# RUN wget https://www.python.org/ftp/python/3.7.12/Python-3.7.12.tgz && \
+#         tar xvf Python-3.7.12.tgz && \
+#         cd Python-3.7.12 && \
+#         mkdir -p pythonbin && \
+#         ./configure --with-ensurepip=install && \
+#         make -j && \
+#         make install && \
+#         python3.7 --version && \
+#         python3.7 -m pip install pip && \
+#         python3.7 -m pip install requests awscli
 
-RUN wget https://www.openssl.org/source/openssl-1.1.1c.tar.gz && \
-        tar -xf openssl-1.1.1c.tar.gz && \
-        cd openssl-1.1.1c && \
-        ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl no-shared zlib-dynamic && \
-        make && \
-        make install && \
-        echo "/usr/local/ssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1c.conf && \
-        ldconfig -v
+# RUN wget https://www.openssl.org/source/openssl-1.1.1c.tar.gz && \
+#         tar -xf openssl-1.1.1c.tar.gz && \
+#         cd openssl-1.1.1c && \
+#         ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl no-shared zlib-dynamic && \
+#         make && \
+#         make install && \
+#         echo "/usr/local/ssl/lib" > /etc/ld.so.conf.d/openssl-1.1.1c.conf && \
+#         ldconfig -v
 
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh && \
-        chmod +x cmake-3.25.2-linux-x86_64.sh && \ 
-        ./cmake-3.25.2-linux-x86_64.sh --skip-license --prefix=/usr/local && \
-        cmake --version
+# RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.2/cmake-3.25.2-linux-x86_64.sh && \
+#         chmod +x cmake-3.25.2-linux-x86_64.sh && \
+#         ./cmake-3.25.2-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+#         cmake --version
 
-RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
-        sh rustup.sh -y
+# RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
+#         sh rustup.sh -y
 
-ENV PATH="/root/.cargo/bin:${PATH}"
+# ENV PATH="/root/.cargo/bin:${PATH}"
 
-COPY ./ /app
-WORKDIR /app
+# COPY ./ /app
+# WORKDIR /app
 
-# RUN make release
+# # RUN make release
 
-# ENTRYPOINT [ "./build/_deps/duckdb-build/duckdb", "-unsigned"]
+# # ENTRYPOINT [ "./build/_deps/duckdb-build/duckdb", "-unsigned"]

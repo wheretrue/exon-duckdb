@@ -76,7 +76,16 @@ jobs:
           apt-get install -y -qq software-properties-common
           add-apt-repository ppa:git-core/ppa
           apt-get update -y -qq
-          apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget
+          apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget pkg-config build-essential
+
+      - name: Install CMake 3.21
+        shell: bash
+        if: ${{ matrix.arch == 'linux_amd64' }}
+        run: |
+          wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-linux-x86_64.sh
+          chmod +x cmake-3.21.3-linux-x86_64.sh
+          ./cmake-3.21.3-linux-x86_64.sh --skip-license --prefix=/usr/local
+          cmake --version
 
       - uses: actions/checkout@v3
         with:
@@ -127,11 +136,13 @@ jobs:
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
+
       - name: install boto3
         shell: bash
         run: |
           # python3 -m pip install --upgrade pip
           pip3 install boto3
+
       - name: upload to s3
         shell: bash
         env:
