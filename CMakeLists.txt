@@ -97,8 +97,8 @@ include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 
+message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
 if(WFA2_ENABLED)
-  message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
   FetchContent_Declare(wfa2
     GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
     GIT_TAG 4784d5892c25f1967174b4deb7a3a7f1f34a9cb8

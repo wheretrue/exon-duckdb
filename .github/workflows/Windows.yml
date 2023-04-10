@@ -3,10 +3,7 @@ name: Windows
 # on: [push, pull_request, repository_dispatch]
 on:
   workflow_dispatch:
-
   push:
-    tags:
-      - v*
 
 permissions:
   contents: read
@@ -69,7 +66,7 @@ jobs:
       - name: Install OpenSSL
         shell: bash
         run: |
-          choco install openssl -y --force
+          choco install openssl -y --force --params "/logLevel=quiet"
 
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
@@ -114,4 +111,4 @@ jobs:
         env:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
-          python3 bin/upload-artifacts.py
+          python3 bin/upload-artifacts.py windows_amd64 ${{ matrix.duckdb_version }}
