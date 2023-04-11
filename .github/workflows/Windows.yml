@@ -66,6 +66,7 @@ jobs:
       - name: Install OpenSSL
         shell: bash
         run: |
+          choco feature disable -n=showDownloadProgress
           choco install openssl -y --force --params "/logLevel=quiet"
 
       - name: Install latest nightly

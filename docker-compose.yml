@@ -35,3 +35,14 @@ services:
   wtt01_ubuntu16:
     build:
       dockerfile: ./Dockerfile.ubuntu1604
+
+  postgres:
+    image: postgres:12.2
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./query.sql:/docker-entrypoint-initdb.d/query.sql
