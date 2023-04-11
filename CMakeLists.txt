@@ -60,8 +60,6 @@ else()
   message("-- wtt: WTT_01_LICENSE_SERVER_URL is not set")
 endif()
 
-add_subdirectory(wtt01_rust)
-
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -81,9 +79,19 @@ FetchContent_Declare(
   GIT_TAG apache-arrow-11.0.0
 )
 
-list(APPEND available_contents httplib json arrow)
+FetchContent_Declare(
+  Corrosion
+  GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+  GIT_TAG v0.3.2
+)
+
+list(APPEND available_contents httplib json arrow Corrosion)
 
 FetchContent_MakeAvailable(${available_contents})
+
+corrosion_import_crate(MANIFEST_PATH wtt01_rust/Cargo.toml
+  PROFILE release
+)
 
 message("-- wtt source: ${CMAKE_CURRENT_SOURCE_DIR}")
 message("-- wtt include: ${CMAKE_INSTALL_INCLUDEDIR}")
@@ -151,8 +159,9 @@ target_link_libraries(${EXTENSION_NAME}
 
 elseif(APPLE)
 target_link_libraries(${EXTENSION_NAME}
-  PRIVATE
+  PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  # wtt01_rust
   "${wfa2_BINARY_DIR}/libwfa2cpp.a"
   "${wfa2_BINARY_DIR}/libwfa2.a"
   "-framework CoreFoundation"
