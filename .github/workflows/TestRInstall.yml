@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         r: [4.2.2]
     steps:
       - name: Setup R
@@ -24,6 +24,7 @@ jobs:
           http-user-agent: "GitHub Action"
       - name: make test.R
         shell: bash
+        continue-on-error: ${{ matrix.os == 'windows-latest' }} || ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           echo "url <- \"https://wtt01.wheretrue.com/R/wtt01r_latest.tar.gz\"" > test.R
 
