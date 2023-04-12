@@ -1,7 +1,7 @@
 Package: wtt01r
 Type: Package
 Title: WTT-01 R Package
-Version: 0.2.5
+Version: 0.2.6
 Author: Trent Hauck
 Maintainer: Trent Hauck <thauck@wheretrue.com>
 Description: Package to support wtt01 in R.
