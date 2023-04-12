@@ -13,19 +13,6 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
-  execute_process(COMMAND brew --prefix llvm@15 OUTPUT_VARIABLE LLVM_PREFIX)
-  string(STRIP ${LLVM_PREFIX} LLVM_ROOT_DIR)
-
-  # Set the required clang version to 16
-  set(CC ${LLVM_ROOT_DIR}/bin/clang)
-  set(CXX ${LLVM_ROOT_DIR}/bin/clang++)
-
-  set(CMAKE_C_COMPILER ${CC})
-  set(CMAKE_CXX_COMPILER ${CXX})
-
-  message("-- wtt: CC is ${CC}")
-  message("-- wtt: CXX is ${CXX}")
-
   set(WFA2_ENABLED ON)
   add_compile_definitions(WFA2_ENABLED)
 
@@ -154,13 +141,13 @@ build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 if (WIN32)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/Release/wtt01_rust.lib"
+  "${CMAKE_CURRENT_BINARY_DIR}/Release/wtt01_rust.lib"
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
   # wtt01_rust
   "${wfa2_BINARY_DIR}/libwfa2cpp.a"
   "${wfa2_BINARY_DIR}/libwfa2.a"
@@ -171,7 +158,7 @@ target_link_libraries(${EXTENSION_NAME}
 else()
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/wtt01_rust/libwtt01_rust.a"
+  "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
   "${wfa2_BINARY_DIR}/libwfa2cpp.a"
   "${wfa2_BINARY_DIR}/libwfa2.a"
   ${OPENSSL_LIBRARIES}
