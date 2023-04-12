@@ -130,10 +130,7 @@ namespace wtt01
 
             auto child = record.children[0];
 
-            printf("child: %s\n", child);
-
             auto cdata = (char *)record.buffers[2];
-            printf("cdata: %s\n", cdata);
             // printf("record: %d\n", record.length);
 
             // printf("record: %s\n", record.children[0]);

@@ -119,6 +119,7 @@ namespace wtt01
             }
         }
 
+        // set an error char pointer
         fasta_next(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
     };
 

@@ -26,7 +26,14 @@ where
         }
         _ => {
             // match based on the extension.
-            let extension = src.extension().unwrap().to_str().unwrap();
+            let extension = match src.extension() {
+                Some(extension) => match extension.to_str() {
+                    Some(extension) => extension,
+                    None => "",
+                },
+                None => "",
+            };
+
             match extension {
                 "gz" => {
                     let decoder = GzDecoder::new(file);
