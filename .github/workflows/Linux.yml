@@ -149,4 +149,4 @@ jobs:
         env:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
-          python bin/upload-artifacts.py ${{ matrix.arch }} ${{ matrix.duckdb_version }}
+          python bin/upload-artifacts.py

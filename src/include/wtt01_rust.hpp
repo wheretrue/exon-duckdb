@@ -19,11 +19,6 @@ struct BcfReaderC {
   const char *error;
 };
 
-struct BEDReaderC {
-  void *inner_reader;
-  uint8_t n_columns;
-};
-
 struct BEDRecordC {
   const char *reference_sequence_name;
   uintptr_t start;
@@ -37,6 +32,12 @@ struct BEDRecordC {
   uintptr_t block_count;
   const char *block_sizes;
   const char *block_starts;
+  const char *error;
+};
+
+struct BEDReaderC {
+  void *inner_reader;
+  uint8_t n_columns;
 };
 
 struct FASTAReaderC {
@@ -155,9 +156,9 @@ BcfReaderC bcf_new(const char *filename);
 
 void bcf_next(BcfReaderC *bcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
-BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
-
 BEDRecordC bed_next(const BEDReaderC *bam_reader, uint8_t n_columns);
+
+BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
 
 FASTAReaderC fasta_new(const char *filename, const char *compression);
 

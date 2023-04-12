@@ -179,6 +179,11 @@ namespace wtt01
         {
             BEDRecordC record = bed_next(&bind_data->reader, bind_data->n_columns);
 
+            if (record.error)
+            {
+                throw duckdb::IOException("Error reading BED file: " + bind_data->file_path + ": Check that the file is valid BED format and you've used the correct number of columns.");
+            }
+
             if (record.reference_sequence_name == NULL)
             {
                 local_state->done = true;

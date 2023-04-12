@@ -343,10 +343,11 @@ namespace wtt01
         };
 
         auto &fs = duckdb::FileSystem::GetFileSystem(context);
-        if (!(fs.FileExists(table_name)))
+        auto glob = fs.Glob(table_name);
+        if (glob.size() == 0)
         {
             return nullptr;
-        };
+        }
 
         std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
         children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));

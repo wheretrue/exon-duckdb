@@ -28,6 +28,27 @@ pub struct BEDRecordC {
     block_count: usize,
     block_sizes: *const c_char,
     block_starts: *const c_char,
+    error: *const c_char,
+}
+
+impl BEDRecordC {
+    fn error(error: &str) -> Self {
+        Self {
+            reference_sequence_name: std::ptr::null(),
+            start: 0,
+            end: 0,
+            name: std::ptr::null(),
+            score: 0,
+            strand: std::ptr::null(),
+            thick_start: 0,
+            thick_end: 0,
+            color: std::ptr::null(),
+            block_count: 0,
+            block_sizes: std::ptr::null(),
+            block_starts: std::ptr::null(),
+            error: std::ffi::CString::new(error).unwrap().into_raw(),
+        }
+    }
 }
 
 impl Default for BEDRecordC {
@@ -45,6 +66,7 @@ impl Default for BEDRecordC {
             block_count: 0,
             block_sizes: std::ptr::null(),
             block_starts: std::ptr::null(),
+            error: std::ptr::null(),
         }
     }
 }
@@ -62,6 +84,7 @@ pub struct BEDRecordCBuilder {
     block_count: usize,
     block_sizes: *const c_char,
     block_starts: *const c_char,
+    error: *const c_char,
 }
 
 impl BEDRecordCBuilder {
@@ -79,6 +102,7 @@ impl BEDRecordCBuilder {
             block_count: 0,
             block_sizes: std::ptr::null(),
             block_starts: std::ptr::null(),
+            error: std::ptr::null(),
         }
     }
 
@@ -189,6 +213,7 @@ impl BEDRecordCBuilder {
             block_count: self.block_count,
             block_sizes: self.block_sizes,
             block_starts: self.block_starts,
+            error: self.error,
         }
     }
 }
@@ -374,23 +399,6 @@ where
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn bed_new(
-    filename: *const c_char,
-    n_columns: u8,
-    compression: *const c_char,
-) -> BEDReaderC {
-    let filename = CStr::from_ptr(filename).to_str().unwrap();
-    let compression = CStr::from_ptr(compression).to_str().unwrap();
-
-    let reader = build_from_path(filename, compression).unwrap();
-
-    return BEDReaderC {
-        inner_reader: Box::into_raw(Box::new(reader)) as *mut c_void,
-        n_columns,
-    };
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn bed_next(bam_reader: &BEDReaderC, n_columns: u8) -> BEDRecordC {
     let bam_reader_ptr = bam_reader.inner_reader as *mut Reader<Box<dyn BufRead>>;
 
@@ -414,58 +422,114 @@ pub unsafe extern "C" fn bed_next(bam_reader: &BEDReaderC, n_columns: u8) -> BED
 
             match n_columns {
                 3 => {
-                    let line: Record<3> = Record::from_str(&buffer).unwrap();
+                    let line: Record<3> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 4 => {
-                    let line: Record<4> = Record::from_str(&buffer).unwrap();
+                    let line: Record<4> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 5 => {
-                    let line: Record<5> = Record::from_str(&buffer).unwrap();
+                    let line: Record<5> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 6 => {
-                    let line: Record<6> = Record::from_str(&buffer).unwrap();
+                    let line: Record<6> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 7 => {
-                    let line: Record<7> = Record::from_str(&buffer).unwrap();
+                    let line: Record<7> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 8 => {
-                    let line: Record<8> = Record::from_str(&buffer).unwrap();
+                    let line: Record<8> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 9 => {
-                    let line: Record<9> = Record::from_str(&buffer).unwrap();
+                    let line: Record<9> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 12 => {
-                    let line: Record<12> = Record::from_str(&buffer).unwrap();
+                    let line: Record<12> = match Record::from_str(&buffer) {
+                        Ok(l) => l,
+                        Err(e) => {
+                            return BEDRecordC::error(&e.to_string());
+                        }
+                    };
 
                     let c_record = BEDRecordC::from(line);
                     return c_record;
                 }
                 _ => {
-                    eprintln!("bed_next: n_columns must be between 3 and 9, or 12");
-                    return BEDRecordC::default();
+                    return BEDRecordC::error("bed_next: n_columns must be between 3 and 9, or 12");
                 }
             }
         }
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn bed_new(
+    filename: *const c_char,
+    n_columns: u8,
+    compression: *const c_char,
+) -> BEDReaderC {
+    let filename = CStr::from_ptr(filename).to_str().unwrap();
+    let compression = CStr::from_ptr(compression).to_str().unwrap();
+
+    let reader = build_from_path(filename, compression).unwrap();
+
+    return BEDReaderC {
+        inner_reader: Box::into_raw(Box::new(reader)) as *mut c_void,
+        n_columns,
+    };
 }

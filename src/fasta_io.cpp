@@ -342,8 +342,8 @@ namespace wtt01
         };
 
         auto &fs = duckdb::FileSystem::GetFileSystem(context);
-
-        if (!(fs.FileExists(table_name)))
+        auto glob = fs.Glob(table_name);
+        if (glob.size() == 0)
         {
             return nullptr;
         };

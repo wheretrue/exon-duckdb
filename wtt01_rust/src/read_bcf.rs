@@ -42,8 +42,29 @@ pub unsafe extern "C" fn bcf_new(filename: *const c_char) -> BcfReaderC {
         };
     }
 
-    let header = reader.read_header().unwrap();
-    let rust_header: Header = header.parse().unwrap();
+    let header = match reader.read_header() {
+        Ok(header) => header,
+        Err(e) => {
+            return BcfReaderC {
+                bcf_reader: std::ptr::null_mut(),
+                bcf_header: std::ptr::null_mut(),
+                bcf_string_maps: std::ptr::null_mut(),
+                error: std::ffi::CString::new(format!("{}", e)).unwrap().into_raw(),
+            }
+        }
+    };
+
+    let rust_header = match header.parse() {
+        Ok(header) => header,
+        Err(e) => {
+            return BcfReaderC {
+                bcf_reader: std::ptr::null_mut(),
+                bcf_header: std::ptr::null_mut(),
+                bcf_string_maps: std::ptr::null_mut(),
+                error: std::ffi::CString::new(format!("{}", e)).unwrap().into_raw(),
+            }
+        }
+    };
 
     let string_maps = StringMaps::from(&rust_header);
 
@@ -74,10 +95,26 @@ pub unsafe extern "C" fn bcf_next(
     let mut record_batch = VCFRecordBatch::new(duckdb_chunk);
 
     let header = bcf_reader.bcf_header as *mut Header;
-    let header = header.as_mut().unwrap();
+
+    let header = match header.as_mut() {
+        Some(header) => header,
+        None => {
+            *done = true;
+            eprintln!("bcf_next: header is null");
+            return;
+        }
+    };
 
     let string_maps = bcf_reader.bcf_string_maps as *mut StringMaps;
-    let string_maps = string_maps.as_mut().unwrap();
+
+    let string_maps = match string_maps.as_mut() {
+        Some(string_maps) => string_maps,
+        None => {
+            *done = true;
+            eprintln!("bcf_next: string_maps is null");
+            return;
+        }
+    };
 
     match bcf_reader_ptr.as_mut() {
         Some(reader) => {

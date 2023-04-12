@@ -16,7 +16,7 @@ use arrow::{
 use arrow::ffi::FFI_ArrowArray as ArrowArray;
 use arrow::ffi::FFI_ArrowSchema as ArrowSchema;
 use flate2::read::GzDecoder;
-use noodles::gtf::{Line, Reader, Record};
+use noodles::gtf::Reader;
 
 #[repr(C)]
 pub struct GTFReaderC {

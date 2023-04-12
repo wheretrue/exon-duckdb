@@ -5,6 +5,7 @@ import uuid
 import zipfile
 import platform
 from pathlib import Path
+import argparse
 
 import sys
 
@@ -14,14 +15,28 @@ client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
 
 if __name__ == "__main__":
-    name = "wtt01"
-    version = "0.2.6"
     handler = "WTTArtifactHandler"
 
-    args = sys.argv[1:]
+    # Setup argparse to parse the arguments
+    parser = argparse.ArgumentParser(
+        description="Upload artifacts to S3 and invoke the artifact handler."
+    )
 
-    arch = args[0]
-    duckdb_version = args[1]
+    parser.add_argument("--name", default="wtt01")
+
+    parser.add_argument("--version", default="0.2.6")
+
+    parser.add_argument("--duckdb_version", default="v0.7.1")
+
+    # add a flag to signify gcc4 or not
+    parser.add_argument("--gcc4", action="store_true")
+
+    args = parser.parse_args()
+
+    name = args.name
+    version = args.version
+    duckdb_version = args.duckdb_version
+    gcc4 = args.gcc4
 
     environment = os.environ["ENVIRONMENT"]
     bucket = f"wtt-01-dist-{environment}"
@@ -35,6 +50,21 @@ if __name__ == "__main__":
 
     print(f"Operating system: {operating_system}")
     print(f"Architecture: {architecture}")
+
+    if operating_system.lower() == "windows":
+        arch = "windows_amd64"
+    elif operating_system.lower() == "darwin" and architecture.lower() == "x86_64":
+        arch = "osx_amd64"
+    elif operating_system.lower() == "linux" and architecture.lower() == "x86_64":
+        arch = "linux_amd64"
+
+        if gcc4:
+            arch = "linux_amd64_gcc4"
+
+    elif operating_system.lower() == "darwin" and architecture.lower() == "arm64":
+        arch = "osx_arm64"
+    else:
+        raise Exception(f"Unsupported platform: {operating_system} {architecture}")
 
     filename = f"{name}-{version}-{operating_system}-{architecture}.zip"
     full_s3_path = f"s3://{bucket}/extension/{name}/{filename}"
