@@ -101,6 +101,31 @@ if(WFA2_ENABLED)
 
   FetchContent_MakeAvailable(wfa2)
   include_directories(${wfa2_SOURCE_DIR})
+
+  # FetchContent_Declare(
+  #   htslib
+  #   GIT_REPOSITORY https://github.com/samtools/htslib.git
+  #   GIT_TAG 1.17
+  # )
+
+  # FetchContent_MakeAvailable(htslib)
+  # message("-- wtt: htslib_SOURCE_DIR is ${htslib_SOURCE_DIR}")
+  # include_directories(${htslib_SOURCE_DIR})
+
+  include(ExternalProject)
+  set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
+
+  ExternalProject_Add(htslib
+    PREFIX ${HTSLIB_BUILD_DIR}
+    GIT_REPOSITORY https://github.com/samtools/htslib.git
+    GIT_TAG 1.17
+    CONFIGURE_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && autoreconf -i && ./configure --prefix=${HTSLIB_BUILD_DIR}
+    BUILD_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make
+    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
+  )
+
+  include_directories(${HTSLIB_BUILD_DIR}/include)
+
 endif()
 
 include_directories(src/include)
@@ -129,6 +154,7 @@ set(EXTENSION_SOURCES
 if(WFA2_ENABLED)
   set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
     src/alignment_functions.cpp
+    src/vcf_io_types.cpp
   )
 endif()
 
@@ -153,6 +179,9 @@ target_link_libraries(${EXTENSION_NAME}
   "${wfa2_BINARY_DIR}/libwfa2.a"
   "-framework CoreFoundation"
   ${OPENSSL_LIBRARIES}
+
+  "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+  -lz -lm -lbz2 -llzma -lcurl
 )
 
 else()

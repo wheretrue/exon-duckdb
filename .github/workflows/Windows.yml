@@ -89,6 +89,12 @@ jobs:
         run: |
           make release
 
+      - name: Test if not CHECK_LICENSE
+        if: ${{ env.CHECK_LICENSE == 0 }}
+        continue-on-error: true
+        run: |
+          make test
+
       - uses: actions/upload-artifact@v2
         with:
           name: windows-extension
@@ -112,4 +118,4 @@ jobs:
         env:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
-          python3 bin/upload-artifacts.py windows_amd64 ${{ matrix.duckdb_version }}
+          python3 bin/upload-artifacts.py

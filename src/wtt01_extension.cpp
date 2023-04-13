@@ -21,6 +21,7 @@
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
 #include "vcf_io.hpp"
+#include "vcf_io_types.hpp"
 
 #include "wtt01_functions.hpp"
 
@@ -145,6 +146,9 @@ namespace duckdb
 
         auto get_align_score_function = wtt01::AlignmentFunctions::GetAlignmentScoreFunction();
         catalog.CreateFunction(*con.context, get_align_score_function.get());
+
+        auto get_vcf_type_record_scan = wtt01::VCFTypeFunctions::GetVCFTypesRecordScanFunction();
+        catalog.CreateTableFunction(*con.context, get_vcf_type_record_scan.get());
 #endif
 
         con.Commit();
