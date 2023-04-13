@@ -334,6 +334,9 @@ namespace wtt01
             auto chromosome = record->rid;
             const char *chr_name = bcf_hdr_id2name(header, record->rid);
             std::string chr_name_str = std::string(chr_name);
+            chr_name_str.erase(remove_if(chr_name_str.begin(), chr_name_str.end(), [](char c)
+                                         { return c == ' '; }),
+                               chr_name_str.end());
 
             auto position = record->pos;
 
@@ -366,7 +369,7 @@ namespace wtt01
             output.SetValue(0, output.size(), duckdb::Value(chr_name_str));
             if (id_vec.size() != 0)
             {
-                output.SetValue(1, output.size(), duckdb::Value::LIST(id_vec));
+                output.SetValue(1, output.size(), duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, id_vec));
             }
 
             output.SetValue(2, output.size(), duckdb::Value::BIGINT(position));
@@ -383,9 +386,14 @@ namespace wtt01
                 for (int i = 0; i < record->d.n_flt; i++)
                 {
                     const char *filter_name = bcf_hdr_int2id(header, BCF_DT_ID, record->d.flt[i]);
-                    filter_vec.push_back(duckdb::Value(std::string(filter_name)));
+                    auto filter_name_str = std::string(filter_name);
+                    filter_vec.push_back(duckdb::Value(filter_name_str));
+                    if (filter_name != nullptr)
+                    {
+                        free((void *)filter_name);
+                    }
                 }
-                output.SetValue(6, output.size(), duckdb::Value::LIST(filter_vec));
+                output.SetValue(6, output.size(), duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, filter_vec));
             }
             else
             {
@@ -429,7 +437,7 @@ namespace wtt01
                         {
                             field_values.push_back(duckdb::Value(field_value[i]));
                         }
-                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, field_values)));
                     }
 
                     if (field_value != nullptr)
@@ -495,7 +503,7 @@ namespace wtt01
                         {
                             field_values.push_back(duckdb::Value(info_value[i]));
                         }
-                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(duckdb::LogicalType::VARCHAR, field_values)));
                     }
 
                     if (info_value != NULL)
@@ -530,7 +538,7 @@ namespace wtt01
                         {
                             field_values.push_back(duckdb::Value::FLOAT(field_value[i]));
                         }
-                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(field_values)));
+                        struct_values.push_back(std::make_pair(name, duckdb::Value::LIST(duckdb::LogicalType::FLOAT, field_values)));
                     }
 
                     if (field_value != nullptr)
@@ -632,7 +640,14 @@ namespace wtt01
                 genotype_structs.push_back(duckdb::Value::STRUCT(struct_values));
             }
 
-            output.SetValue(8, output.size(), duckdb::Value::LIST(genotype_structs));
+            if (genotype_structs.size() == 0)
+            {
+                output.SetValue(8, output.size(), duckdb::Value());
+            }
+            else
+            {
+                output.SetValue(8, output.size(), duckdb::Value::LIST(genotype_structs));
+            }
 
             if (gt_arr != NULL)
             {
