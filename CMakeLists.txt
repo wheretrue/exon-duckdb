@@ -198,6 +198,9 @@ target_link_libraries(${EXTENSION_NAME}
   "${wfa2_BINARY_DIR}/libwfa2cpp.a"
   "${wfa2_BINARY_DIR}/libwfa2.a"
   ${OPENSSL_LIBRARIES}
+
+  "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+  -lz -lm -lbz2 -llzma -lcurl
 )
 endif()
 
