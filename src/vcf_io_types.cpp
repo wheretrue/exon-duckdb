@@ -418,8 +418,6 @@ namespace wtt01
 
             for (int i = 1; i < n_allele; i++)
             {
-                SPDLOG_INFO("Allele: {}", i);
-
                 auto a = alleles[i];
                 if (a == NULL)
                 {
@@ -723,7 +721,29 @@ namespace wtt01
 
                             for (int j = 0; j < max_ploidy; j++)
                             {
-                                int allele_index = bcf_gt_allele(gt_arr[i * max_ploidy + j]);
+                                auto idx = i * max_ploidy + j;
+                                auto ptr = gt_arr[idx];
+
+                                auto is_missing = bcf_gt_is_missing(ptr);
+
+                                if (is_missing == 1)
+                                {
+                                    gt_str += ".";
+                                    continue;
+                                    // break;
+                                }
+
+                                if (bcf_int32_vector_end == ptr)
+                                {
+                                    // end of ploidy
+                                    break;
+                                }
+
+                                int allele_index = bcf_gt_allele(ptr);
+                                int phased = bcf_gt_is_phased(ptr);
+                                int phase = bcf_gt_phased(ptr);
+
+                                auto sep = phased == 0 ? "/" : "|";
 
                                 if (j == max_ploidy - 1)
                                 {
@@ -732,7 +752,7 @@ namespace wtt01
                                 else
                                 {
                                     // TODO: fix, this assumes a specific phasing
-                                    gt_str += std::to_string(allele_index) + "/";
+                                    gt_str += std::to_string(allele_index) + sep;
                                 }
                             }
 
