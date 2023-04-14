@@ -90,7 +90,7 @@ namespace wtt01
             }
         };
 
-        auto reader = hts_open(result->file_path.c_str(), "r");
+        auto reader = hts_open(result->file_path.c_str(), "rb");
         auto header = bcf_hdr_read(reader);
 
         if (header == nullptr)
@@ -98,8 +98,16 @@ namespace wtt01
             throw std::runtime_error("Could not read header");
         }
 
+        // bcf_flush(reader);
+        // bcf_close(reader);
+
+        SPDLOG_INFO("After reader");
+
+        // auto reader2 = hts_open(result->file_path.c_str(), "rb");
         result->vcf_file = reader;
         result->header = header;
+
+        SPDLOG_INFO("Initialized reader");
 
         int g_i, g_j, n_gt, n_sample = bcf_hdr_nsamples(header);
         result->g_i = g_i;
@@ -128,8 +136,17 @@ namespace wtt01
         names.push_back("filter");
         return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::VARCHAR));
 
+        SPDLOG_INFO("Initialized reader");
+
+        if (header == NULL)
+        {
+            throw std::runtime_error("Could not read header");
+        }
+
         auto ids = header->id[BCF_DT_ID];
         auto n = header->n[BCF_DT_ID];
+
+        SPDLOG_INFO("Getting ids from header");
 
         std::vector<int> info_field_ids;
         std::vector<std::string> info_field_names;
@@ -280,9 +297,13 @@ namespace wtt01
 
         result->tags = tags;
 
-        names.push_back("genotypes");
-        return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(format_children)));
+        if (tags.size() > 0)
+        {
+            names.push_back("genotypes");
+            return_types.push_back(duckdb::LogicalType::LIST(duckdb::LogicalType::STRUCT(format_children)));
+        }
 
+        SPDLOG_INFO("Getting ids from header");
         return std::move(result);
     }
 
@@ -361,26 +382,20 @@ namespace wtt01
         auto n_sample = bind_data->n_sample;
 
         auto genotype_tags = bind_data->tags;
+        auto has_tags = genotype_tags.size() > 0;
 
         bcf1_t *record = bcf_init();
 
+        SPDLOG_INFO("Reading record");
         while (output.size() < STANDARD_VECTOR_SIZE)
         {
-
             auto bcf_read_op = bcf_read(fp, header, record);
             if (bcf_read_op < 0)
             {
                 local_state->done = true;
                 break;
             }
-
-            auto chromosome = record->rid;
-            const char *chr_name = bcf_hdr_id2name(header, record->rid);
-            std::string chr_name_str = std::string(chr_name);
-            if (chr_name != NULL)
-            {
-                free((void *)chr_name);
-            }
+            SPDLOG_INFO("Reading record");
 
             auto position = record->pos;
 
@@ -389,6 +404,13 @@ namespace wtt01
             {
                 throw std::runtime_error("Could not unpack record");
             }
+            SPDLOG_INFO("Unpacked record");
+
+            auto chromosome = record->rid;
+            SPDLOG_INFO("Chromosome: {}", chromosome);
+
+            const char *chr_name = bcf_hdr_id2name(header, record->rid);
+            std::string chr_name_str = std::string(chr_name);
 
             auto id = record->d.id;
             std::vector<duckdb::Value> id_vec;
@@ -456,7 +478,6 @@ namespace wtt01
             duckdb::child_list_t<duckdb::Value> struct_values;
 
             // bcf_info_t
-            SPDLOG_INFO("Starting to set info fields");
             for (int i = 0; i < info_field_ids.size(); i++)
             {
                 auto name = info_field_names[i];
@@ -617,8 +638,8 @@ namespace wtt01
             auto n_gt = bcf_get_genotypes(header, record, &gt_arr, &ngt_arr);
             if (n_gt < 0)
             {
-                SPDLOG_ERROR("Could not get genotypes, return code {}", n_gt);
-                throw std::runtime_error("Could not get genotypes");
+                output.SetCardinality(output.size() + 1);
+                continue;
             }
 
             SPDLOG_INFO("n_gt: {}, ngt_arr: {}", n_gt, ngt_arr);
