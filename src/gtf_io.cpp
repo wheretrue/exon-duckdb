@@ -112,7 +112,7 @@ namespace wtt01
         auto result = gtf_insert_record_batch(&bind_data->reader, STANDARD_VECTOR_SIZE);
 
         auto array_len = result.array.length;
-        printf("array_len: %d\n", array_len);
+        // printf("array_len: %d\n", array_len);
 
         if (result.done)
         {

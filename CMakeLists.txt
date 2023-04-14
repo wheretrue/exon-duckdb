@@ -6,6 +6,16 @@ set(TARGET_NAME wtt01)
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 project(${TARGET_NAME})
 
+# If the env var WTT_SPDLOG_ACTIVE_LEVEL is not set, set it to warning, otherwise use the value of the env var.
+set(WTT_SPDLOG_ACTIVE_LEVEL $ENV{WTT_SPDLOG_ACTIVE_LEVEL})
+if (WTT_SPDLOG_ACTIVE_LEVEL)
+  add_definitions(-DSPDLOG_ACTIVE_LEVEL=1)
+  message("-- wtt: WTT_SPDLOG_ACTIVE_LEVEL is ${WTT_SPDLOG_ACTIVE_LEVEL}")
+else()
+  add_definitions(-DSPDLOG_ACTIVE_LEVEL=3)
+  message("-- wtt: WTT_SPDLOG_ACTIVE_LEVEL is not set")
+endif()
+
 if (APPLE)
   execute_process(COMMAND brew --prefix openssl@3 OUTPUT_VARIABLE OPENSSL_PREFIX)
   string(STRIP ${OPENSSL_PREFIX} OPENSSL_ROOT_DIR)
@@ -72,7 +82,13 @@ FetchContent_Declare(
   GIT_TAG v0.3.2
 )
 
-list(APPEND available_contents httplib json arrow Corrosion)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.11.0
+)
+
+list(APPEND available_contents httplib json arrow Corrosion spdlog)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -91,6 +107,7 @@ message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
+include_directories(${spdlog_SOURCE_DIR}/include)
 
 message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
 if(WFA2_ENABLED)
@@ -101,16 +118,6 @@ if(WFA2_ENABLED)
 
   FetchContent_MakeAvailable(wfa2)
   include_directories(${wfa2_SOURCE_DIR})
-
-  # FetchContent_Declare(
-  #   htslib
-  #   GIT_REPOSITORY https://github.com/samtools/htslib.git
-  #   GIT_TAG 1.17
-  # )
-
-  # FetchContent_MakeAvailable(htslib)
-  # message("-- wtt: htslib_SOURCE_DIR is ${htslib_SOURCE_DIR}")
-  # include_directories(${htslib_SOURCE_DIR})
 
   include(ExternalProject)
   set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
