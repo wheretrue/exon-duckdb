@@ -131,12 +131,7 @@ if(WFA2_ENABLED)
     INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
   )
 
-  add_library(local_htslib STATIC IMPORTED GLOBAL)
-
-  set_property(TARGET local_htslib
-      PROPERTY IMPORTED_LOCATION
-      ${HTSLIB_BUILD_DIR}/lib/libhts.a
-  )
+  include_directories(${HTSLIB_BUILD_DIR}/include)
 
 endif()
 
@@ -181,11 +176,6 @@ target_link_libraries(${EXTENSION_NAME}
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
-
-add_dependencies(${TARGET_NAME}_extension local_htslib)
-add_dependencies(${TARGET_NAME}_extension htslib)
-
-include_directories(${HTSLIB_BUILD_DIR}/include)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
@@ -201,8 +191,6 @@ target_link_libraries(${EXTENSION_NAME}
 )
 
 else()
-add_dependencies(${TARGET_NAME}_extension local_htslib)
-add_dependencies(${TARGET_NAME}_extension htslib)
 
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC

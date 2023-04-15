@@ -961,7 +961,7 @@ namespace wtt01
 
     duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> VCFTypeFunctions::GetVCFTypesRecordScanFunction()
     {
-        auto vcf_table_function = duckdb::TableFunction("read_vcf_file_records_types", {duckdb::LogicalType::VARCHAR}, VCFTypesRecordScan, VCFTypesRecordBind, VCFTypesRecordInitGlobalState, VCFTypesRecordInitLocalState);
+        auto vcf_table_function = duckdb::TableFunction("read_vcf_file_records", {duckdb::LogicalType::VARCHAR}, VCFTypesRecordScan, VCFTypesRecordBind, VCFTypesRecordInitGlobalState, VCFTypesRecordInitLocalState);
 
         duckdb::CreateTableFunctionInfo vcf_table_function_info(vcf_table_function);
         return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(vcf_table_function_info);

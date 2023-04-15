@@ -87,7 +87,7 @@ jobs:
 
       - name: Build extension
         run: |
-          make release
+          make release-windows
 
       - name: Test if not CHECK_LICENSE
         if: ${{ env.CHECK_LICENSE == 0 }}
@@ -110,7 +110,6 @@ jobs:
       - name: install boto3
         shell: bash
         run: |
-          # python3 -m pip install --upgrade pip
           pip3 install boto3
 
       - name: upload to s3
