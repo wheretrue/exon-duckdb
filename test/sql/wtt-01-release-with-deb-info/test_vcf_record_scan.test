@@ -2,40 +2,6 @@ statement ok
 LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
 
 query I
-SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf');
-----
-621
-
-# query IIIIIIII
-# SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
-# ----
-# 1
-# NULL
-# 9999919
-# G
-# <*>
-# 0.0
-# NULL
-# DP=1;I16=1,0,0,0,26,676,0,0,60,3600,0,0,0,0,0,0;QS=1,0;MQ0F=0
-
-query I
-SELECT COUNT(*) FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf');
-----
-621
-
-# query IIIIIIII
-# SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
-# ----
-# 1
-# NULL
-# 9999919
-# G
-# <*>
-# 0.0
-# NULL
-# DP=1;I16=1,0,0,0,26,676,0,0,60,3600,0,0,0,0,0,0;QS=1,0;MQ0F=0
-
-query I
 SELECT COUNT(*) FROM read_vcf_file_records_types('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf');
 ----
 621
@@ -43,6 +9,28 @@ SELECT COUNT(*) FROM read_vcf_file_records_types('./test/sql/wtt-01-release-with
 
 query IIIIIII
 SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records_types('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+0
+1
+
+query IIIIIII
+SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records_types('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+0
+1
+
+query IIIIIII
+SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records_types('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf.gz') LIMIT 1;
 ----
 1
 9999919

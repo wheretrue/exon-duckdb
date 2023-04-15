@@ -12,13 +12,6 @@ struct BAMReaderC {
   const char *error;
 };
 
-struct BcfReaderC {
-  void *bcf_reader;
-  void *bcf_header;
-  void *bcf_string_maps;
-  const char *error;
-};
-
 struct BEDRecordC {
   const char *reference_sequence_name;
   uintptr_t start;
@@ -108,12 +101,6 @@ struct SamRecordReaderC {
   const void *sam_header;
 };
 
-struct VCFReaderC {
-  void *inner_reader;
-  void *header;
-  const char *error;
-};
-
 struct CResult {
   const char *value;
   const char *error;
@@ -151,10 +138,6 @@ extern "C" {
 BAMReaderC bam_new(const char *filename);
 
 void bam_next(BAMReaderC *bam_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
-
-BcfReaderC bcf_new(const char *filename);
-
-void bcf_next(BcfReaderC *bcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 BEDRecordC bed_next(const BEDReaderC *bam_reader, uint8_t n_columns);
 
@@ -204,10 +187,6 @@ void sam_record_read_records_chunk(const SamRecordReaderC *c_reader,
                                    void *ptr,
                                    bool *done,
                                    uintptr_t batch_size);
-
-VCFReaderC vcf_new(const char *filename, const char *compression);
-
-void vcf_next(VCFReaderC *vcf_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
 
 bool is_segmented(uint16_t flag);
 

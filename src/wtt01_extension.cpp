@@ -10,7 +10,6 @@
 
 #include "alignment_functions.hpp"
 #include "bam_io.hpp"
-#include "bcf_io.hpp"
 #include "bed_io.hpp"
 #include "fasta_io.hpp"
 #include "fastq_io.hpp"
@@ -20,7 +19,6 @@
 #include "hmm_io.hpp"
 #include "sam_io.hpp"
 #include "sequence_functions.hpp"
-#include "vcf_io.hpp"
 #include "vcf_io_types.hpp"
 
 #include "wtt01_functions.hpp"
@@ -96,14 +94,6 @@ namespace duckdb
 
         config.replacement_scans.emplace_back(wtt01::GFFunctions::GetGffReplacementScanFunction);
 
-        auto vcf_scan = wtt01::VCFFunctions::GetVCFRecordScanFunction();
-        catalog.CreateTableFunction(context, vcf_scan.get());
-
-        auto bcf_scan = wtt01::BcfFunctions::GetBcfRecordScanFunction();
-        catalog.CreateTableFunction(context, bcf_scan.get());
-
-        config.replacement_scans.emplace_back(wtt01::VCFFunctions::GetVcfReplacementScanFunction);
-
         auto parse_cigar_string = wtt01::SamFunctions::GetParseCIGARStringFunction();
         catalog.CreateFunction(context, parse_cigar_string.get());
 
@@ -155,6 +145,8 @@ namespace duckdb
 
         auto get_vcf_type_record_scan = wtt01::VCFTypeFunctions::GetVCFTypesRecordScanFunction();
         catalog.CreateTableFunction(*con.context, get_vcf_type_record_scan.get());
+
+        config.replacement_scans.emplace_back(wtt01::VCFTypeFunctions::GetVcfReplacementScanFunction);
 #endif
 
         con.Commit();

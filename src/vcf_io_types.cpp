@@ -967,4 +967,30 @@ namespace wtt01
         return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(vcf_table_function_info);
     }
 
+    duckdb::unique_ptr<duckdb::TableRef> VCFTypeFunctions::GetVcfReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data)
+    {
+
+        auto table_function = duckdb::make_unique<duckdb::TableFunctionRef>();
+
+        auto valid_vcf_filename = duckdb::StringUtil::EndsWith(table_name, ".vcf") || duckdb::StringUtil::EndsWith(table_name, ".vcf.gz") || duckdb::StringUtil::EndsWith(table_name, ".bcf");
+
+        if (!valid_vcf_filename)
+        {
+            return nullptr;
+        }
+
+        auto &fs = duckdb::FileSystem::GetFileSystem(context);
+        if (!fs.FileExists(table_name))
+        {
+            return nullptr;
+        }
+
+        std::vector<duckdb::unique_ptr<duckdb::ParsedExpression>> children;
+        children.push_back(duckdb::make_unique<duckdb::ConstantExpression>(duckdb::Value(table_name)));
+
+        table_function->function = duckdb::make_unique<duckdb::FunctionExpression>("read_vcf_file_records", std::move(children));
+
+        return table_function;
+    }
+
 }

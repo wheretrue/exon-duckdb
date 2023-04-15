@@ -147,7 +147,6 @@ set(EXTENSION_SOURCES
   src/check_license.cpp
 
   src/bam_io.cpp
-  src/bcf_io.cpp
   src/bed_io.cpp
   src/fasta_io.cpp
   src/fastq_io.cpp
@@ -158,7 +157,6 @@ set(EXTENSION_SOURCES
   src/sam_cigar_parse.cpp
   src/sam_io.cpp
   src/sequence_functions.cpp
-  src/vcf_io.cpp
   src/wtt01_acknowledgement_table.cpp
   src/wtt01_functions.cpp
 )
@@ -183,7 +181,9 @@ target_link_libraries(${EXTENSION_NAME}
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
-add_dependencies(${EXTENSION_NAME} htslib)
+
+add_dependencies(${TARGET_NAME}_extension local_htslib)
+add_dependencies(${TARGET_NAME}_extension htslib)
 
 include_directories(${HTSLIB_BUILD_DIR}/include)
 target_link_libraries(${EXTENSION_NAME}
@@ -201,7 +201,9 @@ target_link_libraries(${EXTENSION_NAME}
 )
 
 else()
-add_dependencies(${EXTENSION_NAME} htslib)
+add_dependencies(${TARGET_NAME}_extension local_htslib)
+add_dependencies(${TARGET_NAME}_extension htslib)
+
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
