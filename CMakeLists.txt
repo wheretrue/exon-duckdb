@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 # Set extension name here
 set(TARGET_NAME wtt01)
 
@@ -34,8 +37,11 @@ elseif(UNIX)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
+
 elseif(WIN32)
+
   set(WFA2_ENABLED OFF)
+
 endif()
 
 find_package(OpenSSL REQUIRED)
