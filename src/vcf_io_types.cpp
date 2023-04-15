@@ -397,7 +397,8 @@ namespace wtt01
             }
             SPDLOG_INFO("Reading record");
 
-            auto position = record->pos;
+            // bump by one so that we are 1-based same as the rest of the system
+            auto position = record->pos + 1;
 
             auto ref_all_unpack_op = bcf_unpack(record, BCF_UN_SHR);
             if (ref_all_unpack_op < 0)

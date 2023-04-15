@@ -141,11 +141,17 @@ namespace duckdb
         config.replacement_scans.emplace_back(bed_replacement_scan);
 
 #if defined(WFA2_ENABLED)
-        auto get_align_function = wtt01::AlignmentFunctions::GetAlignmentStringFunction();
+        auto get_align_function = wtt01::AlignmentFunctions::GetAlignmentStringFunction("alignment_string_wfa_gap_affine");
         catalog.CreateFunction(*con.context, get_align_function.get());
 
-        auto get_align_score_function = wtt01::AlignmentFunctions::GetAlignmentScoreFunction();
+        auto get_align_function_default = wtt01::AlignmentFunctions::GetAlignmentStringFunction("alignment_string");
+        catalog.CreateFunction(*con.context, get_align_function_default.get());
+
+        auto get_align_score_function = wtt01::AlignmentFunctions::GetAlignmentScoreFunction("alignment_score_wfa_gap_affine");
         catalog.CreateFunction(*con.context, get_align_score_function.get());
+
+        auto get_align_score_function_default = wtt01::AlignmentFunctions::GetAlignmentScoreFunction("alignment_score");
+        catalog.CreateFunction(*con.context, get_align_score_function_default.get());
 
         auto get_vcf_type_record_scan = wtt01::VCFTypeFunctions::GetVCFTypesRecordScanFunction();
         catalog.CreateTableFunction(*con.context, get_vcf_type_record_scan.get());

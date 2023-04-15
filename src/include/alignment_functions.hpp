@@ -12,7 +12,7 @@ namespace wtt01
     class AlignmentFunctions
     {
     public:
-        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentStringFunction();
+        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentStringFunction(std::string name);
 
         struct AlignmentStringBindData : public duckdb::FunctionData
         {
@@ -27,7 +27,7 @@ namespace wtt01
             std::unique_ptr<duckdb::FunctionData> Copy() const override;
         };
 
-        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentScoreFunction();
+        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentScoreFunction(std::string name);
 
         struct AlignmentScoreBindData : public duckdb::FunctionData
         {

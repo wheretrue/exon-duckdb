@@ -210,9 +210,9 @@ namespace wtt01
         return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
     }
 
-    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentStringFunction()
+    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentStringFunction(std::string name)
     {
-        duckdb::ScalarFunctionSet set("alignment_string_wfa_gap_affine");
+        duckdb::ScalarFunctionSet set(name);
 
         auto align_function = duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR}, duckdb::LogicalType::VARCHAR, AlignmentStringFunction, AlignmentStringBind2Arguments);
         set.AddFunction(align_function);
@@ -291,9 +291,9 @@ namespace wtt01
         throw duckdb::InvalidInputException("Invalid number of arguments for align function");
     }
 
-    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentScoreFunction()
+    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentScoreFunction(std::string name)
     {
-        duckdb::ScalarFunctionSet set("alignment_score_wfa_gap_affine");
+        duckdb::ScalarFunctionSet set(name);
 
         auto align_function = duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR}, duckdb::LogicalType::FLOAT, AlignmentScoreFunction, AlignmentScoreBind);
         set.AddFunction(align_function);

@@ -166,11 +166,9 @@ impl VCFRecordBatch {
         // IDs
         let ids = record.ids();
         if ids.is_empty() {
-            // let mut child = self.ids_vector.child(1);
+            // let child = self.ids_vector.child(0);
         } else {
             let n_ids = ids.len();
-
-            eprintln!("n_ids: {}", n_ids);
 
             let child = self.ids_vector.child(n_ids);
 

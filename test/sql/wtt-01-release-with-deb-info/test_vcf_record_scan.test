@@ -17,12 +17,12 @@ SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-i
 # 0.0
 # NULL
 # DP=1;I16=1,0,0,0,26,676,0,0,60,3600,0,0,0,0,0,0;QS=1,0;MQ0F=0
-#
-# query I
-# SELECT COUNT(*) FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf');
-# ----
-# 621
-#
+
+query I
+SELECT COUNT(*) FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf');
+----
+621
+
 # query IIIIIIII
 # SELECT chromosome, ids, position, reference_bases, alternate_bases, quality_score, filter, info FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
 # ----
@@ -49,5 +49,5 @@ SELECT chromosome, position, reference_bases, alternate_bases, quality_score, in
 G
 [<*>]
 0.0
-true
+0
 1
