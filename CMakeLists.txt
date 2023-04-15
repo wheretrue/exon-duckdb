@@ -122,6 +122,11 @@ if(WFA2_ENABLED)
   include(ExternalProject)
   set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
 
+  FetchContent_Declare(htslib
+    GIT_REPOSITORY https://github.com/samtools/htslib.git
+    GIT_TAG 1.17
+  )
+
   ExternalProject_Add(htslib
     PREFIX ${HTSLIB_BUILD_DIR}
     GIT_REPOSITORY https://github.com/samtools/htslib.git
@@ -130,8 +135,6 @@ if(WFA2_ENABLED)
     BUILD_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make
     INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
   )
-
-  include_directories(${HTSLIB_BUILD_DIR}/include)
 
 endif()
 
@@ -178,13 +181,19 @@ target_link_libraries(${EXTENSION_NAME}
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
+
+add_dependencies(${EXTENSION_NAME} htslib)
+
+include_directories(${HTSLIB_BUILD_DIR}/include)
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
   # wtt01_rust
+
   "${wfa2_BINARY_DIR}/libwfa2cpp.a"
   "${wfa2_BINARY_DIR}/libwfa2.a"
   "-framework CoreFoundation"
+
   ${OPENSSL_LIBRARIES}
 
   "${HTSLIB_BUILD_DIR}/lib/libhts.a"
