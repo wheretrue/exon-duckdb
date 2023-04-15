@@ -1,14 +1,15 @@
-
 #include <duckdb.hpp>
 #include <duckdb/parser/expression/constant_expression.hpp>
 #include <duckdb/parser/expression/function_expression.hpp>
 
-#include <string>
+#include "string"
 #include <vector>
 
 #include "fasta_io.hpp"
 
 #include "wtt01_rust.hpp"
+
+#include "spdlog/spdlog.h"
 
 namespace wtt01
 {
@@ -164,6 +165,8 @@ namespace wtt01
         auto result = duckdb::make_unique<FastaWriteBindData>();
         result->file_name = info.file_path;
 
+        SPDLOG_INFO("FastaCopyToBind: file_name: {}", result->file_name);
+
         // for each option print the value to the console
         for (auto &option : info.options)
         {
@@ -223,8 +226,8 @@ namespace wtt01
         return std::move(local_data);
     }
 
-    static void FastaWriteSink(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, duckdb::GlobalFunctionData &gstate,
-                               duckdb::LocalFunctionData &lstate, duckdb::DataChunk &input)
+    static void FastaWriteSink3Columns(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, duckdb::GlobalFunctionData &gstate,
+                                       duckdb::LocalFunctionData &lstate, duckdb::DataChunk &input)
     {
         auto &bind_data = (FastaWriteBindData &)bind_data_p;
         auto &global_state = (FastaWriteGlobalState &)gstate;
@@ -258,6 +261,45 @@ namespace wtt01
                 }
             }
         }
+    }
+
+    static void FastaWriteSink2Columns(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, FastaWriteGlobalState global_state,
+                                       duckdb::LocalFunctionData &lstate, duckdb::DataChunk &input)
+    {
+        SPDLOG_INFO("FastaWriteSink2Columns: input.size: {}", input.size());
+        auto &id = input.data[0];
+        auto &seq = input.data[1];
+
+        for (duckdb::idx_t i = 0; i < input.size(); i++)
+        {
+            auto id_str = id.GetValue(i).ToString();
+            auto seq_str = seq.GetValue(i).ToString();
+
+            auto write_value = fasta_writer_write(global_state.writer, id_str.c_str(), nullptr, seq_str.c_str());
+            if (write_value != 0)
+            {
+                throw duckdb::Exception("Error writing to FASTA file");
+            }
+        }
+    }
+
+    static void FastaWriteSink(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data_p, duckdb::GlobalFunctionData &gstate,
+                               duckdb::LocalFunctionData &lstate, duckdb::DataChunk &input)
+    {
+        SPDLOG_INFO("FastaWriteSink: input.size: {}", input.size());
+        auto &bind_data = (FastaWriteBindData &)bind_data_p;
+        auto &global_state = (FastaWriteGlobalState &)gstate;
+
+        if (input.data.size() == 2)
+        {
+            FastaWriteSink2Columns(context, bind_data_p, global_state, lstate, input);
+            return;
+        }
+        else if (input.data.size() == 3)
+        {
+            FastaWriteSink3Columns(context, bind_data_p, gstate, lstate, input);
+            return;
+        }
     };
 
     static void FastaWriteCombine(duckdb::ExecutionContext &context, duckdb::FunctionData &bind_data, duckdb::GlobalFunctionData &gstate, duckdb::LocalFunctionData &lstate)
@@ -275,6 +317,8 @@ namespace wtt01
     {
         auto result = duckdb::make_unique<FastaCopyBindData>();
 
+        SPDLOG_INFO("FASTA COPY: {}", info.file_path);
+
         for (auto &option : info.options)
         {
             auto loption = duckdb::StringUtil::Lower(option.first);
@@ -289,6 +333,46 @@ namespace wtt01
                 // Throw a runtime error for a bad compression value
                 throw std::runtime_error("Invalid option for FASTA COPY: " + option.first);
             }
+        }
+
+        // Check that the input names are correct
+        if (names.size() == 3)
+        {
+            if (names[0] != "id" || names[1] != "description" || names[2] != "sequence")
+            {
+                throw std::runtime_error("Invalid column names for FASTA COPY. Expected (id, description, sequence)");
+            }
+        }
+        else if (names.size() == 2)
+        {
+            if (names[0] != "id" || names[1] != "sequence")
+            {
+                throw std::runtime_error("Invalid column names for FASTA COPY. Expected (id, sequence)");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("Invalid column names for FASTA COPY. Expected (id, description, sequence) or (id, sequence)");
+        }
+
+        // Check the input types are correct, if 2 or 3 length is allowed and all must be varchars
+        if (sql_types.size() == 3)
+        {
+            if (sql_types[0] != duckdb::LogicalType::VARCHAR || sql_types[1] != duckdb::LogicalType::VARCHAR || sql_types[2] != duckdb::LogicalType::VARCHAR)
+            {
+                throw std::runtime_error("Invalid column types for FASTA COPY. Expected (VARCHAR, VARCHAR, VARCHAR)");
+            }
+        }
+        else if (sql_types.size() == 2)
+        {
+            if (sql_types[0] != duckdb::LogicalType::VARCHAR || sql_types[1] != duckdb::LogicalType::VARCHAR)
+            {
+                throw std::runtime_error("Invalid column types for FASTA COPY. Expected (VARCHAR, VARCHAR)");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("Invalid column types for FASTA COPY. Expected (VARCHAR, VARCHAR, VARCHAR) or (VARCHAR, VARCHAR)");
         }
 
         result->file_name = info.file_path;
