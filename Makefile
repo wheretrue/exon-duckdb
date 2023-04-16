@@ -31,7 +31,7 @@ pull:
 
 release:
 	mkdir -p build/release && \
-	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DBUILD_JSON_EXTENSION=1 -DBUILD_PYTHON=TRUE -DBUILD_PYTHON_PKG=TRUE -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
+	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
 	cmake --build build/release --config Release -j 8 --target 'cargo-build_wtt01_rust' && \
 	cmake --build build/release --config Release -j 8 --target 'htslib' && \
 	cmake --build build/release --config Release -j 8

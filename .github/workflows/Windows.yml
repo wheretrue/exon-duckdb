@@ -1,9 +1,8 @@
 name: Windows
 
-# on: [push, pull_request, repository_dispatch]
 on:
   workflow_dispatch:
-  push:
+  # push:
 
 permissions:
   contents: read
