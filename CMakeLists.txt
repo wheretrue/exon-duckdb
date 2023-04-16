@@ -24,21 +24,25 @@ if (APPLE)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
   set(WFA2_ENABLED ON)
+  set(HTSLIB_ENABLED ON)
+
   add_compile_definitions(WFA2_ENABLED)
+  add_compile_definitions(HTSLIB_ENABLED)
 
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
   set(WFA2_ENABLED ON)
+  set(HTSLIB_ENABLED ON)
+
   add_compile_definitions(WFA2_ENABLED)
+  add_compile_definitions(HTSLIB_ENABLED)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
 elseif(WIN32)
-
   set(WFA2_ENABLED OFF)
-
 endif()
 
 find_package(OpenSSL REQUIRED)
@@ -118,6 +122,29 @@ if(WFA2_ENABLED)
 
   FetchContent_MakeAvailable(wfa2)
   include_directories(${wfa2_SOURCE_DIR})
+endif()
+
+message("-- wtt: HTSLIB_ENABLED is ${HTSLIB_ENABLED}")
+if(HTSLIB_ENABLED)
+  include(ExternalProject)
+  set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
+
+  set(flags "-O2 -g -fPIC")
+  ExternalProject_Add(htslib
+    PREFIX ${HTSLIB_BUILD_DIR}
+    GIT_REPOSITORY https://github.com/samtools/htslib.git
+    GIT_TAG 1.17
+    BUILD_IN_SOURCE ON
+    UPDATE_COMMAND autoreconf -i
+    CONFIGURE_COMMAND ./configure --prefix=${HTSLIB_BUILD_DIR}
+    BUILD_COMMAND make CFLAGS=${flags} lib-static
+    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
+  )
+  # add_library(HTSLIB_LIBRARIES STATIC IMPORTED)
+  # set_target_properties(HTSLIB_LIBRARIES PROPERTIES IMPORTED_LOCATION ${htslib_lib})
+  # add_dependencies(HTSLIB_LIBRARIES htslib-EXT)
+
+  include_directories(${HTSLIB_BUILD_DIR}/include)
 
 endif()
 
@@ -145,6 +172,11 @@ set(EXTENSION_SOURCES
 if(WFA2_ENABLED)
   set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
     src/alignment_functions.cpp
+  )
+endif()
+
+if(HTSLIB_ENABLED)
+  set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
     src/vcf_io_types.cpp
   )
 endif()
@@ -156,76 +188,61 @@ set(PARAMETERS "-warnings")
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
 if (WIN32)
-target_link_libraries(${EXTENSION_NAME}
-  PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/Release/wtt01_rust.lib"
-   OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/wtt01_rust.lib"
+    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
 
-# find the package for liblzma
-find_package(LibLZMA REQUIRED)
-find_package(libdeflate REQUIRED)
+  find_package(LibLZMA REQUIRED)
+  find_package(libdeflate REQUIRED)
 
-if(LIBLZMA_FOUND)
-  message("-- wtt: Found liblzma at ${LIBLZMA_LIBRARIES}")
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
+
+    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    "${wfa2_BINARY_DIR}/libwfa2.a"
+    "-framework CoreFoundation"
+
+    ${OPENSSL_LIBRARIES}
+
+    $ENV{CONDA_PREFIX}/lib/libhts.a
+    $ENV{CONDA_PREFIX}/lib/libcurl.a
+
+    $ENV{CONDA_PREFIX}/lib/libz.a
+    $ENV{CONDA_PREFIX}/lib/libbz2.a
+
+    # link liblzma
+    ${LIBLZMA_LIBRARIES}
+    ${LIBDEFLATE_LIBRARIES}
+
+  )
+
 else()
-  message(FATAL_ERROR "-- wtt: liblzma not found")
-endif()
+  find_package(LibLZMA REQUIRED)
+  find_package(libdeflate REQUIRED)
 
-if (libdeflate_FOUND)
-  message("-- wtt: Found libdeflate")
-  message("-- wtt: libdeflate include dir: ${LIBDEFLATE_LIBRARIES}")
-else()
-  message(FATAL_ERROR "-- wtt: libdeflate not found")
-endif()
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
+    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    "${wfa2_BINARY_DIR}/libwfa2.a"
+    ${OPENSSL_LIBRARIES}
 
-target_link_libraries(${EXTENSION_NAME}
-  PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
+    $ENV{CONDA_PREFIX}/lib/libhts.a
+    $ENV{CONDA_PREFIX}/lib/libcurl.a
 
-  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-  "${wfa2_BINARY_DIR}/libwfa2.a"
-  "-framework CoreFoundation"
+    $ENV{CONDA_PREFIX}/lib/libz.a
+    $ENV{CONDA_PREFIX}/lib/libbz2.a
 
-  ${OPENSSL_LIBRARIES}
+    # link liblzma
+    ${LIBLZMA_LIBRARIES}
 
-  $ENV{CONDA_PREFIX}/lib/libhts.a
-  $ENV{CONDA_PREFIX}/lib/libcurl.a
-
-  $ENV{CONDA_PREFIX}/lib/libz.a
-  $ENV{CONDA_PREFIX}/lib/libbz2.a
-
-  # link liblzma
-  ${LIBLZMA_LIBRARIES}
-  ${LIBDEFLATE_LIBRARIES}
-
-)
-else()
-
-find_package(LibLZMA REQUIRED)
-find_package(libdeflate REQUIRED)
-
-target_link_libraries(${EXTENSION_NAME}
-  PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
-  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-  "${wfa2_BINARY_DIR}/libwfa2.a"
-  ${OPENSSL_LIBRARIES}
-
-  $ENV{CONDA_PREFIX}/lib/libhts.a
-  $ENV{CONDA_PREFIX}/lib/libcurl.a
-
-  $ENV{CONDA_PREFIX}/lib/libz.a
-  $ENV{CONDA_PREFIX}/lib/libbz2.a
-
-  # link liblzma
-  ${LIBLZMA_LIBRARIES}
-
-  ${LIBDEFLATE_LIBRARIES}
-  -ldeflate
-
-)
+    ${LIBDEFLATE_LIBRARIES}
+    -ldeflate
+  )
 endif()
 
 install(

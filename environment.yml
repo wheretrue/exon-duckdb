@@ -5,11 +5,5 @@ channels:
   - bioconda
 dependencies:
   - pip
-  - libdeflate
-  - bzip2
-  - htslib
-  - xz
-  - libcurl-static
-  - zlib
   - pip:
       - boto3
