@@ -124,8 +124,8 @@ if(WFA2_ENABLED)
     GIT_REPOSITORY https://github.com/samtools/htslib.git
     GIT_TAG 1.17
     CONFIGURE_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && autoreconf -i && ./configure --prefix=${HTSLIB_BUILD_DIR}
-    BUILD_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make
-    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
+    BUILD_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make EXTRA_CFLAGS_PIC=-fPIC
+    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install EXTRA_CFLAGS_PIC=-fPIC
   )
 
   include_directories(${HTSLIB_BUILD_DIR}/include)
