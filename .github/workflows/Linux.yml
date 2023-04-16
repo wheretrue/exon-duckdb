@@ -121,6 +121,7 @@ jobs:
 
         # Build extension
       - name: Build extension
+        shell: bash -l {0}
         env:
           GEN: ninja
           STATIC_LIBCPP: 1
@@ -128,13 +129,13 @@ jobs:
           CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
           CHECK_LICENSE: ${{ env.CHECK_LICENSE }}
           WTT_01_LICENSE_URL: ${{ env.WTT_01_LICENSE_URL }}
-          CMAKE_C_FLAGS: ${{ matrix.arch == 'linux_amd64_gcc4' && '-fPIC' || '' }}
-          CMAKE_CXX_FLAGS: ${{ matrix.arch == 'linux_amd64_gcc4' && '-fPIC' || '' }}
         run: |
           make release
+          make release_python
 
       - name: Test extension (skip if CHECK_LICENSE=1)
         if: env.CHECK_LICENSE == 0
+        shell: bash -l {0}
         run: |
           make test
 

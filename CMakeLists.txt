@@ -106,6 +106,9 @@ include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 include_directories(${spdlog_SOURCE_DIR}/include)
 
+# add CONDA_PREFIX to cmake search path
+list(APPEND CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
+
 message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
 if(WFA2_ENABLED)
   FetchContent_Declare(wfa2
@@ -116,22 +119,9 @@ if(WFA2_ENABLED)
   FetchContent_MakeAvailable(wfa2)
   include_directories(${wfa2_SOURCE_DIR})
 
-  include(ExternalProject)
-  set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
-
-  ExternalProject_Add(htslib
-    PREFIX ${HTSLIB_BUILD_DIR}
-    GIT_REPOSITORY https://github.com/samtools/htslib.git
-    GIT_TAG 1.17
-    CONFIGURE_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && autoreconf -i && ./configure --prefix=${HTSLIB_BUILD_DIR}
-    BUILD_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make EXTRA_CFLAGS_PIC=-fPIC
-    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install EXTRA_CFLAGS_PIC=-fPIC
-  )
-
-  include_directories(${HTSLIB_BUILD_DIR}/include)
-
 endif()
 
+include_directories($ENV{CONDA_PREFIX}/include)
 include_directories(src/include)
 
 set(EXTENSION_SOURCES
@@ -182,7 +172,7 @@ target_link_libraries(${EXTENSION_NAME}
 
   ${OPENSSL_LIBRARIES}
 
-  "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+  $ENV{CONDA_PREFIX}/lib/libhts.a
   -lz -lm -lbz2 -llzma -lcurl
 )
 
@@ -195,7 +185,7 @@ target_link_libraries(${EXTENSION_NAME}
   "${wfa2_BINARY_DIR}/libwfa2.a"
   ${OPENSSL_LIBRARIES}
 
-  "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+  $ENV{CONDA_PREFIX}/lib/libhts.a
   -lz -lm -lbz2 -llzma -lcurl
 )
 endif()

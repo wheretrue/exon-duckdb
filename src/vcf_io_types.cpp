@@ -366,7 +366,7 @@ namespace wtt01
         if (local_state->done)
         {
             // we are done, free the file
-            bcf_flush(bind_data->vcf_file);
+            // bcf_flush(bind_data->vcf_file);
             bcf_close(bind_data->vcf_file);
             return;
         }

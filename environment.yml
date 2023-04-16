@@ -2,6 +2,7 @@
 name: wtt01
 channels:
   - conda-forge
+  - bioconda
 dependencies:
   - pip
   - pip:
