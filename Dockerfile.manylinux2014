@@ -1,8 +1,8 @@
 FROM quay.io/pypa/manylinux2014_x86_64
 
-RUN yum install -y gcc-4 gcc-c++ cmake make
+RUN yum install -y gcc-c++ cmake make
 RUN yum install -y epel-release
-RUN yum install -y make gcc-4 perl-core pcre-devel wget zlib-devel python3-devel
+RUN yum install -y make perl-core pcre-devel wget zlib-devel python3-devel
 RUN yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
 RUN yum install -y git
 RUN yum install -y curl-devel expat-devel gettext-devel zlib-devel perl-ExtUtils-MakeMaker ninja-build
@@ -10,16 +10,16 @@ RUN yum install -y rust cargo
 # RUN yum install -y openssl11 openssl11-devel
 RUN yum install -y vim
 
-RUN wget https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1s.tar.gz && \
-    tar -xzvf OpenSSL_1_1_1s.tar.gz && \
-    mv openssl-OpenSSL_1_1_1s openssl-1.1.1s && \
-    cd openssl-1.1.1s && \
-    find ./ -type f -exec sed -i -e 's/\#\ define\ OPENSSL\_VERSION\_NUMBER/\#define\ OPENSSL\_VERSION\_NUMBER/g' {} \;
+# RUN wget https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1s.tar.gz && \
+#     tar -xzvf OpenSSL_1_1_1s.tar.gz && \
+#     mv openssl-OpenSSL_1_1_1s openssl-1.1.1s && \
+#     cd openssl-1.1.1s && \
+#     find ./ -type f -exec sed -i -e 's/\#\ define\ OPENSSL\_VERSION\_NUMBER/\#define\ OPENSSL\_VERSION\_NUMBER/g' {} \;
 
-WORKDIR /openssl-1.1.1s
-RUN ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
-    make && \
-    make install
+# WORKDIR /openssl-1.1.1s
+# RUN ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib && \
+#     make && \
+#     make install
 
 ADD ./ /app
 WORKDIR /app

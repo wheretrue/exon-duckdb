@@ -1,6 +1,8 @@
 """Helper script to upload artifacts"""
+import gzip
 import os
 import json
+import shutil
 import uuid
 import zipfile
 import platform
@@ -24,7 +26,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--name", default="wtt01")
 
-    parser.add_argument("--version", default="0.2.6")
+    parser.add_argument("--version", default="v0.2.6")
 
     parser.add_argument("--duckdb_version", default="v0.7.1")
 
@@ -118,11 +120,27 @@ if __name__ == "__main__":
 
     # Invoke the lambda function ARTIFACT_HANDLER with the body.
     response = lambda_client.invoke(FunctionName=handler, Payload=bytes(body, "utf-8"))
-    print(response)
+
+    # gzip the build_target with python
+    gzip_build_target = f"{name}.duckdb_extension.gz"
+    with open(build_target, "rb") as f_in:
+        with gzip.open(gzip_build_target, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
     # aws s3 cp $1.duckdb_extension.gz s3://$5/$1/$2/$3/$4/$1.duckdb_extension.gz --acl public-read
     duckdb_path = f"{name}/{version}/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
-    client.upload_file(str(local_file), bucket, duckdb_path)
+    client.upload_file(gzip_build_target, bucket, duckdb_path)
+    print(f"Uploaded {gzip_build_target} to {duckdb_path}.")
+    client.put_object_acl(ACL="public-read", Bucket=bucket, Key=duckdb_path)
 
-    duckdb_path = f"{name}/latest/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
-    client.upload_file(str(local_file), bucket, duckdb_path)
+    # latest_duckdb_path = (
+    #     f"{name}/latest/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
+    # )
+
+    # Use boto3 to copy duckdb_path to latest_duckdb_path
+    # client.copy_object(
+    #     ACL="public-read",
+    #     Bucket=bucket,
+    #     CopySource=f"{bucket}/{duckdb_path}",
+    #     Key=latest_duckdb_path,
+    # )

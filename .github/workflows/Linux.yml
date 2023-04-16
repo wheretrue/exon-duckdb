@@ -148,9 +148,18 @@ jobs:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
-      - name: upload to s3
+      - name: upload to s3 no gcc
         shell: bash -l {0}
+        if: ${{ matrix.arch == 'linux_amd64' }}
         env:
           ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
           python bin/upload-artifacts.py
+
+      - name: upload to s3 gcc4
+        shell: bash -l {0}
+        if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+        run: |
+          python bin/upload-artifacts.py --gcc4
