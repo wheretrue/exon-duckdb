@@ -21,25 +21,33 @@ RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-RUN apt-get install -y -qq pkg-config
+# install micromamba
+RUN wget micro.mamba.pm/install.sh
+RUN bash install.sh
+ENV PATH /root/.local/bin/:$PATH
 
-FROM builder AS extension_builder
+COPY ./environment.yml /tmp/environment.yml
+# RUN micromamba create -n wtt01 -f /tmp/environment.yml
 
-COPY ./ /app
-WORKDIR /app
+# RUN apt-get install -y -qq pkg-config
 
-ARG CHECK_LICENSE
-ENV CHECK_LICENSE=${CHECK_LICENSE}
+# FROM builder AS extension_builder
 
-ARG WTT_01_LICENSE_SERVER_URL
-ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
+# COPY ./ /app
+# WORKDIR /app
 
-RUN make release
+# ARG CHECK_LICENSE
+# ENV CHECK_LICENSE=${CHECK_LICENSE}
 
-FROM builder AS duckdb
+# ARG WTT_01_LICENSE_SERVER_URL
+# ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
-COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
-COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
+# RUN make release
 
-WORKDIR /tmp
-ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
+# # FROM builder AS duckdb
+
+# # COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
+# # COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
+
+# # WORKDIR /tmp
+# # ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]

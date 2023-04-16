@@ -162,6 +162,24 @@ target_link_libraries(${EXTENSION_NAME}
    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
+
+# find the package for liblzma
+find_package(LibLZMA REQUIRED)
+find_package(libdeflate REQUIRED)
+
+if(LIBLZMA_FOUND)
+  message("-- wtt: Found liblzma at ${LIBLZMA_LIBRARIES}")
+else()
+  message(FATAL_ERROR "-- wtt: liblzma not found")
+endif()
+
+if (libdeflate_FOUND)
+  message("-- wtt: Found libdeflate")
+  message("-- wtt: libdeflate include dir: ${LIBDEFLATE_LIBRARIES}")
+else()
+  message(FATAL_ERROR "-- wtt: libdeflate not found")
+endif()
+
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
@@ -175,10 +193,18 @@ target_link_libraries(${EXTENSION_NAME}
   $ENV{CONDA_PREFIX}/lib/libhts.a
   $ENV{CONDA_PREFIX}/lib/libcurl.a
 
-  -lz -lm -lbz2 -llzma
-)
+  $ENV{CONDA_PREFIX}/lib/libz.a
+  $ENV{CONDA_PREFIX}/lib/libbz2.a
 
+  # link liblzma
+  ${LIBLZMA_LIBRARIES}
+  ${LIBDEFLATE_LIBRARIES}
+
+)
 else()
+
+find_package(LibLZMA REQUIRED)
+find_package(libdeflate REQUIRED)
 
 target_link_libraries(${EXTENSION_NAME}
   PUBLIC
@@ -190,7 +216,15 @@ target_link_libraries(${EXTENSION_NAME}
   $ENV{CONDA_PREFIX}/lib/libhts.a
   $ENV{CONDA_PREFIX}/lib/libcurl.a
 
-  -lz -lm -lbz2 -llzma
+  $ENV{CONDA_PREFIX}/lib/libz.a
+  $ENV{CONDA_PREFIX}/lib/libbz2.a
+
+  # link liblzma
+  ${LIBLZMA_LIBRARIES}
+
+  ${LIBDEFLATE_LIBRARIES}
+  -ldeflate
+
 )
 endif()
 
