@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fvisibility=hidden")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fvisibility=hidden")
-
 # Set extension name here
 set(TARGET_NAME wtt01)
 
