@@ -77,12 +77,6 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-  arrow
-  GIT_REPOSITORY https://github.com/apache/arrow.git
-  GIT_TAG apache-arrow-11.0.0
-)
-
-FetchContent_Declare(
   Corrosion
   GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
   GIT_TAG v0.3.2
@@ -94,7 +88,7 @@ FetchContent_Declare(
   GIT_TAG v1.11.0
 )
 
-list(APPEND available_contents httplib json arrow Corrosion spdlog)
+list(APPEND available_contents httplib json Corrosion spdlog)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -153,7 +147,6 @@ set(EXTENSION_SOURCES
   src/fastq_io.cpp
   src/genbank_io.cpp
   src/gff_io.cpp
-  src/gtf_io.cpp
   src/hmm_io.cpp
   src/sam_cigar_parse.cpp
   src/sam_io.cpp
