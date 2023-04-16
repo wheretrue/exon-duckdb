@@ -173,7 +173,9 @@ target_link_libraries(${EXTENSION_NAME}
   ${OPENSSL_LIBRARIES}
 
   $ENV{CONDA_PREFIX}/lib/libhts.a
-  -lz -lm -lbz2 -llzma -lcurl
+  $ENV{CONDA_PREFIX}/lib/libcurl.a
+
+  -lz -lm -lbz2 -llzma
 )
 
 else()
@@ -186,7 +188,9 @@ target_link_libraries(${EXTENSION_NAME}
   ${OPENSSL_LIBRARIES}
 
   $ENV{CONDA_PREFIX}/lib/libhts.a
-  -lz -lm -lbz2 -llzma -lcurl
+  $ENV{CONDA_PREFIX}/lib/libcurl.a
+
+  -lz -lm -lbz2 -llzma
 )
 endif()
 

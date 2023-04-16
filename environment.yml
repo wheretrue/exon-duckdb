@@ -5,5 +5,7 @@ channels:
   - bioconda
 dependencies:
   - pip
+  - htslib
+  - libcurl-static
   - pip:
       - boto3
