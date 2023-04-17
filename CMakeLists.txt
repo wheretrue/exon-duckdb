@@ -194,11 +194,10 @@ elseif(APPLE)
     "${wfa2_BINARY_DIR}/libwfa2.a"
     "-framework CoreFoundation"
 
-    ${OPENSSL_LIBRARIES}
-
     "${HTSLIB_BUILD_DIR}/lib/libhts.a"
-    -lz -lm -lbz2 -llzma -lcurl
 
+    -lz -lm -lbz2 -llzma -lcurl
+    ${OPENSSL_LIBRARIES}
   )
 
 else()
@@ -207,10 +206,10 @@ else()
     "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
-    ${OPENSSL_LIBRARIES}
-
     "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+
     -lz -lm -lbz2 -llzma -lcurl
+    ${OPENSSL_LIBRARIES}
   )
 endif()
 
