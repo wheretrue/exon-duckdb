@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--name", default="wtt01")
 
-    parser.add_argument("--version", default="v0.2.6")
+    parser.add_argument("--version", default="v0.2.7")
 
     parser.add_argument("--duckdb_version", default="v0.7.1")
 
