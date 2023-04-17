@@ -194,10 +194,6 @@ if (WIN32)
     OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
-
-  find_package(LibLZMA REQUIRED)
-  find_package(libdeflate REQUIRED)
-
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
@@ -208,22 +204,12 @@ elseif(APPLE)
 
     ${OPENSSL_LIBRARIES}
 
-    $ENV{CONDA_PREFIX}/lib/libhts.a
-    $ENV{CONDA_PREFIX}/lib/libcurl.a
-
-    $ENV{CONDA_PREFIX}/lib/libz.a
-    $ENV{CONDA_PREFIX}/lib/libbz2.a
-
-    # link liblzma
-    ${LIBLZMA_LIBRARIES}
-    ${LIBDEFLATE_LIBRARIES}
+    "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+    -lz -lm -lbz2 -llzma -lcurl
 
   )
 
 else()
-  find_package(LibLZMA REQUIRED)
-  find_package(libdeflate REQUIRED)
-
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
@@ -231,17 +217,8 @@ else()
     "${wfa2_BINARY_DIR}/libwfa2.a"
     ${OPENSSL_LIBRARIES}
 
-    $ENV{CONDA_PREFIX}/lib/libhts.a
-    $ENV{CONDA_PREFIX}/lib/libcurl.a
-
-    $ENV{CONDA_PREFIX}/lib/libz.a
-    $ENV{CONDA_PREFIX}/lib/libbz2.a
-
-    # link liblzma
-    ${LIBLZMA_LIBRARIES}
-
-    ${LIBDEFLATE_LIBRARIES}
-    -ldeflate
+    "${HTSLIB_BUILD_DIR}/lib/libhts.a"
+    -lz -lm -lbz2 -llzma -lcurl
   )
 endif()
 

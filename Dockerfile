@@ -7,7 +7,7 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python
 RUN apt-get install -y -qq software-properties-common && \
         add-apt-repository ppa:git-core/ppa && \
         apt-get update -y -qq && \
-        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget
+        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget autoconf libbz2-dev liblzma-dev libcurl4-openssl-dev
 
 ARG PLATFORM
 ENV PLATFORM=${PLATFORM}
@@ -21,26 +21,18 @@ RUN curl https://sh.rustup.rs -sSf > rustup.sh && \
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# install micromamba
-RUN wget micro.mamba.pm/install.sh
-RUN bash install.sh
-ENV PATH /root/.local/bin/:$PATH
+RUN apt-get install -y -qq pkg-config
 
-COPY ./environment.yml /tmp/environment.yml
-# RUN micromamba create -n wtt01 -f /tmp/environment.yml
+FROM builder AS extension_builder
 
-# RUN apt-get install -y -qq pkg-config
+COPY ./ /app
+WORKDIR /app
 
-# FROM builder AS extension_builder
+ARG CHECK_LICENSE
+ENV CHECK_LICENSE=${CHECK_LICENSE}
 
-# COPY ./ /app
-# WORKDIR /app
-
-# ARG CHECK_LICENSE
-# ENV CHECK_LICENSE=${CHECK_LICENSE}
-
-# ARG WTT_01_LICENSE_SERVER_URL
-# ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
+ARG WTT_01_LICENSE_SERVER_URL
+ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
 # RUN make release
 
