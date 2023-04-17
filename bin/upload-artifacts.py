@@ -130,17 +130,15 @@ if __name__ == "__main__":
     # aws s3 cp $1.duckdb_extension.gz s3://$5/$1/$2/$3/$4/$1.duckdb_extension.gz --acl public-read
     duckdb_path = f"{name}/{version}/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
     client.upload_file(gzip_build_target, bucket, duckdb_path)
-    print(f"Uploaded {gzip_build_target} to {duckdb_path}.")
     client.put_object_acl(ACL="public-read", Bucket=bucket, Key=duckdb_path)
 
-    # latest_duckdb_path = (
-    #     f"{name}/latest/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
-    # )
+    latest_duckdb_path = (
+        f"{name}/latest/{duckdb_version}/{arch}/{name}.duckdb_extension.gz"
+    )
 
-    # Use boto3 to copy duckdb_path to latest_duckdb_path
-    # client.copy_object(
-    #     ACL="public-read",
-    #     Bucket=bucket,
-    #     CopySource=f"{bucket}/{duckdb_path}",
-    #     Key=latest_duckdb_path,
-    # )
+    client.copy_object(
+        ACL="public-read",
+        Bucket=bucket,
+        CopySource=f"{bucket}/{duckdb_path}",
+        Key=latest_duckdb_path,
+    )

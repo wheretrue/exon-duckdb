@@ -7,7 +7,7 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python
 RUN apt-get install -y -qq software-properties-common && \
         add-apt-repository ppa:git-core/ppa && \
         apt-get update -y -qq && \
-        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget autoconf libbz2-dev liblzma-dev libcurl4-openssl-dev
+        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget autoconf libbz2-dev liblzma-dev
 
 ARG PLATFORM
 ENV PLATFORM=${PLATFORM}
@@ -34,12 +34,12 @@ ENV CHECK_LICENSE=${CHECK_LICENSE}
 ARG WTT_01_LICENSE_SERVER_URL
 ENV WTT_01_LICENSE_SERVER_URL=${WTT_01_LICENSE_SERVER_URL}
 
-# RUN make release
+RUN make release
 
-# # FROM builder AS duckdb
+FROM builder AS duckdb
 
-# # COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
-# # COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
+COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
+COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /wtt01.duckdb_extension
 
-# # WORKDIR /tmp
-# # ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
+WORKDIR /tmp
+ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]
