@@ -110,9 +110,6 @@ include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 include_directories(${spdlog_SOURCE_DIR}/include)
 
-# add CONDA_PREFIX to cmake search path
-list(APPEND CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
-
 message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
 if(WFA2_ENABLED)
   FetchContent_Declare(wfa2
@@ -140,15 +137,10 @@ if(HTSLIB_ENABLED)
     BUILD_COMMAND make CFLAGS=${flags} lib-static
     INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
   )
-  # add_library(HTSLIB_LIBRARIES STATIC IMPORTED)
-  # set_target_properties(HTSLIB_LIBRARIES PROPERTIES IMPORTED_LOCATION ${htslib_lib})
-  # add_dependencies(HTSLIB_LIBRARIES htslib-EXT)
 
   include_directories(${HTSLIB_BUILD_DIR}/include)
-
 endif()
 
-include_directories($ENV{CONDA_PREFIX}/include)
 include_directories(src/include)
 
 set(EXTENSION_SOURCES
