@@ -2,7 +2,7 @@ name: Windows
 
 on:
   workflow_dispatch:
-  # push:
+  push:
 
 permissions:
   contents: read

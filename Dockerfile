@@ -2,7 +2,7 @@ FROM ubuntu:latest AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install python3 python3-pip build-essential libcurl4-openssl-dev
 
 RUN apt-get install -y -qq software-properties-common && \
         add-apt-repository ppa:git-core/ppa && \

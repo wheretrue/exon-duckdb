@@ -43,6 +43,7 @@ elseif(UNIX)
 
 elseif(WIN32)
   set(WFA2_ENABLED OFF)
+  set(HTSLIB_ENABLED OFF)
 endif()
 
 find_package(OpenSSL REQUIRED)
