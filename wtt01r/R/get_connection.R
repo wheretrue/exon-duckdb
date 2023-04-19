@@ -12,7 +12,7 @@ download_extension <- function(con) {
   name <- "wtt01"
 
   regex_major_version <- "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-  version <- "0.3.1"
+  version <- "0.3.2"
 
   if (grepl(regex_major_version, version)) {
     env <- "prd"
@@ -66,7 +66,7 @@ download_extension <- function(con) {
 }
 
 get_version <- function() {
-  return("0.3.1")
+  return("0.3.2")
 }
 
 get_connection <- function(dbdir = ":memory:") {
