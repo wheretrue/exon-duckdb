@@ -32,9 +32,7 @@ class WTT01QueryException(WTTException):
 
 
 def run_query_file(
-    con: duckdb.DuckDBPyConnection,
-    file_path: Union[Path, str],
-    **template_vars: dict[str, str],
+    con: duckdb.DuckDBPyConnection, file_path: Union[Path, str], **template_vars: dict
 ) -> duckdb.DuckDBPyConnection:
     """Run a query from a file."""
     if isinstance(file_path, str):
@@ -105,8 +103,10 @@ def get_connection(
 
             from wtt01._env import ENVIRONMENT
 
+            env = os.getenv("WTT01_ENVIRONMENT", ENVIRONMENT)
+
             name = "wtt01"
-            bucket = f"wtt-01-dist-{ENVIRONMENT}"
+            bucket = f"wtt-01-dist-{env}"
             filename = f"{name}-{version}-{operating_system}-{architecture}.zip"
 
             full_s3_path = (

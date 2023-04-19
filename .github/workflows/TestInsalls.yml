@@ -55,9 +55,9 @@ jobs:
           sudo mv duckdb/duckdb /usr/local/bin
       - name: Create Script and Test
         run: |
-          echo "custom_extension_repository='fasql.wheretrue.com/fasql/latest';" > test.sql
-          echo "INSTALL fasql;" >> test.sql
-          echo "LOAD fasql;" >> test.sql
+          echo "custom_extension_repository='wtt01.wheretrue.com/wtt01/latest';" > test.sql
+          echo "INSTALL wtt01;" >> test.sql
+          echo "LOAD wtt01;" >> test.sql
           echo "SELECT gc_content('ATCG');" >> test.sql
 
           duckdb -unsigned < test.sql
