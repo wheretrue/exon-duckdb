@@ -1,3 +1,0 @@
-exportPattern("get_connection")
-exportPattern("get_version")
-import(utils)
