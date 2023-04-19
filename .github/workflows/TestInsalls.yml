@@ -66,6 +66,7 @@ jobs:
           echo "INSTALL wtt01;" >> test.sql
           echo "LOAD wtt01;" >> test.sql
           echo "SELECT gc_content('ATCG');" >> test.sql
+          cat test.sql
       - name: Run DuckDB (Unix)
         shell: bash
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
