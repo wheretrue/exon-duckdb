@@ -70,10 +70,14 @@ jobs:
       - name: Run DuckDB (Unix)
         shell: bash
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        env:
+          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
         run: |
           duckdb -unsigned < test.sql
       - name: Run DuckDB (Windows)
         shell: bash
         if: matrix.os == 'windows-latest'
+        env:
+          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
         run: |
           duckdb.exe -unsigned < test.sql
