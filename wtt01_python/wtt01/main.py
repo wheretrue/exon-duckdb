@@ -26,6 +26,7 @@ class WTTException(Exception):
 class WTT01ConfigurationException(WTTException):
     """Exception for wtt01 configuration."""
 
+
 class WTT01QueryException(WTTException):
     """Exception for wtt01 query."""
 
@@ -33,7 +34,7 @@ class WTT01QueryException(WTTException):
 def run_query_file(
     con: duckdb.DuckDBPyConnection,
     file_path: Union[Path, str],
-    **template_vars: dict[str,str],
+    **template_vars: dict[str, str],
 ) -> duckdb.DuckDBPyConnection:
     """Run a query from a file."""
     if isinstance(file_path, str):
@@ -46,17 +47,11 @@ def run_query_file(
 
             return con.execute(query)
         except KeyError as exp:
-            raise WTT01QueryException(
-                f"Missing key {exp} in query"
-            ) from exp
+            raise WTT01QueryException(f"Missing key {exp} in query") from exp
         except TypeError as exp:
-            raise WTT01QueryException(
-                f"Invalid query {exp}"
-            ) from exp
+            raise WTT01QueryException(f"Invalid query {exp}") from exp
         except Exception as exp:
-            raise WTT01QueryException(
-                f"Unknown error {exp}"
-            ) from exp
+            raise WTT01QueryException(f"Unknown error {exp}") from exp
 
     else:
         return con.execute(file_path.read_text(encoding="utf-8"))
@@ -78,17 +73,11 @@ def get_connection(
         )
 
     if config is None:
-        config = {
-            "allow_unsigned_extensions": True,
-        }
+        config = {"allow_unsigned_extensions": True}
     else:
         config["allow_unsigned_extensions"] = True
 
-    con = duckdb.connect(
-        database=database,
-        read_only=read_only,
-        config=config,
-    )
+    con = duckdb.connect(database=database, read_only=read_only, config=config)
 
     try:
         con.load_extension(EXTENSION_NAME)
