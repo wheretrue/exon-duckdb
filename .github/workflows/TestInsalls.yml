@@ -62,7 +62,7 @@ jobs:
       - name: Create Script
         shell: bash
         run: |
-          echo "custom_extension_repository='wtt01.wheretrue.com/wtt01/latest';" > test.sql
+          echo "SET custom_extension_repository='wtt01.wheretrue.com/wtt01/latest';" > test.sql
           echo "INSTALL wtt01;" >> test.sql
           echo "LOAD wtt01;" >> test.sql
           echo "SELECT gc_content('ATCG');" >> test.sql
