@@ -8,7 +8,6 @@ authors = [
 ]
 classifiers = [
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -23,7 +22,7 @@ keywords = []
 license = "MIT"
 name = "wtt01"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 
 [project.scripts]
 wtt01 = "wtt01.cli:main"
@@ -41,7 +40,7 @@ cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=wtt01 
 no-cov = "cov --no-cov {args}"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310", "311"]
+python = ["38", "39", "310", "311"]
 
 [tool.coverage.run]
 branch = true
