@@ -100,13 +100,9 @@ pub unsafe extern "C" fn sam_record_read_records_chunk(
     let mut mapping_quality_vector = duckdb_chunk.flat_vector(8);
     let mut mate_alignment_start_vector = duckdb_chunk.flat_vector(9);
 
-    let mut actual = 0;
-
     match sam_reader_ptr.as_mut() {
         Some(sam_reader) => {
             for i in 0..batch_size {
-                actual = i;
-
                 let mut record = Record::default();
 
                 match sam_reader.read_record(&sam_header, &mut record) {
@@ -183,7 +179,7 @@ pub unsafe extern "C" fn sam_record_read_records_chunk(
                     None => mate_alignment_start_vector.set_null(i),
                 }
 
-                duckdb_chunk.set_len(actual + 1);
+                duckdb_chunk.set_len(i + 1);
             }
         }
         None => {
