@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import Optional, Union
 import os
 from string import Template
+import shutil
+import gzip
 
 import platform
-import zipfile
 import tempfile
 
 import urllib.request
@@ -59,7 +60,6 @@ def get_connection(
     database: str = ":memory:",
     read_only: bool = False,
     config: Optional[dict] = None,
-    s3_uri: Optional[str] = None,
     file_path: Optional[Path] = None,
 ) -> duckdb.DuckDBPyConnection:
     """Return a connection with wtt01 loaded."""
@@ -92,40 +92,45 @@ def get_connection(
             con.install_extension(str(file_path.absolute()), force_install=True)
             con.load_extension(EXTENSION_NAME)
 
-        elif s3_uri is not None:
-            # download
-            pass
         else:
+            version = __version__
+            name = "wtt01"
+
             platform_uname = platform.uname()
             operating_system = platform_uname.system
             architecture = platform_uname.machine
-            version = __version__
 
-            from wtt01._env import ENVIRONMENT
+            if operating_system.lower() == "windows":
+                duckdb_arch = "windows_amd64"
+            elif operating_system.lower() == "darwin" and architecture.lower() == "x86_64":
+                duckdb_arch = "osx_amd64"
+            elif operating_system.lower() == "darwin" and architecture.lower() == "arm64":
+                duckdb_arch = "osx_arm64"
+            elif operating_system.lower() == "linux" and architecture.lower() == "x86_64":
+                duckdb_arch = "linux_amd64_gcc4"
+            else:
+                raise WTTException(
+                    f"Unable to find extension for {operating_system} {architecture}"
+                )
 
-            env = os.getenv("WTT01_ENVIRONMENT", ENVIRONMENT)
-
-            name = "wtt01"
-            bucket = f"wtt-01-dist-{env}"
-            filename = f"{name}-{version}-{operating_system}-{architecture}.zip"
-
-            full_s3_path = (
-                f"http://{bucket}.s3.amazonaws.com/extension/{name}/{filename}"
-            )
+            filename = f"{name}.duckdb_extension.gz"
+            url = f"https://dbe.wheretrue.com/{name}/{version}/v0.7.1/{duckdb_arch}/{filename}"
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_dir_path = Path(temp_dir)
                 temp_file_name = temp_dir_path / filename
 
                 try:
-                    urllib.request.urlretrieve(full_s3_path, temp_file_name)
+                    urllib.request.urlretrieve(url, temp_file_name)
                 except Exception as retrieve_exp:
                     raise WTTException(
                         f"Unable to download extension from {full_s3_path}"
                     ) from retrieve_exp
 
-                with zipfile.ZipFile(temp_file_name, "r") as zip_ref:
-                    zip_ref.extract(f"{name}.duckdb_extension", temp_dir)
+                # ungzip the file
+                with gzip.open(temp_file_name, "rb") as f_in:
+                    with open(temp_file_name, "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
 
                 output_file = temp_dir_path / f"{name}.duckdb_extension"
                 if not output_file.exists():
@@ -134,7 +139,6 @@ def get_connection(
                     ) from exp
 
                 con.install_extension(output_file.as_posix(), force_install=True)
-
                 con.load_extension(EXTENSION_NAME)
 
     return con
