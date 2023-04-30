@@ -1,7 +1,7 @@
 {
   "commitizen": {
     "name": "cz_conventional_commits",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "tag_format": "v$version",
     "version_files": [
       "./CMakeLists.txt",
@@ -9,9 +9,7 @@
       ".github/actions/build_docker_image/action.yml",
       "./bin/upload-artifacts.py",
       "./src/wtt01_functions.cpp",
-      "./wtt01_python/wtt01/__about__.py",
-      "./wtt01r/R/get_connection.R",
-      "./wtt01r/DESCRIPTION"
+      "./wtt01_python/wtt01/__about__.py"
     ]
   }
 }
