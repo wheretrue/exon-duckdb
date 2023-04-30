@@ -118,21 +118,22 @@ def get_connection(
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_dir_path = Path(temp_dir)
+
                 temp_file_name = temp_dir_path / filename
 
                 try:
                     urllib.request.urlretrieve(url, temp_file_name)
                 except Exception as retrieve_exp:
                     raise WTTException(
-                        f"Unable to download extension from {full_s3_path}"
+                        f"Unable to download extension from {url}"
                     ) from retrieve_exp
 
                 # ungzip the file
+                output_file = temp_dir_path / filename.rstrip(".gz")
                 with gzip.open(temp_file_name, "rb") as f_in:
-                    with open(temp_file_name, "wb") as f_out:
+                    with open(output_file, "wb") as f_out:
                         shutil.copyfileobj(f_in, f_out)
 
-                output_file = temp_dir_path / f"{name}.duckdb_extension"
                 if not output_file.exists():
                     raise WTTException(
                         f"Unable to find extension file at {output_file}"
