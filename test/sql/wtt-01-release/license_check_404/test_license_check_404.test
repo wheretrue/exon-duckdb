@@ -1,6 +1,6 @@
 # Test that if the license is set, but not found on the server the correct error is returned.
 
 statement error
-LOAD 'build/release/extension/wtt01.duckdb_extension';
+LOAD 'build/release/extension/exondb.duckdb_extension';
 ----
-Error: Invalid Input Error: Initialization function "wtt01_init" from file "build/release/extension/wtt01.duckdb_extension" threw an exception: "Invalid Input Error: License verification failed: INVALID_CONFIGURATION"
+Error: Invalid Input Error: Initialization function "exondb_init" from file "build/release/extension/exondb.duckdb_extension" threw an exception: "Invalid Input Error: License verification failed: INVALID_CONFIGURATION"

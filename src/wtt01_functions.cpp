@@ -12,7 +12,7 @@ namespace wtt01
 
     duckdb::CreateScalarFunctionInfo Wtt01Functions::GetWtt01VersionFunction()
     {
-        duckdb::ScalarFunctionSet set("wtt01_version");
+        duckdb::ScalarFunctionSet set("exondb_version");
 
         auto duckdb_function = [](duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
         {

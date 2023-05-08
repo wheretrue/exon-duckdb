@@ -1,8 +1,8 @@
 """Add a CLI to the Python package."""
 import argparse
 
-from wtt01.__about__ import __version__
-from wtt01 import run_query_file, get_connection
+from exondb.__about__ import __version__
+from exondb import run_query_file, get_connection
 
 def query(args):
     """Run a query."""
@@ -16,12 +16,12 @@ def query(args):
     run_query_file(con, args.query, **template_vars)
 
 def main():
-    """Console script for wtt01."""
+    """Console script for exondb."""
 
     # Setup the parser
     parser = argparse.ArgumentParser(
-        prog="wtt01",
-        description="wtt01 Python CLI",
+        prog="exondb",
+        description="exondb Python CLI",
     )
 
     subparsers = parser.add_subparsers(

@@ -1,5 +1,5 @@
 statement ok
-LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Test counting from a GFF file
 query IIIIIIIII

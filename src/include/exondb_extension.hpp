@@ -5,7 +5,7 @@
 namespace duckdb
 {
 
-	class Wtt01Extension : public Extension
+	class ExondbExtension : public Extension
 	{
 	public:
 		void Load(DuckDB &db) override;

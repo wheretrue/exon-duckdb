@@ -20,15 +20,15 @@ description = ''
 dynamic = ["version"]
 keywords = []
 license = "MIT"
-name = "wtt01"
+name = "exondb"
 readme = "README.md"
 requires-python = ">=3.8"
 
 [project.scripts]
-wtt01 = "wtt01.cli:main"
+exondb = "exondb.cli:main"
 
 [tool.hatch.version]
-path = "wtt01/__about__.py"
+path = "exondb/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -36,7 +36,7 @@ dependencies = [
   "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=wtt01 --cov=tests {args}"
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=exondb --cov=tests {args}"
 no-cov = "cov --no-cov {args}"
 
 [[tool.hatch.envs.test.matrix]]
@@ -45,7 +45,7 @@ python = ["38", "39", "310", "311"]
 [tool.coverage.run]
 branch = true
 omit = [
-  "wtt01/__about__.py",
+  "exondb/__about__.py",
 ]
 parallel = true
 

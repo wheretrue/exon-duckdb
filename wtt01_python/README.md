@@ -7,5 +7,5 @@
 ## Installation
 
 ```console
-pip install wtt01
+pip install exondb
 ```

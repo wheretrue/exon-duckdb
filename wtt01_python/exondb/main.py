@@ -1,4 +1,4 @@
-"""Package for wtt01."""
+"""Package for exondb."""
 
 from pathlib import Path
 from typing import Optional, Union
@@ -14,22 +14,22 @@ import urllib.request
 
 import duckdb
 
-from wtt01.__about__ import __version__, EXTENSION_NAME
+from exondb.__about__ import __version__, EXTENSION_NAME
 
 
 __all__ = ["get_connection", "run_query_file", "__version__"]
 
 
 class WTTException(Exception):
-    """Base exception for wtt01."""
+    """Base exception for exondb."""
 
 
 class WTT01ConfigurationException(WTTException):
-    """Exception for wtt01 configuration."""
+    """Exception for exondb configuration."""
 
 
 class WTT01QueryException(WTTException):
-    """Exception for wtt01 query."""
+    """Exception for exondb query."""
 
 
 def run_query_file(
@@ -62,7 +62,7 @@ def get_connection(
     config: Optional[dict] = None,
     file_path: Optional[Path] = None,
 ) -> duckdb.DuckDBPyConnection:
-    """Return a connection with wtt01 loaded."""
+    """Return a connection with exondb loaded."""
 
     if "WTT_01_LICENSE" not in os.environ:
         raise WTT01ConfigurationException(
@@ -94,7 +94,7 @@ def get_connection(
 
         else:
             version = __version__
-            name = "wtt01"
+            name = "exondb"
 
             platform_uname = platform.uname()
             operating_system = platform_uname.system

@@ -1,6 +1,6 @@
 # This is only a failure in name, doesn't actually fail with the right code.
 
 statement ok
-LOAD 'build/release/extension/wtt01.duckdb_extension';
+LOAD 'build/release/extension/exondb.duckdb_extension';
 # ----
-# Invalid Input Error: Initialization function "wtt01_init" from file "build/release/extension/wtt01.duckdb_extension" threw an exception: "Invalid Input Error: License verification failed: INVALID_ENV_VAR_CONFIGURATION"
+# Invalid Input Error: Initialization function "exondb_init" from file "build/release/extension/exondb.duckdb_extension" threw an exception: "Invalid Input Error: License verification failed: INVALID_ENV_VAR_CONFIGURATION"

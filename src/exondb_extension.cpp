@@ -1,6 +1,6 @@
 #define DUCKDB_EXTENSION_MAIN
 
-#include "wtt01_extension.hpp"
+#include "exondb_extension.hpp"
 #include "duckdb.hpp"
 #include "duckdb/common/exception.hpp"
 #include "duckdb/common/string_util.hpp"
@@ -148,13 +148,13 @@ namespace duckdb
         con.Commit();
     }
 
-    void Wtt01Extension::Load(DuckDB &db)
+    void ExondbExtension::Load(DuckDB &db)
     {
         LoadInternal(*db.instance);
     }
-    std::string Wtt01Extension::Name()
+    std::string ExondbExtension::Name()
     {
-        return "wtt01";
+        return "exondb";
     }
 
 } // namespace duckdb
@@ -162,12 +162,12 @@ namespace duckdb
 extern "C"
 {
 
-    DUCKDB_EXTENSION_API void wtt01_init(duckdb::DatabaseInstance &db)
+    DUCKDB_EXTENSION_API void exondb_init(duckdb::DatabaseInstance &db)
     {
         LoadInternal(db);
     }
 
-    DUCKDB_EXTENSION_API const char *wtt01_version()
+    DUCKDB_EXTENSION_API const char *exondb_version()
     {
         return duckdb::DuckDB::LibraryVersion();
     }

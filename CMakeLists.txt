@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # Set extension name here
-set(TARGET_NAME wtt01)
+set(TARGET_NAME exondb)
 
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 project(${TARGET_NAME})
@@ -145,7 +145,7 @@ endif()
 include_directories(src/include)
 
 set(EXTENSION_SOURCES
-  src/wtt01_extension.cpp
+  src/exondb_extension.cpp
   src/check_license.cpp
 
   src/bam_io.cpp

@@ -488,7 +488,7 @@ namespace wtt01
 
     duckdb::CreateTableFunctionInfo Wtt01Functions::GetThirdPartyAcknowledgementTable()
     {
-        duckdb::TableFunction ack_table("wtt01_third_party_acknowledgements", {}, ThirdPartyAcknowledgementTableFunction, ThirdPartyAcknowledgementTableBind);
+        duckdb::TableFunction ack_table("exondb_third_party_acknowledgements", {}, ThirdPartyAcknowledgementTableFunction, ThirdPartyAcknowledgementTableBind);
         return duckdb::CreateTableFunctionInfo(ack_table);
     };
 }

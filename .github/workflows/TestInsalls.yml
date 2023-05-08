@@ -24,14 +24,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install wtt01
-      - name: wtt01 smoke Test
+          pip install exondb
+      - name: exondb smoke Test
         env:
           WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
         shell: python
         run: |
-          import wtt01
-          con = wtt01.get_connection()
+          import exondb
+          con = exondb.get_connection()
           con.execute("SELECT gc_content('ATCG') as value;");
           res = con.fetchall()
           assert res[0][0] == .5
@@ -62,9 +62,9 @@ jobs:
       - name: Create Script
         shell: bash
         run: |
-          echo "SET custom_extension_repository='dbe.wheretrue.com/wtt01/latest';" > test.sql
-          echo "INSTALL wtt01;" >> test.sql
-          echo "LOAD wtt01;" >> test.sql
+          echo "SET custom_extension_repository='dbe.wheretrue.com/exondb/latest';" > test.sql
+          echo "INSTALL exondb;" >> test.sql
+          echo "LOAD exondb;" >> test.sql
           echo "SELECT gc_content('ATCG');" >> test.sql
           cat test.sql
       - name: Run DuckDB (Unix)

@@ -1,10 +1,10 @@
 statement ok
-LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 query I
 SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC')
 ----
-MMIMM
+2M1D2M
 
 statement error
 SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'memory_low')
@@ -13,12 +13,12 @@ SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'memory_low'
 query I
 SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', -1, 1, 2, 3, 'memory_low')
 ----
-MMIMM
+2M1D2M
 
 query I
 SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 'memory_low')
 ----
-MMIMM
+2M1D2M
 
 query I
 SELECT alignment_score_wfa_gap_affine('AACC', 'AACC')

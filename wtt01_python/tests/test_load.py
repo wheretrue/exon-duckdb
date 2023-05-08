@@ -4,7 +4,7 @@ import pathlib
 
 import pytest
 
-import wtt01.main as main
+import exondb.main as main
 
 HERE = pathlib.Path(__file__).parent
 

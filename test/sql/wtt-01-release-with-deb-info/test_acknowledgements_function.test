@@ -1,9 +1,9 @@
 statement ok
-LOAD 'build/release/extension/wtt01/wtt01.duckdb_extension';
+LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Very basic
 query I
-SELECT name FROM wtt01_third_party_acknowledgements() ORDER BY name;
+SELECT name FROM exondb_third_party_acknowledgements() ORDER BY name;
 ----
 DuckDB
 WFA2-lib
@@ -16,4 +16,4 @@ noodles
 openssl
 
 statement ok
-SELECT wtt01_version();
+SELECT exondb_version();
