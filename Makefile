@@ -85,9 +85,9 @@ AWS_ACCOUNT_ID := $(shell aws sts get-caller-identity --query Account --output t
 docker-release:
 	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 	DOCKER_IMAGE=public.ecr.aws/p3a4z1t3/wtt01:latest PLATFORM=${PLATFORM} CHECK_LICENSE=1 docker compose build wtt01
-	docker tag public.ecr.aws/p3a4z1t3/wtt01:latest public.ecr.aws/p3a4z1t3/wtt01:v0.3.7
+	docker tag public.ecr.aws/p3a4z1t3/wtt01:latest public.ecr.aws/p3a4z1t3/wtt01:v0.3.8
 	docker push public.ecr.aws/p3a4z1t3/wtt01:latest
-	docker push public.ecr.aws/p3a4z1t3/wtt01:v0.3.7
+	docker push public.ecr.aws/p3a4z1t3/wtt01:v0.3.8
 
 extension-release:
 	CHECK_LICENSE=1 make
