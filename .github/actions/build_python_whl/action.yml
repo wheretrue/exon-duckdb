@@ -35,7 +35,6 @@ runs:
     - name: Build wheels
       shell: bash
       run: |
-        echo "ENVIRONMENT = \"${{ inputs.environment }}\"" > wtt01/_env.py
         hatch build
       working-directory: ./wtt01_python/
 
