@@ -81,7 +81,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   Corrosion
   GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-  GIT_TAG v0.3.4
+  GIT_TAG v0.3.5
 )
 
 FetchContent_Declare(
