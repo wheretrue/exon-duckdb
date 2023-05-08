@@ -1,9 +1,10 @@
 name: Build Docker Dev Image
 
 on:
-  push:
-    tags:
-      - "v*dev*"
+  workflow_dispatch:
+  # push:
+  #   tags:
+  #     - "v*dev*"
 
 permissions:
   contents: read

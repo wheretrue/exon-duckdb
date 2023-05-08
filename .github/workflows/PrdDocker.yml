@@ -1,9 +1,10 @@
 name: Build Docker Prd Image
 
 on:
-  push:
-    tags-ignore:
-      - "v*dev*"
+  workflow_dispatch:
+  # push:
+  #   tags-ignore:
+  #     - "v*dev*"
 
 permissions:
   contents: read
