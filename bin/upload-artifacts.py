@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--name", default="exondb")
 
-    parser.add_argument("--version", default="v0.3.5")
+    parser.add_argument("--version", default="v0.3.6")
 
     parser.add_argument("--duckdb_version", default="v0.7.1")
 
