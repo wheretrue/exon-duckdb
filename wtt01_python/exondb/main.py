@@ -81,7 +81,7 @@ def get_connection(
         con.load_extension(EXTENSION_NAME)
         return con
     except duckdb.IOException as exp:
-        extension_path = os.getenv("WTT01_EXTENSION_PATH")
+        extension_path = os.getenv("EXONDB_EXTENSION_PATH")
 
         if extension_path is not None:
             extension_path = Path(extension_path).absolute()

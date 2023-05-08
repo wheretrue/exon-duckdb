@@ -19,7 +19,7 @@ if __name__ == "__main__":
         description="Upload artifacts to S3 and invoke the artifact handler."
     )
 
-    parser.add_argument("--name", default="wtt01")
+    parser.add_argument("--name", default="exondb")
 
     parser.add_argument("--version", default="v0.3.4")
 
@@ -73,48 +73,13 @@ if __name__ == "__main__":
             Path("build")
             / "release"
             / "extension"
-            / "wtt01"
+            / name
             / f"{name}.duckdb_extension"
         )
     else:
         build_target = (
             Path("build") / "release" / "extension" / name / f"{name}.duckdb_extension"
         )
-
-    # with zipfile.ZipFile(local_file, "w") as zip_file:
-    #     print(f"Adding {build_target} to {local_file}.")
-    #     zip_file.write(str(build_target), arcname=f"{name}.duckdb_extension")
-
-    # # Copy local_file to s3 location molcaat_full_s3_path.
-
-    # upload_key = f"extension/{name}/{filename}"
-    # client.upload_file(str(local_file), bucket, upload_key)
-
-    # # Change the ACL of the file to public-read.
-    # client.put_object_acl(ACL="public-read", Bucket=bucket, Key=upload_key)
-
-    # body = json.dumps(
-    #     {
-    #         "http": {"method": "POST"},
-    #         "body": {
-    #             "id": uuid.uuid4().hex,
-    #             "s3_key": full_s3_path,
-    #             "os": operating_system,
-    #             "arch": architecture,
-    #             "tag": version,
-    #             "tool": name,
-    #             "environment": environment,
-    #         },
-    #     }
-    # )
-    # print(body)
-
-    # # Invoke the lambda function ARTIFACT_HANDLER with the body.
-    # response = lambda_client.invoke(FunctionName=handler, Payload=bytes(body, "utf-8"))
-    # print(response)
-
-    # # Invoke the lambda function ARTIFACT_HANDLER with the body.
-    # response = lambda_client.invoke(FunctionName=handler, Payload=bytes(body, "utf-8"))
 
     # gzip the build_target with python
     gzip_build_target = f"{name}.duckdb_extension.gz"
