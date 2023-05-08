@@ -1,4 +1,4 @@
-# WTT 01
+# ExonDB
 
 **Table of Contents**
 
@@ -9,3 +9,5 @@
 ```console
 pip install exondb
 ```
+
+Please see [wheretrue.com](https://www.wheretrue.com) for more information.
