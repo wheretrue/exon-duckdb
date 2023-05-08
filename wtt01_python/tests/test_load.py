@@ -12,7 +12,7 @@ HERE = pathlib.Path(__file__).parent
 def test_load(monkeypatch):
     """Test the extension can be loaded."""
 
-    monkeypatch.setenv("WTT_01_LICENSE", "test")
+    monkeypatch.setenv("EXONDB_LICENSE", "test")
 
     con = main.get_connection()
 

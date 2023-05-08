@@ -27,7 +27,7 @@ jobs:
           pip install exondb
       - name: exondb smoke Test
         env:
-          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
+          EXONDB_LICENSE: ${{ secrets.EXONDB_LICENSE }}
         shell: python
         run: |
           import exondb
@@ -71,13 +71,13 @@ jobs:
         shell: bash
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
-          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
+          EXONDB_LICENSE: ${{ secrets.EXONDB_LICENSE }}
         run: |
           duckdb -unsigned < test.sql
       - name: Run DuckDB (Windows)
         shell: bash
         if: matrix.os == 'windows-latest'
         env:
-          WTT_01_LICENSE: ${{ secrets.WTT_01_LICENSE }}
+          EXONDB_LICENSE: ${{ secrets.EXONDB_LICENSE }}
         run: |
           ./duckdb.exe -unsigned < test.sql

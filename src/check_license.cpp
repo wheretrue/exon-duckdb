@@ -8,10 +8,10 @@
 
 #include "check_license.hpp"
 
-#ifdef WTT_01_LICENSE_SERVER_URL
-#define WTT_01_LICENSE_SERVER_URL_VALUE WTT_01_LICENSE_SERVER_URL
+#ifdef EXONDB_LICENSE_SERVER_URL
+#define EXONDB_LICENSE_SERVER_URL_VALUE EXONDB_LICENSE_SERVER_URL
 #else
-#define WTT_01_LICENSE_SERVER_URL_VALUE "https://api.wheretrue.com"
+#define EXONDB_LICENSE_SERVER_URL_VALUE "https://api.wheretrue.com"
 #endif
 
 namespace wtt01
@@ -51,12 +51,12 @@ namespace wtt01
 
     LicenseCheck::LicenseStatus LicenseCheck::GetLicenseStatus()
     {
-        auto url = std::string(WTT_01_LICENSE_SERVER_URL_VALUE);
+        auto url = std::string(EXONDB_LICENSE_SERVER_URL_VALUE);
 
-        auto license_id = std::getenv("WTT_01_LICENSE");
+        auto license_id = std::getenv("EXONDB_LICENSE");
         if (license_id == nullptr)
         {
-            std::cerr << "WTT_01_LICENSE is not set" << std::endl;
+            std::cerr << "EXONDB_LICENSE is not set" << std::endl;
             return LicenseCheck::LicenseStatus::INVALID_ENV_VAR_CONFIGURATION;
         }
 

@@ -64,9 +64,9 @@ def get_connection(
 ) -> duckdb.DuckDBPyConnection:
     """Return a connection with exondb loaded."""
 
-    if "WTT_01_LICENSE" not in os.environ:
+    if "EXONDB_LICENSE" not in os.environ:
         raise WTT01ConfigurationException(
-            "WTT_01_LICENSE environment variable not set. "
+            "EXONDB_LICENSE environment variable not set. "
             "Check the docs or email at help@wheretrue.com"
         )
 

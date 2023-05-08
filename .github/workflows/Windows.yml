@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
-          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "EXONDB_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "CHECK_LICENSE=0" >> $GITHUB_ENV
-          echo "WTT_01_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
+          echo "EXONDB_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
@@ -54,14 +54,14 @@ jobs:
         run: |
           echo "Setting Prod Build Env Vars"
           echo "CHECK_LICENSE=1" >> $GITHUB_ENV
-          echo "WTT_01_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
+          echo "EXONDB_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
           echo "ENVIRONMENT=prd" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
 
       - name: Print Build Env Vars
         run: |
           echo ${{ env.CHECK_LICENSE }}
-          echo ${{ env.WTT_01_LICENSE_URL}}
+          echo ${{ env.EXONDB_LICENSE_URL}}
           exit 0
       - uses: actions/checkout@v3
         with:

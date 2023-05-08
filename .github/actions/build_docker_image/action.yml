@@ -57,7 +57,7 @@ runs:
         echo "REGISTRY: $REGISTRY"
         echo "REPOSITORY: $REPOSITORY"
         echo "CHECK_LICENSE: $CHECK_LICENSE"
-        echo "WTT_01_LICENSE_SERVER_URL: $WTT_01_LICENSE_SERVER_URL"
+        echo "EXONDB_LICENSE_SERVER_URL: $EXONDB_LICENSE_SERVER_URL"
         echo "ENVIRONMENT: $ENVIRONMENT"
         echo "DOCKER_IMAGE: $DOCKER_IMAGE"
         echo "PLATFORM: $PLATFORM"
@@ -65,7 +65,7 @@ runs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: ${{ inputs.repository }}
         CHECK_LICENSE: ${{ inputs.check_license }}
-        WTT_01_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
+        EXONDB_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
         ENVIRONMENT: ${{inputs.environment}}
         DOCKER_IMAGE: ${{ inputs.docker_image }}
         PLATFORM: ${{ inputs.platform }}
@@ -74,7 +74,7 @@ runs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: ${{ inputs.repository }}
         CHECK_LICENSE: ${{ inputs.check_license }}
-        WTT_01_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
+        EXONDB_LICENSE_SERVER_URL: ${{ inputs.wtt_01_license_server_url }}
         ENVIRONMENT: ${{inputs.environment}}
         DOCKER_IMAGE: ${{ inputs.docker_image }}
         PLATFORM: ${{ inputs.platform }}
