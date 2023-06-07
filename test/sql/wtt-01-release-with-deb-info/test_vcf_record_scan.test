@@ -8,34 +8,34 @@ SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-i
 
 
 query IIIIIII
-SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf') LIMIT 1;
 ----
 1
 9999919
 G
 [<*>]
 0.0
-0
+NULL
 1
 
 query IIIIIII
-SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_bcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.bcf') LIMIT 1;
 ----
 1
 9999919
 G
 [<*>]
 0.0
-0
+NULL
 1
 
 query IIIIIII
-SELECT chromosome, position, reference_bases, alternate_bases, quality_score, info.indel, info.dp FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf.gz') LIMIT 1;
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_vcf_file_records('./test/sql/wtt-01-release-with-deb-info/vcf/index.vcf.gz') LIMIT 1;
 ----
 1
 9999919
 G
 [<*>]
 0.0
-0
+NULL
 1

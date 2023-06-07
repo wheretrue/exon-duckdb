@@ -3,18 +3,18 @@ LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Example File
 query IIIIIIIIII
-SELECT * FROM read_sam_file_records('./test/sql/wtt-01-release-with-deb-info/sam/example1.sam')
+SELECT name, flag, reference, start, "end", mapping_quality, cigar, mate_reference, sequence, quality_score FROM read_sam_file_records('./test/sql/wtt-01-release-with-deb-info/sam/example1.sam')
 ----
-CGAGCTCGGT
 ref1_grp1_p001
 99
+ref1
 1
 10
-10M
-!!!!!!!!!!
-34
 0
-25
+10M
+ref1
+CGAGCTCGGT
+!!!!!!!!!!
 
 # Missing file throws an error
 statement error

@@ -42,7 +42,7 @@ COPY --from=extension_builder /app/build/release/duckdb /usr/local/bin/duckdb
 
 ARG DUCKDB_PLATFORM
 ENV DUCKDB_PLATFORM=${DUCKDB_PLATFORM}
-COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /root/.duckdb/v0.7.1/${DUCKDB_PLATFORM}/extension/wtt01.duckdb_extension
+COPY --from=extension_builder /app/build/release/extension/wtt01/wtt01.duckdb_extension /root/.duckdb/v0.8.0/${DUCKDB_PLATFORM}/extension/wtt01.duckdb_extension
 
 WORKDIR /tmp
 ENTRYPOINT ["/usr/local/bin/duckdb", "-unsigned"]

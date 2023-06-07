@@ -3,7 +3,7 @@ LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Test counting from a GFF file
 query IIIIIIIII
-SELECT reference_sequence_name, source, annotation_type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff');
+SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff');
 ----
 sq0
 caat
@@ -13,7 +13,7 @@ gene
 NULL
 +
 NULL
-gene_id=caat1;gene_name=gene0;
+{gene_id=caat1, gene_name=gene0}
 sq1
 caat
 gene
@@ -22,7 +22,7 @@ gene
 0.1
 +
 0
-gene_id=caat2;gene_name=gene0;
+{gene_id=caat2, gene_name=gene0}
 
 # Test counting from a GFF file
 query I
@@ -31,10 +31,10 @@ SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff'
 2
 
 # Test counting from a GFF gzipped file, autodetect extension
-# query I
-# SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.gz');
-# ----
-# 2
+query I
+SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.gz');
+----
+2
 
 # Test counting from a GFF gzipped file, with option
 query I
@@ -99,15 +99,15 @@ SELECT element_at(gff_parse_attributes('key=value'), 'key')[1];
 value
 
 # Test that a "raw" gff can be read
-query IIIIIIIII
-SELECT reference_sequence_name, source, annotation_type, start, "end", score, strand, phase, attributes  FROM read_gff_raw('./test/sql/wtt-01-release-with-deb-info/gff/raw-test.gff') LIMIT 1;
-----
-KanNP_rdsDRAFT_3085441342
-FGMP
-CDS
-2
-151
-NULL
-1
-0
-ID=KanNP_rdsDRAFT_3085441342.1;locus_tag=KanNP_rdsDRAFT_30854413421;
+# query IIIIIIIII
+# SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff_raw('./test/sql/wtt-01-release-with-deb-info/gff/raw-test.gff') LIMIT 1;
+# ----
+# KanNP_rdsDRAFT_3085441342
+# FGMP
+# CDS
+# 2
+# 151
+# .
+# 1
+# 0
+# ID=KanNP_rdsDRAFT_3085441342.1;locus_tag=KanNP_rdsDRAFT_30854413421;

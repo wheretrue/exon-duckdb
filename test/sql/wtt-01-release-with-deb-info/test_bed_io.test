@@ -1,89 +1,8 @@
 statement ok
 LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
-query III
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=3) LIMIT 1;
-----
-sq0
-8
-13
-
-query IIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=4) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-
-query IIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=5) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-
-query IIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=6) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-NULL
-
-query IIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=7) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-NULL
-8
-
-query IIIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed', n_columns=8) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-NULL
-8
-13
-
-query IIIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed.gz', n_columns=8) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-NULL
-8
-13
-
-query IIIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed.zst', n_columns=8) LIMIT 1;
-----
-sq0
-8
-13
-NULL
-NULL
-NULL
-8
-13
-
-query IIIIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed.zst', n_columns=9) LIMIT 1;
+query IIIIIIIIIIII
+SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed') LIMIT 1;
 ----
 sq0
 8
@@ -94,10 +13,6 @@ NULL
 8
 13
 NULL
-
-query III
-SELECT * FROM 'test/sql/wtt-01-release-with-deb-info/bed/test3.bed.zst' LIMIT 1;
-----
-sq0
-8
-13
+2
+2,1
+0,3

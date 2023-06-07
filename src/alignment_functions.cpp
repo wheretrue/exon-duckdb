@@ -36,7 +36,7 @@ namespace wtt01
         }
 
         // Create a new WFAOptions object from a DuckDB context and a list of arguments
-        WFAOptions(duckdb::ClientContext &context, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
+        WFAOptions(duckdb::ClientContext &context, duckdb::vector<duckdb::unique_ptr<duckdb::Expression>> &arguments)
         {
             if (arguments.size() == 2)
             {
@@ -125,9 +125,9 @@ namespace wtt01
         return true;
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentFunctions::AlignmentStringBindData::Copy() const
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentFunctions::AlignmentStringBindData::Copy() const
     {
-        auto result = duckdb::make_unique<AlignmentStringBindData>();
+        auto result = duckdb::make_uniq<AlignmentStringBindData>();
         result->aligner = aligner;
 
         return std::move(result);
@@ -192,25 +192,25 @@ namespace wtt01
         }
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentStringBind2Arguments(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentStringBind2Arguments(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, duckdb::vector<duckdb::unique_ptr<duckdb::Expression>> &arguments)
     {
         auto options = WFAOptions(context, arguments);
-        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>();
+        return duckdb::make_uniq<AlignmentFunctions::AlignmentStringBindData>();
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentStringBindMatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentStringBindMatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, duckdb::vector<duckdb::unique_ptr<duckdb::Expression>> &arguments)
     {
         auto options = WFAOptions(context, arguments);
-        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
+        return duckdb::make_uniq<AlignmentFunctions::AlignmentStringBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentStringBindMismatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentStringBindMismatchArgument(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, duckdb::vector<duckdb::unique_ptr<duckdb::Expression>> &arguments)
     {
         auto options = WFAOptions(context, arguments);
-        return duckdb::make_unique<AlignmentFunctions::AlignmentStringBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
+        return duckdb::make_uniq<AlignmentFunctions::AlignmentStringBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
     }
 
-    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentStringFunction(std::string name)
+    duckdb::CreateScalarFunctionInfo AlignmentFunctions::GetAlignmentStringFunction(std::string name)
     {
         duckdb::ScalarFunctionSet set(name);
 
@@ -229,7 +229,7 @@ namespace wtt01
                                                                   duckdb::LogicalType::VARCHAR, AlignmentStringFunction, AlignmentStringBindMatchArgument);
         set.AddFunction(align_function_mismatch_arg);
 
-        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+        return duckdb::CreateScalarFunctionInfo(set);
     }
 
     // Score not alignment functions.
@@ -239,9 +239,9 @@ namespace wtt01
         return true;
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentFunctions::AlignmentScoreBindData::Copy() const
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentFunctions::AlignmentScoreBindData::Copy() const
     {
-        auto result = duckdb::make_unique<AlignmentScoreBindData>();
+        auto result = duckdb::make_uniq<AlignmentScoreBindData>();
         result->aligner = aligner;
 
         return std::move(result);
@@ -269,29 +269,29 @@ namespace wtt01
         }
     }
 
-    std::unique_ptr<duckdb::FunctionData> AlignmentScoreBind(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, std::vector<std::unique_ptr<duckdb::Expression>> &arguments)
+    duckdb::unique_ptr<duckdb::FunctionData> AlignmentScoreBind(duckdb::ClientContext &context, duckdb::ScalarFunction &bound_function, duckdb::vector<duckdb::unique_ptr<duckdb::Expression>> &arguments)
     {
         if (arguments.size() == 2)
         {
-            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>();
+            return duckdb::make_uniq<AlignmentFunctions::AlignmentScoreBindData>();
         }
 
         if (arguments.size() == 6)
         {
             auto options = WFAOptions(context, arguments);
-            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
+            return duckdb::make_uniq<AlignmentFunctions::AlignmentScoreBindData>(options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
         }
 
         if (arguments.size() == 7)
         {
             auto options = WFAOptions(context, arguments);
-            return duckdb::make_unique<AlignmentFunctions::AlignmentScoreBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
+            return duckdb::make_uniq<AlignmentFunctions::AlignmentScoreBindData>(options.match, options.mismatch, options.gap_opening, options.gap_extension, options.memory_model);
         }
 
         throw duckdb::InvalidInputException("Invalid number of arguments for align function");
     }
 
-    duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> AlignmentFunctions::GetAlignmentScoreFunction(std::string name)
+    duckdb::CreateScalarFunctionInfo AlignmentFunctions::GetAlignmentScoreFunction(std::string name)
     {
         duckdb::ScalarFunctionSet set(name);
 
@@ -311,6 +311,6 @@ namespace wtt01
 
         set.AddFunction(align_function_mismatch_arg);
 
-        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+        return duckdb::CreateScalarFunctionInfo(set);
     }
 }

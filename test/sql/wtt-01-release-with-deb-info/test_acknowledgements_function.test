@@ -10,7 +10,6 @@ WFA2-lib
 brotli
 cpp-httplib
 gb-io
-htslib
 nlohmann/json
 noodles
 openssl

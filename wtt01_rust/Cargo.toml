@@ -5,6 +5,7 @@ name = "wtt01_rust"
 version = "1.0.0"
 
 [features]
+all = []
 statically_linked = []
 
 [lib]
@@ -12,29 +13,19 @@ crate-type = ["staticlib"]
 name = "wtt01_rust"
 
 [dependencies]
-arrow = {version = "36", default-features = false, features = ["ffi"]}
+arrow = {version = "39", default-features = false, features = ["ffi"]}
+bytes = "1.4.0"
+datafusion = {version = "25.0.0", features = ["default"]}
+flate2 = "1.0.26"
+noodles = {version = "0.38.0", features = ["sam", "fasta", "fastq", "gff"]}
+object_store = {version = "0.5.4", features = ["aws", "gcp", "azure"]}
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
-
-[dependencies.gb-io]
-version = "0.7.1"
-
-[dependencies.noodles]
-features = ["fasta", "fastq", "gtf", "gff", "core", "sam", "bam", "vcf", "bed", "bgzf", "bcf"]
-version = "0.34.0"
-
-[dependencies.flate2]
-version = "1.0.25"
-
-[dependencies.zstd]
-version = "0.12"
-
-[dependencies.bytes]
-version = "1.0.1"
+tca = {version = "0.1.1-alpha.4", features = ["all"]}
+# tca = {features = ["all"], path = "../../tca/tca"}
+tokio = {version = "1.28.1", features = ["rt-multi-thread"]}
+url = "2.4.0"
+zstd = "0.12.3"
 
 [build-dependencies]
-cbindgen = "0.24.3"
-
-[dependencies.duckdb]
-features = ["vtab", "bundled"]
-git = "https://github.com/wangfenjin/duckdb-rs"
+cbindgen = "0.24.5"

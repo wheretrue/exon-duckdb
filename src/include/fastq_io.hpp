@@ -14,7 +14,6 @@ namespace wtt01
     public:
         static duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GetFastqTableFunction();
         static duckdb::unique_ptr<duckdb::CreateCopyFunctionInfo> GetFastqCopyFunction();
-        static duckdb::unique_ptr<duckdb::TableRef> GetFastqReplacementScanFunction(duckdb::ClientContext &context, const std::string &table_name, duckdb::ReplacementScanData *data);
         static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetQualityScoreStringToList();
     };
 

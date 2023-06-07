@@ -24,26 +24,19 @@ if (APPLE)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
   set(WFA2_ENABLED ON)
-  set(HTSLIB_ENABLED ON)
-
   add_compile_definitions(WFA2_ENABLED)
-  add_compile_definitions(HTSLIB_ENABLED)
 
 elseif(UNIX)
   set(OPENSSL_ROOT_DIR /usr/local/ssl)
 
   set(WFA2_ENABLED ON)
-  set(HTSLIB_ENABLED ON)
-
   add_compile_definitions(WFA2_ENABLED)
-  add_compile_definitions(HTSLIB_ENABLED)
 
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
 elseif(WIN32)
   set(WFA2_ENABLED OFF)
-  set(HTSLIB_ENABLED OFF)
 endif()
 
 find_package(OpenSSL REQUIRED)
@@ -68,6 +61,12 @@ endif()
 Include(FetchContent)
 
 FetchContent_Declare(
+  arrow
+  GIT_REPOSITORY https://github.com/apache/arrow.git
+  GIT_TAG apache-arrow-11.0.0
+)
+
+FetchContent_Declare(
   httplib
   GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
   GIT_TAG v0.12.0
@@ -90,7 +89,7 @@ FetchContent_Declare(
   GIT_TAG v1.11.0
 )
 
-list(APPEND available_contents httplib json Corrosion spdlog)
+list(APPEND available_contents httplib json Corrosion spdlog arrow)
 
 FetchContent_MakeAvailable(${available_contents})
 
@@ -122,55 +121,24 @@ if(WFA2_ENABLED)
   include_directories(${wfa2_SOURCE_DIR})
 endif()
 
-message("-- wtt: HTSLIB_ENABLED is ${HTSLIB_ENABLED}")
-if(HTSLIB_ENABLED)
-  include(ExternalProject)
-  set(HTSLIB_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/htslib)
-
-  set(flags "-O2 -g -fPIC")
-  ExternalProject_Add(htslib
-    PREFIX ${HTSLIB_BUILD_DIR}
-    GIT_REPOSITORY https://github.com/samtools/htslib.git
-    GIT_TAG 1.17
-    BUILD_IN_SOURCE ON
-    UPDATE_COMMAND autoreconf -i
-    CONFIGURE_COMMAND ./configure --prefix=${HTSLIB_BUILD_DIR}
-    BUILD_COMMAND make CFLAGS=${flags} lib-static
-    INSTALL_COMMAND cd ${HTSLIB_BUILD_DIR}/src/htslib && make install
-  )
-
-  include_directories(${HTSLIB_BUILD_DIR}/include)
-endif()
-
 include_directories(src/include)
 
 set(EXTENSION_SOURCES
   src/exondb_extension.cpp
   src/check_license.cpp
 
-  src/bam_io.cpp
-  src/bed_io.cpp
-  src/fasta_io.cpp
-  src/fastq_io.cpp
-  src/genbank_io.cpp
   src/gff_io.cpp
-  src/hmm_io.cpp
-  src/sam_cigar_parse.cpp
   src/sam_io.cpp
+  src/fastq_io.cpp
   src/sequence_functions.cpp
   src/wtt01_acknowledgement_table.cpp
   src/wtt01_functions.cpp
+  src/wt_arrow_table_function.cpp
 )
 
 if(WFA2_ENABLED)
   set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
     src/alignment_functions.cpp
-  )
-endif()
-
-if(HTSLIB_ENABLED)
-  set(EXTENSION_SOURCES ${EXTENSION_SOURCES}
-    src/vcf_io_types.cpp
   )
 endif()
 
@@ -184,6 +152,7 @@ if (WIN32)
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/Release/wtt01_rust.lib"
+    ntdll
     OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
@@ -193,12 +162,17 @@ elseif(APPLE)
 
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
-    "-framework CoreFoundation"
 
-    "${HTSLIB_BUILD_DIR}/lib/libhts.a"
-
-    -lz -lm -lbz2 -llzma -lcurl
+    -lz
+    -lm
+    -lbz2
+    /opt/homebrew/Cellar/xz/5.4.3/lib/liblzma.a
+    -lcurl
     ${OPENSSL_LIBRARIES}
+
+    "-framework CoreFoundation"
+    "-framework Security"
+    "-framework Accelerate"
   )
 
 else()
@@ -207,7 +181,6 @@ else()
     "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
-    "${HTSLIB_BUILD_DIR}/lib/libhts.a"
 
     -lz -lm -lbz2 -llzma -lcurl
     ${OPENSSL_LIBRARIES}

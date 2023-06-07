@@ -1,91 +1,17 @@
+#include <arrow/c/abi.h>
+
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
 #include <ostream>
 #include <new>
 
-struct BAMReaderC {
-  void *bam_reader;
-  void *bam_header;
+struct ReaderResult {
   const char *error;
 };
 
-struct BEDRecordC {
-  const char *reference_sequence_name;
-  uintptr_t start;
-  uintptr_t end;
-  const char *name;
-  int64_t score;
-  const char *strand;
-  uintptr_t thick_start;
-  uintptr_t thick_end;
-  const char *color;
-  uintptr_t block_count;
-  const char *block_sizes;
-  const char *block_starts;
-  const char *error;
-};
-
-struct BEDReaderC {
-  void *inner_reader;
-  uint8_t n_columns;
-};
-
-struct FASTAReaderC {
-  void *inner_reader;
-  const char *error;
-};
-
-struct FASTQReaderC {
-  void *inner_reader;
-};
-
-struct GenbankReader {
-  void *inner_reader;
-  const char *error;
-};
-
-struct GenbankRecord {
-  char *seq;
-  char *accession;
-  char *comments;
-  char *contig;
-  char *date;
-  char *dblink;
-  char *definition;
-  char *division;
-  char *keywords;
-  char *molecule_type;
-  char *name;
-  char *titles;
-  char *source;
-  char *version;
-  char *topology;
-  char *features_json;
-};
-
-struct GFFReaderC {
-  void *inner_reader;
-};
-
-struct GFFResult {
-  char *error;
-  bool done;
-};
-
-struct SamHeaderReaderC {
-  void *inner_reader;
-};
-
-struct HeaderRecordC {
-  const char *record_type;
-  const char *tag;
-  const char *value;
-};
-
-struct SamRecordReaderC {
-  void *sam_reader;
-  const void *sam_header;
+struct ReplacementScanResult {
+  const char *file_type;
 };
 
 struct CResult {
@@ -122,54 +48,13 @@ struct GffWriterResult {
 
 extern "C" {
 
-BAMReaderC bam_new(const char *filename);
+ReaderResult new_reader(ArrowArrayStream *stream_ptr,
+                        const char *uri,
+                        uintptr_t batch_size,
+                        const char *compression,
+                        const char *file_format);
 
-void bam_next(BAMReaderC *bam_reader, void *chunk_ptr, bool *done, uintptr_t chunk_size);
-
-BEDRecordC bed_next(const BEDReaderC *bam_reader, uint8_t n_columns);
-
-BEDReaderC bed_new(const char *filename, uint8_t n_columns, const char *compression);
-
-FASTAReaderC fasta_new(const char *filename, const char *compression);
-
-void fasta_next(const FASTAReaderC *fasta_reader,
-                void *chunk_ptr,
-                bool *done,
-                uintptr_t batch_size);
-
-void fasta_free(FASTAReaderC *fasta_reader);
-
-FASTQReaderC fastq_new(const char *filename, const char *compression);
-
-void fastq_next(const FASTQReaderC *fastq_reader,
-                void *chunk_ptr,
-                bool *done,
-                uintptr_t batch_size);
-
-void fastq_free(FASTQReaderC fastq_reader);
-
-GenbankReader genbank_new(const char *filename, const char *compression);
-
-void genbank_free(GenbankReader reader);
-
-GenbankRecord genbank_next(const GenbankReader *reader);
-
-GFFReaderC gff_new(const char *filename, const char *compression);
-
-GFFResult gff_insert_record_batch(const GFFReaderC *gff_reader,
-                                  void *chunk_ptr,
-                                  uintptr_t batch_size);
-
-SamHeaderReaderC sam_header_new_reader(const char *filename, const char *compression);
-
-HeaderRecordC sam_header_read_records(const SamHeaderReaderC *c_reader);
-
-SamRecordReaderC sam_record_new_reader(const char *filename, const char *compression);
-
-void sam_record_read_records_chunk(const SamRecordReaderC *c_reader,
-                                   void *ptr,
-                                   bool *done,
-                                   uintptr_t batch_size);
+ReplacementScanResult replacement_scan(const char *uri);
 
 bool is_segmented(uint16_t flag);
 

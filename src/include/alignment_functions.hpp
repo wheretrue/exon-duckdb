@@ -12,7 +12,7 @@ namespace wtt01
     class AlignmentFunctions
     {
     public:
-        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentStringFunction(std::string name);
+        static duckdb::CreateScalarFunctionInfo GetAlignmentStringFunction(std::string name);
 
         struct AlignmentStringBindData : public duckdb::FunctionData
         {
@@ -24,10 +24,10 @@ namespace wtt01
             wfa::WFAlignerGapAffine aligner;
 
             virtual bool Equals(const duckdb::FunctionData &other_p) const override;
-            std::unique_ptr<duckdb::FunctionData> Copy() const override;
+            duckdb::unique_ptr<duckdb::FunctionData> Copy() const override;
         };
 
-        static duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> GetAlignmentScoreFunction(std::string name);
+        static duckdb::CreateScalarFunctionInfo GetAlignmentScoreFunction(std::string name);
 
         struct AlignmentScoreBindData : public duckdb::FunctionData
         {
@@ -39,7 +39,7 @@ namespace wtt01
             wfa::WFAlignerGapAffine aligner;
 
             virtual bool Equals(const duckdb::FunctionData &other_p) const override;
-            std::unique_ptr<duckdb::FunctionData> Copy() const override;
+            duckdb::unique_ptr<duckdb::FunctionData> Copy() const override;
         };
     };
 }

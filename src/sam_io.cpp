@@ -13,256 +13,6 @@
 
 namespace wtt01
 {
-    struct SamRecordScanOptions
-    {
-        std::string compression = "auto_detect";
-    };
-
-    struct SamRecordScanBindData : public duckdb::TableFunctionData
-    {
-        std::string file_path;
-        SamRecordScanOptions options;
-        SamRecordReaderC reader;
-    };
-
-    struct SamRecordScanLocalState : public duckdb::LocalTableFunctionState
-    {
-        bool done = false;
-        SamRecordReaderC reader;
-    };
-
-    struct SamRecordScanGlobalState : public duckdb::GlobalTableFunctionState
-    {
-        SamRecordScanGlobalState() : duckdb::GlobalTableFunctionState() {}
-    };
-
-    duckdb::unique_ptr<duckdb::FunctionData> SamRecordBind(duckdb::ClientContext &context, duckdb::TableFunctionBindInput &input,
-                                                           std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
-    {
-        auto result = duckdb::make_unique<SamRecordScanBindData>();
-
-        auto filepath = input.inputs[0].GetValue<std::string>();
-        auto &fs = duckdb::FileSystem::GetFileSystem(context);
-        if (!fs.FileExists(filepath))
-        {
-            throw duckdb::IOException("File does not exist: " + filepath);
-        }
-
-        result->file_path = filepath;
-
-        for (auto &kv : input.named_parameters)
-        {
-            if (kv.first == "compression")
-            {
-                result->options.compression = kv.second.GetValue<std::string>();
-            }
-            else
-            {
-                throw std::runtime_error("Unknown named parameter: " + kv.first);
-            }
-        };
-
-        auto reader = sam_record_new_reader(result->file_path.c_str(), result->options.compression.c_str());
-        result->reader = reader;
-
-        names.push_back("sequence");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-
-        names.push_back("read_name");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-
-        names.push_back("flags");
-        return_types.push_back(duckdb::LogicalType::INTEGER);
-
-        names.push_back("alignment_start");
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-
-        names.push_back("alignment_end");
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-
-        names.push_back("cigar_string");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-
-        names.push_back("quality_scores");
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-
-        names.push_back("template_length");
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-
-        names.push_back("mapping_quality");
-        return_types.push_back(duckdb::LogicalType::INTEGER);
-
-        names.push_back("mate_alignment_start");
-        return_types.push_back(duckdb::LogicalType::BIGINT);
-
-        return std::move(result);
-    }
-
-    duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamRecordInitGlobalState(duckdb::ClientContext &context,
-                                                                                  duckdb::TableFunctionInitInput &input)
-    {
-        auto result = duckdb::make_unique<SamRecordScanGlobalState>();
-        return std::move(result);
-    }
-
-    duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamRecordInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
-                                                                                duckdb::GlobalTableFunctionState *global_state)
-    {
-        auto bind_data = (const SamRecordScanBindData *)input.bind_data;
-        auto &gstate = (SamRecordScanGlobalState &)*global_state;
-
-        auto local_state = duckdb::make_unique<SamRecordScanLocalState>();
-
-        // should this be init here or use the bind data?
-        local_state->reader = bind_data->reader;
-
-        return std::move(local_state);
-    }
-
-    void SamRecordScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
-    {
-        auto bind_data = (const SamRecordScanBindData *)data.bind_data;
-        auto local_state = (SamRecordScanLocalState *)data.local_state;
-        auto gstate = (SamRecordScanGlobalState *)data.global_state;
-
-        if (local_state->done)
-        {
-            return;
-        }
-
-        sam_record_read_records_chunk(&bind_data->reader, &output, &local_state->done, STANDARD_VECTOR_SIZE);
-    };
-
-    duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> SamFunctions::GetSamRecordScanFunction()
-    {
-        auto sam_table_function = duckdb::TableFunction("read_sam_file_records", {duckdb::LogicalType::VARCHAR}, SamRecordScan, SamRecordBind, SamRecordInitGlobalState, SamRecordInitLocalState);
-        sam_table_function.named_parameters["compression"] = duckdb::LogicalType::VARCHAR;
-
-        duckdb::CreateTableFunctionInfo sam_table_function_info(sam_table_function);
-        return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(sam_table_function_info);
-    }
-
-    struct SamHeaderScanOptions
-    {
-        std::string compression = "auto_detect";
-    };
-
-    struct SamHeaderScanBindData : public duckdb::TableFunctionData
-    {
-        std::string file_path;
-        SamHeaderScanOptions options;
-        SamHeaderReaderC reader;
-    };
-
-    struct SamHeaderScanLocalState : public duckdb::LocalTableFunctionState
-    {
-        bool done = false;
-        SamHeaderReaderC reader;
-    };
-
-    struct SamHeaderScanGlobalState : public duckdb::GlobalTableFunctionState
-    {
-        SamHeaderScanGlobalState() : duckdb::GlobalTableFunctionState() {}
-    };
-
-    duckdb::unique_ptr<duckdb::FunctionData> SamHeaderBind(duckdb::ClientContext &context, duckdb::TableFunctionBindInput &input,
-                                                           std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
-    {
-        auto result = duckdb::make_unique<SamHeaderScanBindData>();
-        result->file_path = input.inputs[0].GetValue<std::string>();
-
-        for (auto &kv : input.named_parameters)
-        {
-            if (kv.first == "compression")
-            {
-                result->options.compression = kv.second.GetValue<std::string>();
-            }
-            else
-            {
-                throw std::runtime_error("Unknown named parameter: " + kv.first);
-            }
-        };
-
-        auto reader = sam_header_new_reader(result->file_path.c_str(), result->options.compression.c_str());
-        result->reader = reader;
-
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-        return_types.push_back(duckdb::LogicalType::VARCHAR);
-
-        names.push_back("record_type");
-        names.push_back("tag");
-        names.push_back("value");
-
-        return std::move(result);
-    }
-
-    duckdb::unique_ptr<duckdb::GlobalTableFunctionState> SamHeaderInitGlobalState(duckdb::ClientContext &context,
-                                                                                  duckdb::TableFunctionInitInput &input)
-    {
-        auto result = duckdb::make_unique<SamHeaderScanGlobalState>();
-        return std::move(result);
-    }
-
-    duckdb::unique_ptr<duckdb::LocalTableFunctionState> SamHeaderInitLocalState(duckdb::ExecutionContext &context, duckdb::TableFunctionInitInput &input,
-                                                                                duckdb::GlobalTableFunctionState *global_state)
-    {
-        auto bind_data = (const SamHeaderScanBindData *)input.bind_data;
-        auto &gstate = (SamHeaderScanGlobalState &)*global_state;
-
-        auto local_state = duckdb::make_unique<SamHeaderScanLocalState>();
-
-        // should this be init here or use the bind data?
-        local_state->reader = bind_data->reader;
-
-        return std::move(local_state);
-    }
-
-    void SamHeaderScan(duckdb::ClientContext &context, duckdb::TableFunctionInput &data, duckdb::DataChunk &output)
-    {
-        auto bind_data = (const SamHeaderScanBindData *)data.bind_data;
-        auto local_state = (SamHeaderScanLocalState *)data.local_state;
-        auto gstate = (SamHeaderScanGlobalState *)data.global_state;
-
-        if (local_state->done)
-        {
-            return;
-        }
-
-        while (output.size() < STANDARD_VECTOR_SIZE)
-        {
-            HeaderRecordC record = sam_header_read_records(&bind_data->reader);
-
-            if (record.record_type == NULL)
-            {
-                local_state->done = true;
-                break;
-            }
-
-            output.SetValue(0, output.size(), duckdb::Value(record.record_type));
-
-            if (record.tag == NULL)
-            {
-                output.SetValue(1, output.size(), duckdb::Value());
-            }
-            else
-            {
-                output.SetValue(1, output.size(), duckdb::Value(record.tag));
-            }
-
-            output.SetValue(2, output.size(), duckdb::Value(record.value));
-            output.SetCardinality(output.size() + 1);
-        }
-    };
-
-    duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> SamFunctions::GetSamHeaderScanFunction()
-    {
-        auto sam_header_table_function = duckdb::TableFunction("read_sam_file_header", {duckdb::LogicalType::VARCHAR}, SamHeaderScan, SamHeaderBind, SamHeaderInitGlobalState, SamHeaderInitLocalState);
-        sam_header_table_function.named_parameters["compression"] = duckdb::LogicalType::VARCHAR;
-
-        duckdb::CreateTableFunctionInfo sam_header_table_function_info(sam_header_table_function);
-        return duckdb::make_unique<duckdb::CreateTableFunctionInfo>(sam_header_table_function_info);
-    }
 
     void ParseCIGARString(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
     {
@@ -281,7 +31,7 @@ namespace wtt01
 
             auto ops = duckdb::StringUtil::Split(cigar.value, ';');
 
-            std::vector<duckdb::Value> op_values;
+            duckdb::vector<duckdb::Value> op_values;
 
             for (auto op : ops)
             {
@@ -346,7 +96,7 @@ namespace wtt01
 
         set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR, duckdb::LogicalType::VARCHAR}, record_type, ExtractSequence));
 
-        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+        return duckdb::make_uniq<duckdb::CreateScalarFunctionInfo>(set);
     }
 
     duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> SamFunctions::GetParseCIGARStringFunction()
@@ -362,7 +112,7 @@ namespace wtt01
 
         set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::VARCHAR}, row_type, ParseCIGARString));
 
-        return duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set);
+        return duckdb::make_uniq<duckdb::CreateScalarFunctionInfo>(set);
     }
 
     std::vector<duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo>> SamFunctions::GetSamFunctions()
@@ -410,7 +160,7 @@ namespace wtt01
 
             set.AddFunction(duckdb::ScalarFunction({duckdb::LogicalType::INTEGER}, duckdb::LogicalType::BOOLEAN, duckdb_function));
 
-            sam_scalar_functions.emplace_back(duckdb::make_unique<duckdb::CreateScalarFunctionInfo>(set));
+            sam_scalar_functions.emplace_back(duckdb::make_uniq<duckdb::CreateScalarFunctionInfo>(set));
         }
 
         return sam_scalar_functions;

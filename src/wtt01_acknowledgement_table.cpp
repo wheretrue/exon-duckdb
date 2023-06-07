@@ -399,10 +399,10 @@ namespace wtt01
         bool finished = false;
     };
 
-    std::unique_ptr<duckdb::FunctionData>
-    ThirdPartyAcknowledgementTableBind(duckdb::ClientContext &context, duckdb::TableFunctionBindInput &input, std::vector<duckdb::LogicalType> &return_types, std::vector<std::string> &names)
+    duckdb::unique_ptr<duckdb::FunctionData>
+    ThirdPartyAcknowledgementTableBind(duckdb::ClientContext &context, duckdb::TableFunctionBindInput &input, duckdb::vector<duckdb::LogicalType> &return_types, duckdb::vector<std::string> &names)
     {
-        auto result = duckdb::make_unique<ThirdPartyLibraryAcknowledgementFunctionData>();
+        auto result = duckdb::make_uniq<ThirdPartyLibraryAcknowledgementFunctionData>();
 
         std::vector<std::string> columns = {"name",
                                             "website",
@@ -463,13 +463,6 @@ namespace wtt01
                 "MIT",
                 "https://github.com/smarco/WFA2-lib/blob/d4567bcc01251aa0e0f5e1f0b87493d47355a10c/LICENSE",
                 WFA2_LICENSE_TEXT,
-            },
-            {
-                "htslib",
-                "https://github.com/samtools/htslib",
-                "MIT",
-                "https://github.com/samtools/htslib/blob/07638e1cac22e76c2f59c9988feabd467a15c340/LICENSE",
-                SAMTOOLS_LICENSE,
             }
 
         };
@@ -488,7 +481,8 @@ namespace wtt01
 
     duckdb::CreateTableFunctionInfo Wtt01Functions::GetThirdPartyAcknowledgementTable()
     {
-        duckdb::TableFunction ack_table("exondb_third_party_acknowledgements", {}, ThirdPartyAcknowledgementTableFunction, ThirdPartyAcknowledgementTableBind);
+        // no instance of constructor "duckdb::TableFunction::TableFunction" matches the argument list
+        auto ack_table = duckdb::TableFunction("exondb_third_party_acknowledgements", {}, ThirdPartyAcknowledgementTableFunction, ThirdPartyAcknowledgementTableBind, nullptr, nullptr);
         return duckdb::CreateTableFunctionInfo(ack_table);
     };
 }

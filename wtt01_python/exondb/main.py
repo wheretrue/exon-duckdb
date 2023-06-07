@@ -114,7 +114,7 @@ def get_connection(
                 )
 
             filename = f"{name}.duckdb_extension.gz"
-            url = f"https://dbe.wheretrue.com/{name}/{version}/v0.7.1/{duckdb_arch}/{filename}"
+            url = f"https://dbe.wheretrue.com/{name}/{version}/v0.8.0/{duckdb_arch}/{filename}"
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_dir_path = Path(temp_dir)
