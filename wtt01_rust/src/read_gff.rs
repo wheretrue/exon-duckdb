@@ -9,11 +9,13 @@ use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
 use datafusion::{
     datasource::file_format::file_type::FileCompressionType, prelude::SessionContext,
 };
+use object_store::aws::AmazonS3Builder;
 use tca::{
     context::TCASessionExt, datasources::TCAFileType,
     ffi::create_dataset_stream_from_table_provider,
 };
 use tokio::runtime::Runtime;
+use url::Url;
 
 #[repr(C)]
 pub struct ReaderResult {
@@ -59,6 +61,47 @@ pub unsafe extern "C" fn new_reader(
     };
 
     let ctx = SessionContext::new();
+
+    // handle s3
+    if uri.starts_with("s3://") {
+        let url_from_uri = match Url::parse(uri) {
+            Ok(url) => url,
+            Err(e) => {
+                let error = CString::new(format!("could not parse uri: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let host_str = match url_from_uri.host_str() {
+            Some(host_str) => host_str,
+            None => {
+                let error = CString::new("could not parse host_str").unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let s3 = match AmazonS3Builder::from_env()
+            .with_bucket_name(host_str)
+            .build()
+        {
+            Ok(s3) => s3,
+            Err(e) => {
+                let error = CString::new(format!("could not create s3 client: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let path = format!("s3://{}", host_str);
+        let s3_url = Url::parse(&path).unwrap();
+        ctx.runtime_env()
+            .register_object_store(&s3_url, Arc::new(s3));
+    }
 
     rt.block_on(async {
         let df = match ctx
