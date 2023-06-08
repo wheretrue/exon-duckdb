@@ -3,7 +3,7 @@ LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Example File
 query IIIIIIIIII
-SELECT * FROM read_bam_file_records('./test/sql/wtt-01-release-with-deb-info/bam/example1.bam')
+SELECT * FROM read_bam_file_records('./test/sql/exondb-release-with-deb-info/bam/example1.bam')
 ----
 ref1_grp1_p001
 99
@@ -18,5 +18,5 @@ CGAGCTCGGT
 
 # Missing file throws an error
 statement error
-SELECT * FROM read_bam_file_records('./test/sql/wtt-01-release-with-deb-info/bam/missing.bam')
+SELECT * FROM read_bam_file_records('./test/sql/exondb-release-with-deb-info/bam/missing.bam')
 ----

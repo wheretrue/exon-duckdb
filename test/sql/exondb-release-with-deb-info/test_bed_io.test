@@ -2,7 +2,7 @@ statement ok
 LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 query IIIIIIIIIIII
-SELECT * FROM read_bed_file('test/sql/wtt-01-release-with-deb-info/bed/test3.bed') LIMIT 1;
+SELECT * FROM read_bed_file('test/sql/exondb-release-with-deb-info/bed/test3.bed') LIMIT 1;
 ----
 sq0
 8

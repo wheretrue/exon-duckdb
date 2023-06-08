@@ -25,7 +25,7 @@
 #include "rust.hpp"
 #include "sam_io.hpp"
 
-namespace wtt01
+namespace exondb
 {
 
     void ParseCIGARString(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)

@@ -22,7 +22,7 @@
 #include "fastq_io.hpp"
 #include "rust.hpp"
 
-namespace wtt01
+namespace exondb
 {
 
     duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo> FastqFunctions::GetQualityScoreStringToList()

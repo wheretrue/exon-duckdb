@@ -25,7 +25,7 @@
 
 using duckdb::LogicalType;
 
-namespace wtt01
+namespace exondb
 {
     void ReverseComplementFunction(duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
     {

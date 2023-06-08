@@ -130,7 +130,7 @@ jobs:
         with:
           name: ${{matrix.arch}}-extensions
           path: |
-            build/release/extension/wtt01/wtt01.duckdb_extension
+            build/release/extension/exondb/exondb.duckdb_extension
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

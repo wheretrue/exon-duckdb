@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "wtt01_functions.hpp"
+#include "exondb_functions.hpp"
 
 #include <duckdb.hpp>
 
@@ -405,7 +405,7 @@ to a notice that reads "Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010,
 2011, 2012".]
 )";
 
-namespace wtt01
+namespace exondb
 {
 
     struct ThirdPartyLibraryAcknowledgementFunctionData : public duckdb::TableFunctionData

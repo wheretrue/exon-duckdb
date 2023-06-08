@@ -1,0 +1,41 @@
+statement ok
+LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
+
+query I
+SELECT COUNT(*) FROM read_vcf_file_records('./test/sql/exondb-release-with-deb-info/vcf/index.vcf');
+----
+621
+
+
+query IIIIIII
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_vcf_file_records('./test/sql/exondb-release-with-deb-info/vcf/index.vcf') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1
+
+query IIIIIII
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_bcf_file_records('./test/sql/exondb-release-with-deb-info/vcf/index.bcf') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1
+
+query IIIIIII
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM read_vcf_file_records('./test/sql/exondb-release-with-deb-info/vcf/index.vcf.gz') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1

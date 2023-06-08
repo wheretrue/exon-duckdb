@@ -1,0 +1,60 @@
+statement ok
+LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
+
+# Test counting from a FASTA file
+query I
+SELECT count(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta');
+----
+2
+
+# Test counting from a FASTA file, gzip compression option
+query I
+SELECT count(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta.gzip', compression='gzip');
+----
+2
+
+# Test counting from a FASTA file, gzip compression auto_detect
+query I
+SELECT count(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta.gz');
+----
+2
+
+# Test counting from a FASTA file, zstd compression option
+query I
+SELECT count(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta.zstd', compression='zstd');
+----
+2
+
+# Test counting from a FASTA file
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fasta';
+----
+2
+
+# Test counting from a FASTA file, gzip compression auto_detect
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fasta.gz';
+----
+2
+
+# Test counting from a FASTA file, zstd compression auto_detect
+query I
+SELECT count(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta.zst');
+----
+2
+
+# Test that an error is thrown if the file does not exist
+statement error
+SELECT count(*) FROM read_fasta('');
+
+# Test glob
+query I
+SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/*.fasta');
+----
+4
+
+# Test glob
+query I
+SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/*.fasta.gz');
+----
+2

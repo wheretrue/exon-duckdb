@@ -20,7 +20,7 @@
 #include <duckdb/parser/parsed_data/create_copy_function_info.hpp>
 #include <duckdb/parser/tableref/table_function_ref.hpp>
 
-namespace wtt01
+namespace exondb
 {
     class Wtt01Functions
     {

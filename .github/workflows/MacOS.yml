@@ -57,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: duckdb-extension
-          path: build/release/extension/wtt01/wtt01.duckdb_extension
+          path: build/release/extension/exondb/exondb.duckdb_extension

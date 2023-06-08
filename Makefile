@@ -46,11 +46,11 @@ test: test_release
 test_release: release
 	mkdir -p ./test/sql/tmp/
 	rm -rf ./test/sql/tmp/*
-	./build/release/test/unittest --test-dir . "[wtt-01-release-with-deb-info]"
+	./build/release/test/unittest --test-dir . "[exondb-release-with-deb-info]"
 	rm -rf ./test/sql/tmp
 
 test_align:
-	./build/release/test/unittest --test-dir . "[wtt-01-align]"
+	./build/release/test/unittest --test-dir . "[exondb-align]"
 
 update:
 	git submodule update --remote --merge

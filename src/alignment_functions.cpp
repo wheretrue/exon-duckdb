@@ -27,7 +27,7 @@
 
 using duckdb::LogicalType;
 
-namespace wtt01
+namespace exondb
 {
 
     struct WFAOptions

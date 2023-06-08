@@ -1,5 +1,5 @@
 ---
-name: wtt01
+name: exondb
 channels:
   - conda-forge
   - bioconda

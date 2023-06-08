@@ -24,7 +24,7 @@
 #include "gff_io.hpp"
 #include "rust.hpp"
 
-namespace wtt01
+namespace exondb
 {
     duckdb::CreateScalarFunctionInfo GFFunctions::GetGFFParseAttributesFunction()
     {

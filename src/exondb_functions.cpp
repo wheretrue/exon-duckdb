@@ -16,10 +16,10 @@
 #include <string>
 #include <map>
 
-#include "wtt01_functions.hpp"
+#include "exondb_functions.hpp"
 #include "rust.hpp"
 
-namespace wtt01
+namespace exondb
 {
 
     const std::string EXON_01_VERSION = "0.3.9";

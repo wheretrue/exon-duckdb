@@ -20,7 +20,7 @@
 #include <duckdb/parser/parsed_data/create_copy_function_info.hpp>
 #include <duckdb/parser/tableref/table_function_ref.hpp>
 
-namespace wtt01
+namespace exondb
 {
 
     class SamFunctions
@@ -31,4 +31,4 @@ namespace wtt01
         static std::vector<duckdb::unique_ptr<duckdb::CreateScalarFunctionInfo>> GetSamFunctions();
     };
 
-} // namespace wtt01
+} // namespace exondb

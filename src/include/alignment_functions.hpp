@@ -21,7 +21,7 @@
 
 #include "bindings/cpp/WFAligner.hpp"
 
-namespace wtt01
+namespace exondb
 {
     class AlignmentFunctions
     {

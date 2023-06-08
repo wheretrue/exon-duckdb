@@ -10,10 +10,10 @@ project(${TARGET_NAME})
 set(EXON_SPDLOG_ACTIVE_LEVEL $ENV{EXON_SPDLOG_ACTIVE_LEVEL})
 if (EXON_SPDLOG_ACTIVE_LEVEL)
   add_definitions(-DSPDLOG_ACTIVE_LEVEL=1)
-  message("-- wtt: EXON_SPDLOG_ACTIVE_LEVEL is ${EXON_SPDLOG_ACTIVE_LEVEL}")
+  message("-- exondb: EXON_SPDLOG_ACTIVE_LEVEL is ${EXON_SPDLOG_ACTIVE_LEVEL}")
 else()
   add_definitions(-DSPDLOG_ACTIVE_LEVEL=3)
-  message("-- wtt: EXON_SPDLOG_ACTIVE_LEVEL is not set")
+  message("-- exondb: EXON_SPDLOG_ACTIVE_LEVEL is not set")
 endif()
 
 if (APPLE)
@@ -84,20 +84,20 @@ corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml
   PROFILE release
 )
 
-message("-- wtt source: ${CMAKE_CURRENT_SOURCE_DIR}")
-message("-- wtt include: ${CMAKE_INSTALL_INCLUDEDIR}")
-message("-- wtt libdir: ${CMAKE_INSTALL_LIBDIR}")
-message("-- wtt runtime: ${CMAKE_INSTALL_BINDIR}")
-message("-- wtt: CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
-message("-- wtt: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
-message("-- wtt: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
+message("-- exondb: source: ${CMAKE_CURRENT_SOURCE_DIR}")
+message("-- exondb: include: ${CMAKE_INSTALL_INCLUDEDIR}")
+message("-- exondb: libdir: ${CMAKE_INSTALL_LIBDIR}")
+message("-- exondb: runtime: ${CMAKE_INSTALL_BINDIR}")
+message("-- exondb: CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+message("-- exondb: CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
+message("-- exondb: PROJECT_BINARY_DIR is ${PROJECT_BINARY_DIR}")
 
 include_directories(${json_SOURCE_DIR}/include)
 include_directories(${httplib_SOURCE_DIR})
 include_directories(${arrow_SOURCE_DIR}/cpp/src)
 include_directories(${spdlog_SOURCE_DIR}/include)
 
-message("-- wtt: WFA2_ENABLED is ${WFA2_ENABLED}")
+message("-- exondb: WFA2_ENABLED is ${WFA2_ENABLED}")
 if(WFA2_ENABLED)
   FetchContent_Declare(wfa2
     GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
@@ -117,9 +117,9 @@ set(EXTENSION_SOURCES
   src/sam_io.cpp
   src/fastq_io.cpp
   src/sequence_functions.cpp
-  src/wtt01_acknowledgement_table.cpp
-  src/wtt01_functions.cpp
-  src/wt_arrow_table_function.cpp
+  src/exondb_acknowledgement_table.cpp
+  src/exondb_functions.cpp
+  src/arrow_table_function.cpp
 )
 
 if(WFA2_ENABLED)

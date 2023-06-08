@@ -21,10 +21,10 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 #include <duckdb/function/table/read_csv.hpp>
 
-#include "wt_arrow_table_function.hpp"
+#include "arrow_table_function.hpp"
 #include "rust.hpp"
 
-namespace wtt01
+namespace exondb
 {
     struct GFFScanFunctionData : public TableFunctionData
     {

@@ -3,7 +3,7 @@ LOAD 'build/release/extension/exondb/exondb.duckdb_extension';
 
 # Test counting from a GFF file
 query IIIIIIIII
-SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff');
+SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
 ----
 sq0
 caat
@@ -26,49 +26,49 @@ gene
 
 # Test counting from a GFF file
 query I
-SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff');
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
 ----
 2
 
 # Test counting from a GFF gzipped file, autodetect extension
 query I
-SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.gz');
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.gz');
 ----
 2
 
 # Test counting from a GFF gzipped file, with option
 query I
-SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.gzip', compression='gzip');
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.gzip', compression='gzip');
 ----
 2
 
 # Test counting from a GFF zstd file, autodetect extension
 query I
-SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.zst');
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.zst');
 ----
 2
 
 # Test counting from a GFF zstd file, with option
 query I
-SELECT count(*) FROM read_gff('./test/sql/wtt-01-release-with-deb-info/test.gff.zstd', compression='zstd');
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.zstd', compression='zstd');
 ----
 2
 
 # Test counting from a GFF file
 query I
-SELECT count(*) FROM './test/sql/wtt-01-release-with-deb-info/test.gff';
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff';
 ----
 2
 
 # Test counting from a GFF gzipped file, autodetect extension
 query I
-SELECT count(*) FROM './test/sql/wtt-01-release-with-deb-info/test.gff.gz';
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff.gz';
 ----
 2
 
 # Test counting from a GFF gzipped file, autodetect extension
 query I
-SELECT count(*) FROM './test/sql/wtt-01-release-with-deb-info/test.gff.zst';
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff.zst';
 ----
 2
 
@@ -100,7 +100,7 @@ value
 
 # Test that a "raw" gff can be read
 # query IIIIIIIII
-# SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff_raw('./test/sql/wtt-01-release-with-deb-info/gff/raw-test.gff') LIMIT 1;
+# SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff_raw('./test/sql/exondb-release-with-deb-info/gff/raw-test.gff') LIMIT 1;
 # ----
 # KanNP_rdsDRAFT_3085441342
 # FGMP
