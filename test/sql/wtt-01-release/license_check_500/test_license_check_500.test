@@ -1,6 +1,0 @@
-# Test that if the license is set, but not found on the server the correct error is returned.
-
-statement error
-LOAD 'build/release/extension/exondb.duckdb_extension';
-----
-Invalid Input Error: Initialization function "exondb_init" from file "build/release/extension/exondb.duckdb_extension" threw an exception: "Invalid Input Error: License verification failed: UNEXPECTED_HTTP_STATUS_ERROR"

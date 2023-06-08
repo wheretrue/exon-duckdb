@@ -17,23 +17,11 @@
 
 #include "wtt01_functions.hpp"
 
-#include "check_license.hpp"
-
 namespace duckdb
 {
 
     static void LoadInternal(DatabaseInstance &instance)
     {
-#if defined(CHECK_LICENSE)
-        try
-        {
-            wtt01::LicenseCheck::ValidateLicense();
-        }
-        catch (std::exception &e)
-        {
-            throw InvalidInputException(std::string("License verification failed: " + std::string(e.what())));
-        }
-#endif
         Connection con(instance);
         con.BeginTransaction();
 

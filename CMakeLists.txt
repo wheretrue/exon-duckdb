@@ -42,22 +42,6 @@ endif()
 find_package(OpenSSL REQUIRED)
 message("-- wtt: Found openssl ${OPENSSL_VERSION}")
 
-# set(CHECK_LICENSE $ENV{CHECK_LICENSE})
-# if (CHECK_LICENSE)
-#   add_compile_definitions(CHECK_LICENSE)
-#   message("-- wtt: CHECK_LICENSE is ${CHECK_LICENSE}")
-# else()
-#   message("-- wtt: CHECK_LICENSE is not set")
-# endif()
-
-# set(EXONDB_LICENSE_SERVER_URL $ENV{EXONDB_LICENSE_SERVER_URL})
-# if (EXONDB_LICENSE_SERVER_URL)
-#   add_definitions(-DEXONDB_LICENSE_SERVER_URL="${EXONDB_LICENSE_SERVER_URL}")
-#   message("-- wtt: EXONDB_LICENSE_SERVER_URL is ${EXONDB_LICENSE_SERVER_URL}")
-# else()
-#   message("-- wtt: EXONDB_LICENSE_SERVER_URL is not set")
-# endif()
-
 Include(FetchContent)
 
 FetchContent_Declare(
@@ -125,7 +109,6 @@ include_directories(src/include)
 
 set(EXTENSION_SOURCES
   src/exondb_extension.cpp
-  src/check_license.cpp
 
   src/gff_io.cpp
   src/sam_io.cpp
