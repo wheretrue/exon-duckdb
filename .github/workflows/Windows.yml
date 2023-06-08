@@ -3,11 +3,11 @@ name: Windows
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'Makefile'
-      - .github/workflows/*
+    tags:
+      - "v*"
+    branches:
+      - main
+
 
 permissions:
   contents: read

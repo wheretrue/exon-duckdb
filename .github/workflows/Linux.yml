@@ -1,11 +1,10 @@
 name: Linux
 on:
   push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'Makefile'
-      - .github/workflows/*
+    tags:
+      - "v*"
+    branches:
+      - main
   pull_request:
 
 concurrency:
