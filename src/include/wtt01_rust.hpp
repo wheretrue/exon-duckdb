@@ -26,26 +26,6 @@ struct CExtractResponse {
   const char *error;
 };
 
-struct NoodlesWriter {
-  void *writer;
-  const char *error;
-};
-
-struct FastqWriter {
-  void *writer;
-  const char *error;
-};
-
-struct GffWriter {
-  void *writer;
-  const char *error;
-};
-
-struct GffWriterResult {
-  int32_t result;
-  const char *error;
-};
-
 extern "C" {
 
 ReaderResult new_reader(ArrowArrayStream *stream_ptr,
@@ -83,36 +63,5 @@ bool is_supplementary(uint16_t flag);
 CResult parse_cigar(const char *cigar);
 
 CExtractResponse extract_from_cigar(const char *sequence_str, const char *cigar_str);
-
-NoodlesWriter fasta_writer_new(const char *filename, const char *compression);
-
-int32_t fasta_writer_write(void *writer, const char *id, const char *description, const char *seq);
-
-void destroy_writer(void *writer);
-
-FastqWriter fastq_writer_new(const char *filename, const char *compression);
-
-int32_t fastq_writer_write(void *writer,
-                           const char *id,
-                           const char *description,
-                           const char *seq,
-                           const char *quality_scores);
-
-void fastq_writer_destroy(void *writer);
-
-GffWriter gff_writer_new(const char *filename, const char *compression);
-
-GffWriterResult gff_writer_write(void *writer,
-                                 const char *reference_sequence_name,
-                                 const char *source,
-                                 const char *feature_type,
-                                 int32_t start,
-                                 int32_t end,
-                                 float score,
-                                 const char *strand,
-                                 const char *phase,
-                                 const char *attributes);
-
-void gff_writer_destroy(void *writer);
 
 } // extern "C"

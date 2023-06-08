@@ -7,7 +7,8 @@ use std::{
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
 use datafusion::{
-    datasource::file_format::file_type::FileCompressionType, prelude::SessionContext,
+    datasource::file_format::file_type::FileCompressionType,
+    prelude::{SessionConfig, SessionContext},
 };
 use object_store::aws::AmazonS3Builder;
 use tca::{
@@ -60,7 +61,8 @@ pub unsafe extern "C" fn new_reader(
         }
     };
 
-    let ctx = SessionContext::new();
+    let config = SessionConfig::new().with_batch_size(batch_size);
+    let ctx = SessionContext::with_config(config);
 
     // handle s3
     if uri.starts_with("s3://") {
