@@ -118,7 +118,7 @@ jobs:
         run: |
           make release
 
-      - name: Test extension (skip if CHECK_LICENSE=1)
+      - name: Test extension
         shell: bash -l {0}
         run: |
           make test
@@ -131,11 +131,9 @@ jobs:
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
-        env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
       - name: upload to s3 no gcc
         shell: bash -l {0}

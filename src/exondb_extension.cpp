@@ -73,7 +73,7 @@ namespace duckdb
         auto extract_sequence_from_cigar = exondb::SamFunctions::GetExtractFromCIGARFunction();
         catalog.CreateFunction(context, *extract_sequence_from_cigar);
 
-        auto third_party_acks = exondb::Wtt01Functions::GetThirdPartyAcknowledgementTable();
+        auto third_party_acks = exondb::ExonDbFunctions::GetThirdPartyAcknowledgementTable();
         catalog.CreateTableFunction(context, &third_party_acks);
 
         auto get_sam_functions = exondb::SamFunctions::GetSamFunctions();
@@ -82,7 +82,7 @@ namespace duckdb
             catalog.CreateFunction(context, *func);
         }
 
-        auto get_wtt01_version_function = exondb::Wtt01Functions::GetWtt01VersionFunction();
+        auto get_wtt01_version_function = exondb::ExonDbFunctions::GetExonDbVersionFunction();
         catalog.CreateFunction(context, get_wtt01_version_function);
 
         config.replacement_scans.emplace_back(exondb::WTArrowTableFunction::ReplacementScan);

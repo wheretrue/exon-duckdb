@@ -493,7 +493,7 @@ namespace exondb
         data.finished = true;
     };
 
-    duckdb::CreateTableFunctionInfo Wtt01Functions::GetThirdPartyAcknowledgementTable()
+    duckdb::CreateTableFunctionInfo ExonDbFunctions::GetThirdPartyAcknowledgementTable()
     {
         // no instance of constructor "duckdb::TableFunction::TableFunction" matches the argument list
         auto ack_table = duckdb::TableFunction("exondb_third_party_acknowledgements", {}, ThirdPartyAcknowledgementTableFunction, ThirdPartyAcknowledgementTableBind, nullptr, nullptr);

@@ -1,10 +1,9 @@
 """Helper script to upload artifacts"""
-import gzip
-import os
-import shutil
-import platform
-from pathlib import Path
 import argparse
+import gzip
+import platform
+import shutil
+from pathlib import Path
 
 import boto3
 
@@ -12,11 +11,9 @@ client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
 
 if __name__ == "__main__":
-    handler = "EXONArtifactHandler"
-
     # Setup argparse to parse the arguments
     parser = argparse.ArgumentParser(
-        description="Upload artifacts to S3 and invoke the artifact handler."
+        description="Upload artifacts to S3.",
     )
 
     parser.add_argument("--name", default="exondb")
@@ -35,11 +32,9 @@ if __name__ == "__main__":
     duckdb_version = args.duckdb_version
     gcc4 = args.gcc4
 
-    environment = os.environ["ENVIRONMENT"]
-    bucket = f"wtt-01-dist-{environment}"
+    bucket = "wtt-01-dist-prd"
 
-    print(f"Uploading artifacts to {bucket} with handler {handler}")
-    print(f"Working on environment: {environment}")
+    print(f"Uploading artifacts to {bucket}.")
 
     platform_uname = platform.uname()
     operating_system = platform_uname.system

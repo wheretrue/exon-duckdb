@@ -22,10 +22,10 @@
 
 namespace exondb
 {
-    class Wtt01Functions
+    class ExonDbFunctions
     {
     public:
-        static duckdb::CreateScalarFunctionInfo GetWtt01VersionFunction();
+        static duckdb::CreateScalarFunctionInfo GetExonDbVersionFunction();
         static duckdb::CreateTableFunctionInfo GetThirdPartyAcknowledgementTable();
     };
 };

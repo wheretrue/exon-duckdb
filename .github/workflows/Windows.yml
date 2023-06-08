@@ -80,7 +80,7 @@ jobs:
         run: |
           make release-windows
 
-      - name: Test if not CHECK_LICENSE
+      - name: Test
         continue-on-error: true
         run: |
           make test
@@ -104,7 +104,5 @@ jobs:
 
       - name: upload to s3
         shell: bash
-        env:
-          ENVIRONMENT: ${{ env.ENVIRONMENT }}
         run: |
           python3 bin/upload-artifacts.py
