@@ -1,0 +1,8 @@
+---
+
+version: '3.7'
+
+services:
+  wtt01_manylinux:
+    build:
+      dockerfile: ./dockerfiles/Dockerfile.manylinux2014

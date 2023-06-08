@@ -168,10 +168,15 @@ else()
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
+
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
 
-    -lz -lm -lbz2 -llzma -lcurl
+    -lz
+    -lm
+    -lbz2
+    -llzma
+    -lcurl
     ${OPENSSL_LIBRARIES}
   )
 endif()

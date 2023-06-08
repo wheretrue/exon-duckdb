@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v*"
+    - "v*"
     branches:
-      - main
+    - main
 
 
 permissions:
@@ -31,78 +31,78 @@ jobs:
         duckdb_version: ["v0.8.0"]
 
     steps:
-      - name: Set Up Env Vars for Dev Override if Applicable
-        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
-        run: |
-          echo "Overriding Env Vars for Dev Build"
-          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Dev Override if Applicable
+      if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
+      run: |
+        echo "Overriding Env Vars for Dev Build"
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
-      - name: Set Up Env Vars for Dev Override if Applicable
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
-        run: |
-          echo "Overriding Env Vars for Dev Build"
-          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Dev Override if Applicable
+      if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
+      run: |
+        echo "Overriding Env Vars for Dev Build"
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
-      - name: Set Up Env Vars for Prod
-        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
-        run: |
-          echo "Setting Prod Build Env Vars"
-          echo "ENVIRONMENT=prd" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Prod
+      if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
+      run: |
+        echo "Setting Prod Build Env Vars"
+        echo "ENVIRONMENT=prd" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: "true"
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: "true"
 
-      - name: Install OpenSSL
-        shell: bash
-        run: |
-          choco feature disable -n=showDownloadProgress
-          choco install openssl -y --force --params "/logLevel=quiet"
+    - name: Install OpenSSL
+      shell: bash
+      run: |
+        choco feature disable -n=showDownloadProgress
+        choco install openssl -y --force --params "/logLevel=quiet"
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.7"
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.7"
 
-      - name: Checkout DuckDB to version
-        # Add commits/tags to build against other DuckDB versions
-        if: ${{ matrix.duckdb_version != '<submodule_version>'}}
-        run: |
-          cd duckdb
-          git checkout ${{ matrix.duckdb_version }}
+    - name: Checkout DuckDB to version
+      # Add commits/tags to build against other DuckDB versions
+      if: ${{ matrix.duckdb_version != '<submodule_version>'}}
+      run: |
+        cd duckdb
+        git checkout ${{ matrix.duckdb_version }}
 
-      - name: Build extension
-        run: |
-          make release-windows
+    - name: Build extension
+      run: |
+        make release-windows
 
-      - name: Test
-        continue-on-error: true
-        run: |
-          make test
+    - name: Test
+      continue-on-error: true
+      run: |
+        build/release/test/Release/unittest.exe
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: windows-extension
-          path: |
-            build/release/extension/exondb/exondb.duckdb_extension
+    - uses: actions/upload-artifact@v2
+      with:
+        name: windows-extension
+        path: |
+          build/release/extension/exondb/exondb.duckdb_extension
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: us-west-2
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
-      - name: install boto3
-        shell: bash
-        run: |
-          pip3 install boto3
+    - name: install boto3
+      shell: bash
+      run: |
+        pip3 install boto3
 
-      - name: upload to s3
-        shell: bash
-        run: |
-          python3 bin/upload-artifacts.py
+    - name: upload to s3
+      shell: bash
+      run: |
+        python3 bin/upload-artifacts.py

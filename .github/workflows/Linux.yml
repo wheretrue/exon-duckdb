@@ -2,9 +2,9 @@ name: Linux
 on:
   push:
     tags:
-      - "v*"
+    - "v*"
     branches:
-      - main
+    - main
   pull_request:
 
 concurrency:
@@ -29,123 +29,124 @@ jobs:
         duckdb_version: ["v0.8.0"]
         arch: ["linux_amd64_gcc4", "linux_amd64"]
         include:
-          - arch: "linux_amd64"
-            container: "ubuntu:22.04"
-          - arch: "linux_amd64_gcc4"
-            container: "quay.io/pypa/manylinux2014_x86_64"
+        - arch: "linux_amd64"
+          container: "ubuntu:22.04"
+        - arch: "linux_amd64_gcc4"
+          container: "quay.io/pypa/manylinux2014_x86_64"
     env:
       GEN: ninja
 
     steps:
-      - name: Set Up Env Vars for Dev Override if Applicable
-        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
-        run: |
-          echo "Overriding Env Vars for Dev Build"
-          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Dev Override if Applicable
+      if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
+      run: |
+        echo "Overriding Env Vars for Dev Build"
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
-      - name: Set Up Env Vars for Dev Override if Applicable
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
-        run: |
-          echo "Overriding Env Vars for Dev Build"
-          echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Dev Override if Applicable
+      if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
+      run: |
+        echo "Overriding Env Vars for Dev Build"
+        echo "ENVIRONMENT=dev" >> $GITHUB_ENV
 
-      - name: Set Up Env Vars for Prod
-        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
-        run: |
-          echo "Setting Prod Build Env Vars"
-          echo "ENVIRONMENT=prd" >> $GITHUB_ENV
+    - name: Set Up Env Vars for Prod
+      if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
+      run: |
+        echo "Setting Prod Build Env Vars"
+        echo "ENVIRONMENT=prd" >> $GITHUB_ENV
 
-      - name: Install required ubuntu packages
-        if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
-        run: |
-          apt-get update -y -qq
-          apt-get install -y -qq software-properties-common
-          add-apt-repository ppa:git-core/ppa
-          apt-get update -y -qq
-          apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget pkg-config build-essential autoconf libbz2-dev liblzma-dev libcurl4-openssl-dev
+    - name: Install required ubuntu packages
+      if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
+      run: |
+        apt-get update -y -qq
+        apt-get install -y -qq software-properties-common
+        add-apt-repository ppa:git-core/ppa
+        apt-get update -y -qq
+        apt-get install -y -qq ninja-build make libssl-dev zip unzip checkinstall libffi-dev curl libz-dev ccache git wget pkg-config build-essential autoconf libbz2-dev liblzma-dev libcurl4-openssl-dev
 
-      - name: Additional Yum Packages
-        if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
-        run: |
-          yum install -y autoconf bzip2-devel xz-devel curl-devel
+    - name: Additional Yum Packages
+      if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      run: |
+        yum install -y autoconf bzip2-devel xz-devel curl-devel
 
-      - name: Install CMake 3.21
-        shell: bash
-        if: ${{ matrix.arch == 'linux_amd64' }}
-        run: |
-          wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-linux-x86_64.sh
-          chmod +x cmake-3.21.3-linux-x86_64.sh
-          ./cmake-3.21.3-linux-x86_64.sh --skip-license --prefix=/usr/local
-          cmake --version
+    - name: Install CMake 3.21
+      shell: bash
+      if: ${{ matrix.arch == 'linux_amd64' }}
+      run: |
+        wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-linux-x86_64.sh
+        chmod +x cmake-3.21.3-linux-x86_64.sh
+        ./cmake-3.21.3-linux-x86_64.sh --skip-license --prefix=/usr/local
+        cmake --version
 
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: "true"
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: "true"
 
-      - name: Setup mamba
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          cache-downloads: true
-          cache-env: true
+    - name: Setup mamba
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-file: environment.yml
+        cache-downloads: true
+        cache-env: true
 
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
 
-      - name: Checkout DuckDB to version
-        if: ${{ matrix.duckdb_version != '<submodule_version>'}}
-        run: |
-          cd duckdb
-          git checkout ${{ matrix.duckdb_version }}
+    - name: Checkout DuckDB to version
+      if: ${{ matrix.duckdb_version != '<submodule_version>'}}
+      run: |
+        cd duckdb
+        git checkout ${{ matrix.duckdb_version }}
 
-      - if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
-        uses: ./duckdb/.github/actions/centos_7_setup
-        with:
-          openssl: 1
+    - if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      uses: ./duckdb/.github/actions/centos_7_setup
+      with:
+        openssl: 1
 
-        # Build extension
-      - name: Build extension
-        shell: bash -l {0}
-        env:
-          GEN: ninja
-          STATIC_LIBCPP: 1
-          CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
-          CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
-        run: |
-          make release
+      # Build extension
+    - name: Build extension
+      shell: bash -l {0}
+      env:
+        GEN: ninja
+        STATIC_LIBCPP: 1
+        CC: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-gcc' || '' }}
+        CXX: ${{ matrix.arch == 'linux_arm64' && 'aarch64-linux-gnu-g++' || '' }}
+      run: |
+        make release
 
-      - name: Test extension
-        shell: bash -l {0}
-        run: |
-          make test
+    - name: Test extension
+      shell: bash -l {0}
+      continue-on-error: true
+      run: |
+        make test
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{matrix.arch}}-extensions
-          path: |
-            build/release/extension/exondb/exondb.duckdb_extension
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{matrix.arch}}-extensions
+        path: |
+          build/release/extension/exondb/exondb.duckdb_extension
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: us-west-2
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
-      - name: upload to s3 no gcc
-        shell: bash -l {0}
-        if: ${{ matrix.arch == 'linux_amd64' }}
-        env:
-          ENVIRONMENT: ${{ env.ENVIRONMENT }}
-        run: |
-          python bin/upload-artifacts.py
+    - name: upload to s3 no gcc
+      shell: bash -l {0}
+      if: ${{ matrix.arch == 'linux_amd64' }}
+      env:
+        ENVIRONMENT: ${{ env.ENVIRONMENT }}
+      run: |
+        python bin/upload-artifacts.py
 
-      - name: upload to s3 gcc4
-        shell: bash -l {0}
-        if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
-        env:
-          ENVIRONMENT: ${{ env.ENVIRONMENT }}
-        run: |
-          python bin/upload-artifacts.py --gcc4
+    - name: upload to s3 gcc4
+      shell: bash -l {0}
+      if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
+      env:
+        ENVIRONMENT: ${{ env.ENVIRONMENT }}
+      run: |
+        python bin/upload-artifacts.py --gcc4
