@@ -24,11 +24,11 @@ use datafusion::{
     datasource::file_format::file_type::FileCompressionType,
     prelude::{SessionConfig, SessionContext},
 };
-use object_store::aws::AmazonS3Builder;
-use tca::{
-    context::TCASessionExt, datasources::TCAFileType,
+use exon::{
+    context::ExonSessionExt, datasources::ExonFileType,
     ffi::create_dataset_stream_from_table_provider,
 };
+use object_store::aws::AmazonS3Builder;
 use tokio::runtime::Runtime;
 use url::Url;
 
@@ -65,7 +65,7 @@ pub unsafe extern "C" fn new_reader(
     };
 
     let file_type = CStr::from_ptr(file_format).to_str().unwrap();
-    let file_type = match TCAFileType::from_str(file_type) {
+    let file_type = match ExonFileType::from_str(file_type) {
         Ok(file_type) => file_type,
         Err(_) => {
             let error = CString::new(format!("could not parse file_format {}", file_type)).unwrap();
@@ -121,7 +121,7 @@ pub unsafe extern "C" fn new_reader(
 
     rt.block_on(async {
         let df = match ctx
-            .read_tca_table(uri, file_type, Some(compression_type))
+            .read_exon_table(uri, file_type, Some(compression_type))
             .await
         {
             Ok(df) => df,
@@ -158,7 +158,7 @@ pub unsafe extern "C" fn replacement_scan(uri: *const c_char) -> ReplacementScan
         splitted = exts.next().unwrap_or("");
     }
 
-    match TCAFileType::from_str(splitted) {
+    match ExonFileType::from_str(splitted) {
         Ok(file_type) => {
             let ft_string = file_type.to_string();
             return ReplacementScanResult {

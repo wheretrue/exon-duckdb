@@ -1261,6 +1261,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "exon"
+version = "0.1.1-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79e24ebbac77dd02902a793488f4e60f0e53fa0facf80f0660b41ea8e17ab0a1"
+dependencies = [
+ "arrow",
+ "async-trait",
+ "base64",
+ "byteorder",
+ "bytes",
+ "datafusion",
+ "flate2",
+ "futures",
+ "gb-io",
+ "noodles",
+ "object_store",
+ "pin-project",
+ "quick-xml",
+ "serde",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2666,12 +2690,12 @@ dependencies = [
  "bytes",
  "cbindgen",
  "datafusion",
+ "exon",
  "flate2",
  "noodles",
  "object_store",
  "serde",
  "serde_json",
- "tca",
  "tokio",
  "url",
  "zstd 0.12.3+zstd.1.5.2",
@@ -3072,30 +3096,6 @@ dependencies = [
  "quote",
  "syn 1.0.107",
  "unicode-xid",
-]
-
-[[package]]
-name = "tca"
-version = "0.1.1-alpha.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e07b3e8a65a505c1b053290b6eabfec8e0716a4a444fda7616cd959eca644ce7"
-dependencies = [
- "arrow",
- "async-trait",
- "base64",
- "byteorder",
- "bytes",
- "datafusion",
- "flate2",
- "futures",
- "gb-io",
- "noodles",
- "object_store",
- "pin-project",
- "quick-xml",
- "serde",
- "tokio",
- "tokio-util",
 ]
 
 [[package]]

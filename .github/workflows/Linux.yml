@@ -43,21 +43,18 @@ jobs:
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
-          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Dev Override if Applicable
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
         run: |
           echo "Overriding Env Vars for Dev Build"
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
-          echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
       - name: Set Up Env Vars for Prod
         if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
         run: |
           echo "Setting Prod Build Env Vars"
           echo "ENVIRONMENT=prd" >> $GITHUB_ENV
-          echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
 
       - name: Install required ubuntu packages
         if: ${{ matrix.arch == 'linux_amd64' || matrix.arch == 'linux_arm64' }}
@@ -134,6 +131,8 @@ jobs:
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-deploy-role
