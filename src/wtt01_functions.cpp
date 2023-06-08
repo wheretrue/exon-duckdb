@@ -22,7 +22,7 @@
 namespace wtt01
 {
 
-    const std::string WTT_01_VERSION = "0.3.9";
+    const std::string EXON_01_VERSION = "0.3.9";
 
     duckdb::CreateScalarFunctionInfo Wtt01Functions::GetWtt01VersionFunction()
     {
@@ -30,7 +30,7 @@ namespace wtt01
 
         auto duckdb_function = [](duckdb::DataChunk &args, duckdb::ExpressionState &state, duckdb::Vector &result)
         {
-            result.SetValue(0, duckdb::Value(WTT_01_VERSION));
+            result.SetValue(0, duckdb::Value(EXON_01_VERSION));
         };
 
         set.AddFunction(duckdb::ScalarFunction({}, duckdb::LogicalType::VARCHAR, duckdb_function));

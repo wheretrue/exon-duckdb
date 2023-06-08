@@ -12,7 +12,7 @@ client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
 
 if __name__ == "__main__":
-    handler = "WTTArtifactHandler"
+    handler = "EXONArtifactHandler"
 
     # Setup argparse to parse the arguments
     parser = argparse.ArgumentParser(

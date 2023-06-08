@@ -6,14 +6,14 @@ set(TARGET_NAME exondb)
 set(EXTENSION_NAME ${TARGET_NAME}_extension)
 project(${TARGET_NAME})
 
-# If the env var WTT_SPDLOG_ACTIVE_LEVEL is not set, set it to warning, otherwise use the value of the env var.
-set(WTT_SPDLOG_ACTIVE_LEVEL $ENV{WTT_SPDLOG_ACTIVE_LEVEL})
-if (WTT_SPDLOG_ACTIVE_LEVEL)
+# If the env var EXON_SPDLOG_ACTIVE_LEVEL is not set, set it to warning, otherwise use the value of the env var.
+set(EXON_SPDLOG_ACTIVE_LEVEL $ENV{EXON_SPDLOG_ACTIVE_LEVEL})
+if (EXON_SPDLOG_ACTIVE_LEVEL)
   add_definitions(-DSPDLOG_ACTIVE_LEVEL=1)
-  message("-- wtt: WTT_SPDLOG_ACTIVE_LEVEL is ${WTT_SPDLOG_ACTIVE_LEVEL}")
+  message("-- wtt: EXON_SPDLOG_ACTIVE_LEVEL is ${EXON_SPDLOG_ACTIVE_LEVEL}")
 else()
   add_definitions(-DSPDLOG_ACTIVE_LEVEL=3)
-  message("-- wtt: WTT_SPDLOG_ACTIVE_LEVEL is not set")
+  message("-- wtt: EXON_SPDLOG_ACTIVE_LEVEL is not set")
 endif()
 
 if (APPLE)
@@ -44,7 +44,6 @@ elseif(WIN32)
 endif()
 
 find_package(OpenSSL REQUIRED)
-message("-- wtt: Found openssl ${OPENSSL_VERSION}")
 
 Include(FetchContent)
 
