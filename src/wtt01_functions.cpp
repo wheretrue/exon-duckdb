@@ -17,7 +17,7 @@
 #include <map>
 
 #include "wtt01_functions.hpp"
-#include "wtt01_rust.hpp"
+#include "rust.hpp"
 
 namespace wtt01
 {

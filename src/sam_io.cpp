@@ -22,7 +22,7 @@
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
 #include <duckdb/main/capi/capi_internal.hpp>
 
-#include "wtt01_rust.hpp"
+#include "rust.hpp"
 #include "sam_io.hpp"
 
 namespace wtt01

@@ -77,7 +77,7 @@ list(APPEND available_contents httplib json Corrosion spdlog arrow)
 
 FetchContent_MakeAvailable(${available_contents})
 
-corrosion_import_crate(MANIFEST_PATH wtt01_rust/Cargo.toml
+corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml
   PROFILE release
 )
 
@@ -134,14 +134,14 @@ build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 if (WIN32)
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
-    "${CMAKE_CURRENT_BINARY_DIR}/Release/wtt01_rust.lib"
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/rust.lib"
     ntdll
     OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
 
 elseif(APPLE)
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
-    "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
+    "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
 
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
@@ -161,7 +161,7 @@ elseif(APPLE)
 else()
   target_link_libraries(${EXTENSION_NAME}
     PUBLIC
-    "${CMAKE_CURRENT_BINARY_DIR}/libwtt01_rust.a"
+    "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
     "${wfa2_BINARY_DIR}/libwfa2cpp.a"
     "${wfa2_BINARY_DIR}/libwfa2.a"
 

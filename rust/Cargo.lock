@@ -2659,6 +2659,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust"
+version = "1.0.0"
+dependencies = [
+ "arrow",
+ "bytes",
+ "cbindgen",
+ "datafusion",
+ "flate2",
+ "noodles",
+ "object_store",
+ "serde",
+ "serde_json",
+ "tca",
+ "tokio",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
 name = "rustc_version"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3754,25 +3773,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d"
 dependencies = [
  "winapi",
-]
-
-[[package]]
-name = "wtt01_rust"
-version = "1.0.0"
-dependencies = [
- "arrow",
- "bytes",
- "cbindgen",
- "datafusion",
- "flate2",
- "noodles",
- "object_store",
- "serde",
- "serde_json",
- "tca",
- "tokio",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
 [package]
 build = "build.rs"
 edition = "2021"
-name = "wtt01_rust"
+name = "rust"
 version = "1.0.0"
 
 [features]
@@ -10,7 +10,7 @@ statically_linked = []
 
 [lib]
 crate-type = ["staticlib"]
-name = "wtt01_rust"
+name = "rust"
 
 [dependencies]
 arrow = {version = "39", default-features = false, features = ["ffi"]}

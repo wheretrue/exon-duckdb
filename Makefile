@@ -32,19 +32,19 @@ pull:
 release:
 	mkdir -p build/release && \
 	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
-	cmake --build build/release --config Release -j 8 --target 'cargo-build_wtt01_rust' && \
+	cmake --build build/release --config Release -j 8 --target 'cargo-build_rust' && \
 	cmake --build build/release --config Release -j 8
 
 release-windows:
 	mkdir -p build/release && \
 	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
-	cmake --build build/release --config Release -j 8 --target 'cargo-build_wtt01_rust' && \
+	cmake --build build/release --config Release -j 8 --target 'cargo-build_rust' && \
 	cmake --build build/release --config Release -j 8
 
 debug:
 	mkdir -p build/debug && \
 	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Debug ${BUILD_FLAGS} -S ./duckdb/ -B build/debug && \
-	cmake --build build/debug --config Release --target 'cargo-build_wtt01_rust' && \
+	cmake --build build/debug --config Release --target 'cargo-build_rust' && \
 	cmake --build build/debug --config Release -j 8 --target 'htslib' && \
 	cmake --build build/debug --config Debug -j 8 --target all
 

@@ -20,7 +20,7 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 
 #include "fastq_io.hpp"
-#include "wtt01_rust.hpp"
+#include "rust.hpp"
 
 namespace wtt01
 {

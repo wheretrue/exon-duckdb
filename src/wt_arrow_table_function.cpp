@@ -22,7 +22,7 @@
 #include <duckdb/function/table/read_csv.hpp>
 
 #include "wt_arrow_table_function.hpp"
-#include "wtt01_rust.hpp"
+#include "rust.hpp"
 
 namespace wtt01
 {
