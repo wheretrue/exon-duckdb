@@ -136,7 +136,12 @@ if (WIN32)
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/Release/rust.lib"
     ntdll
-    OpenSSL::SSL OpenSSL::Crypto bcrypt Userenv)
+    Secur32
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    bcrypt
+    ncrypt
+    Userenv)
 
 elseif(APPLE)
   target_link_libraries(${EXTENSION_NAME}
