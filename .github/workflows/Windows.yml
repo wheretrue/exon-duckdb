@@ -35,8 +35,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref, 'dev')
         run: |
           echo "Overriding Env Vars for Dev Build"
-          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
-          echo "EXONDB_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
@@ -44,8 +42,6 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' || github.event_name == 'push' && github.event.ref != 'refs/heads/main'
         run: |
           echo "Overriding Env Vars for Dev Build"
-          echo "CHECK_LICENSE=0" >> $GITHUB_ENV
-          echo "EXONDB_LICENSE_URL=https://api.wheretrue.net" >> $GITHUB_ENV
           echo "ENVIRONMENT=dev" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=900163113876" >> $GITHUB_ENV
 
@@ -53,16 +49,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, 'dev')
         run: |
           echo "Setting Prod Build Env Vars"
-          echo "CHECK_LICENSE=1" >> $GITHUB_ENV
-          echo "EXONDB_LICENSE_URL=https://api.wheretrue.com" >> $GITHUB_ENV
           echo "ENVIRONMENT=prd" >> $GITHUB_ENV
           echo "AWS_ACCOUNT_ID=894819748579" >> $GITHUB_ENV
 
-      - name: Print Build Env Vars
-        run: |
-          echo ${{ env.CHECK_LICENSE }}
-          echo ${{ env.EXONDB_LICENSE_URL}}
-          exit 0
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -95,7 +84,6 @@ jobs:
           make release-windows
 
       - name: Test if not CHECK_LICENSE
-        if: ${{ env.CHECK_LICENSE == 0 }}
         continue-on-error: true
         run: |
           make test

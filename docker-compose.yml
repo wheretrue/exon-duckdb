@@ -7,13 +7,10 @@ services:
   wtt01:
     build:
       args:
-        CHECK_LICENSE: ${CHECK_LICENSE:-0}
-        EXONDB_LICENSE_SERVER_URL: ${EXONDB_LICENSE_SERVER_URL:-https://api.wheretrue.com}
         PLATFORM: ${PLATFORM:-x86_64}
         DUCKDB_PLATFORM: ${DUCKDB_PLATFORM:-linux_amd64}
     image: ${DOCKER_IMAGE:-wtt-01-release-with-deb-info}
     environment:
-      EXONDB_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
       DATA_DIR: /data
     volumes:
       - ./test/sql/wtt-01-release-with-deb-info:/data
@@ -21,7 +18,6 @@ services:
       - 8080:8080
   wtt01_python:
     environment:
-      EXONDB_LICENSE: eae364eb-674e-409d-88a2-53f2a051fafa
       DATA_DIR: /data
     build:
       dockerfile: ./Dockerfile.python
