@@ -6,7 +6,6 @@
     "version_files": [
       "./CMakeLists.txt",
       "./Makefile",
-      ".github/actions/build_docker_image/action.yml",
       "./bin/upload-artifacts.py",
       "./src/wtt01_functions.cpp",
       "./wtt01_python/exondb/__about__.py"
