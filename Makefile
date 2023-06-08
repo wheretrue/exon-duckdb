@@ -1,4 +1,4 @@
-.PHONY: all clean format debug release duckdb_debug duckdb_release pull update
+.PHONY: all clean release duckdb_release pull update
 
 all: release
 
@@ -41,23 +41,6 @@ release-windows:
 	cmake --build build/release --config Release -j 8 --target 'cargo-build_rust' && \
 	cmake --build build/release --config Release -j 8
 
-debug:
-	mkdir -p build/debug && \
-	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Debug ${BUILD_FLAGS} -S ./duckdb/ -B build/debug && \
-	cmake --build build/debug --config Release --target 'cargo-build_rust' && \
-	cmake --build build/debug --config Release -j 8 --target 'htslib' && \
-	cmake --build build/debug --config Debug -j 8 --target all
-
-test_debug:
-	mkdir -p ./test/sql/tmp/
-	rm -rf ./test/sql/tmp/*
-	./build/debug/test/unittest --test-dir . "[wtt-01-release-with-deb-info]"
-	rm -rf ./test/sql/tmp
-
-release_python: CLIENT_FLAGS=-DBUILD_PYTHON=1 -DBUILD_JSON_EXTENSION=1 -DBUILD_FTS_EXTENSION=1 -DBUILD_TPCH_EXTENSION=1 -DBUILD_VISUALIZER_EXTENSION=1 -DBUILD_TPCDS_EXTENSION=1
-release_python: release
-
-# Main tests
 test: test_release
 
 test_release: release
@@ -71,23 +54,6 @@ test_align:
 
 update:
 	git submodule update --remote --merge
-
-r:
-	mkdir -p r-dist
-	R CMD build wtt01r
-	mv wtt01r*tar.gz r-dist/
-	aws s3 cp --recursive r-dist/ s3://wtt-01-dist-$(ENVIRONMENT)/R/
-	rm -rf r-dist
-
-
-AWS_ACCOUNT_ID := $(shell aws sts get-caller-identity --query Account --output text)
-
-docker-release:
-	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-	DOCKER_IMAGE=public.ecr.aws/p3a4z1t3/wtt01:latest PLATFORM=${PLATFORM} docker compose build wtt01
-	docker tag public.ecr.aws/p3a4z1t3/wtt01:latest public.ecr.aws/p3a4z1t3/wtt01:v0.3.9
-	docker push public.ecr.aws/p3a4z1t3/wtt01:latest
-	docker push public.ecr.aws/p3a4z1t3/wtt01:v0.3.9
 
 extension-release:
 	ENVIRONMENT=$(ENVIRONMENT) python bin/upload-artifacts.py

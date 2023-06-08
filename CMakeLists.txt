@@ -23,6 +23,10 @@ if (APPLE)
   include_directories(${OPENSSL_ROOT_DIR}/include)
   link_directories(${OPENSSL_ROOT_DIR}/lib)
 
+  # xz
+  execute_process(COMMAND brew --prefix xz OUTPUT_VARIABLE XZ_PREFIX)
+  string(STRIP ${XZ_PREFIX} XZ_ROOT_DIR)
+
   set(WFA2_ENABLED ON)
   add_compile_definitions(WFA2_ENABLED)
 
@@ -127,8 +131,6 @@ endif()
 
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
-set(PARAMETERS "-warnings")
-
 build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 
 if (WIN32)
@@ -154,7 +156,7 @@ elseif(APPLE)
     -lz
     -lm
     -lbz2
-    /opt/homebrew/Cellar/xz/5.4.3/lib/liblzma.a
+    ${XZ_ROOT_DIR}/lib/liblzma.a
     -lcurl
     ${OPENSSL_LIBRARIES}
 
