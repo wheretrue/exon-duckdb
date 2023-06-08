@@ -1,3 +1,17 @@
+// Copyright 2023 WHERE TRUE Technologies.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <iostream>
 #include <cmath>
 
@@ -12,83 +26,6 @@
 
 namespace wtt01
 {
-
-    struct GFFRawScanOptions
-    {
-    };
-
-    struct GFFRawSchemaKeyValue
-    {
-        const char *function_name;
-        duckdb::LogicalType return_type;
-    };
-
-    duckdb::unique_ptr<duckdb::FunctionData> GFFRawScanBind(duckdb::ClientContext &context, duckdb::TableFunctionBindInput &input,
-                                                            duckdb::vector<duckdb::LogicalType> &return_types, duckdb::vector<std::string> &names)
-    {
-        auto result = duckdb::make_uniq<duckdb::ReadCSVData>();
-
-        std::vector<std::string> file_patterns;
-        auto file_name = input.inputs[0].GetValue<std::string>();
-
-        // result->InitializeFiles(context, file_patterns);
-        result->files.push_back(file_name);
-
-        result->options.delimiter = '\t';
-        result->options.auto_detect = false;
-        result->options.has_header = true;
-
-        // result->options.include_file_name = false;
-        // result->options.include_parsed_hive_partitions = false;
-        result->options.file_path = file_name;
-        result->options.null_str = ".";
-
-        result->options.ignore_errors = true;
-
-        auto &options = result->options;
-
-        duckdb::vector<GFFRawSchemaKeyValue> key_values = {
-            {"reference_sequence_name", duckdb::LogicalType::VARCHAR},
-            {"source", duckdb::LogicalType::VARCHAR},
-            {"annotation_type", duckdb::LogicalType::VARCHAR},
-            {"start", duckdb::LogicalType::BIGINT},
-            {"end", duckdb::LogicalType::BIGINT},
-            {"score", duckdb::LogicalType::FLOAT},
-            {"strand", duckdb::LogicalType::VARCHAR},
-            {"phase", duckdb::LogicalType::VARCHAR},
-            {"attributes", duckdb::LogicalType::VARCHAR},
-        };
-
-        for (auto &key_value : key_values)
-        {
-            names.push_back(key_value.function_name);
-            return_types.push_back(key_value.return_type);
-
-            // result->sql_types.emplace_back(key_value.return_type);
-        }
-
-        result->FinalizeRead(context);
-
-        return std::move(result);
-    }
-
-    duckdb::unique_ptr<duckdb::CreateTableFunctionInfo> GFFunctions::GetGFFRawTableFunction()
-    {
-        duckdb::ReadCSVTableFunction read_csv;
-        auto func = read_csv.GetFunction();
-
-        auto gff_raw_table_function = duckdb::TableFunction("read_gff_raw",
-                                                            {duckdb::LogicalType::VARCHAR},
-                                                            func.function,
-                                                            GFFRawScanBind,
-                                                            func.init_global,
-                                                            func.init_local);
-
-        duckdb::CreateTableFunctionInfo info(gff_raw_table_function);
-
-        return duckdb::make_uniq<duckdb::CreateTableFunctionInfo>(info);
-    };
-
     duckdb::CreateScalarFunctionInfo GFFunctions::GetGFFParseAttributesFunction()
     {
         duckdb::ScalarFunctionSet set("gff_parse_attributes");
