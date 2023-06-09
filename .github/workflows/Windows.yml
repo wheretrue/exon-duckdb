@@ -7,6 +7,7 @@ on:
     - "v*"
     branches:
     - main
+  pull_request:
 
 
 permissions:
@@ -78,18 +79,18 @@ jobs:
 
     - name: Build extension
       run: |
-        make release-windows
+        make release
 
     - name: Test
       continue-on-error: true
       run: |
-        build/release/test/Release/unittest.exe
+        make test_windows
 
     - uses: actions/upload-artifact@v2
       with:
         name: windows-extension
         path: |
-          build/release/extension/exondb/exondb.duckdb_extension
+          build/release/extension/exon/exon.duckdb_extension
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
