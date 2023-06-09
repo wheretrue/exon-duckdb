@@ -1,0 +1,77 @@
+name: Test Installs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-python:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.8, 3.11]
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install exondb
+      - name: exondb smoke Test
+        shell: python
+        run: |
+          import exondb
+          con = exondb.get_connection()
+          con.execute("SELECT gc_content('ATCG') as value;");
+          res = con.fetchall()
+          assert res[0][0] == .5
+          print(res)
+  test-cli:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Install DuckDB on Mac
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install duckdb
+      - name: Install DuckDB on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install wget unzip
+          wget -O duckdb.zip https://github.com/duckdb/duckdb/releases/download/v0.8.0/duckdb_cli-linux-amd64.zip
+          unzip duckdb.zip -d duckdb
+          sudo mv duckdb/duckdb /usr/local/bin
+      - name: Install DuckDB on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install wget unzip
+          wget -O duckdb.zip https://github.com/duckdb/duckdb/releases/download/v0.8.0/duckdb_cli-windows-amd64.zip
+          unzip duckdb.zip
+      - name: Create Script
+        shell: bash
+        run: |
+          echo "SET custom_extension_repository='dbe.wheretrue.com/exondb/latest';" > test.sql
+          echo "INSTALL exondb;" >> test.sql
+          echo "LOAD exondb;" >> test.sql
+          echo "SELECT gc_content('ATCG');" >> test.sql
+          cat test.sql
+      - name: Run DuckDB (Unix)
+        shell: bash
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          duckdb -unsigned < test.sql
+      - name: Run DuckDB (Windows)
+        shell: bash
+        if: matrix.os == 'windows-latest'
+        run: |
+          ./duckdb.exe -unsigned < test.sql

@@ -1,0 +1,8 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Test count
+query I
+SELECT COUNT(*) FROM read_hmm_dom_tbl_out('./test/sql/exondb-release-with-deb-info/test.pfam.hmmout')
+----
+100

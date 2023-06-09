@@ -1,0 +1,46 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+query III
+SELECT sequence[:5] AS seq, accession, topology FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb') LIMIT 1;
+----
+gttaa
+NC_021938
+circular
+
+
+query I
+SELECT COUNT(*) FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb');
+----
+2
+
+query I
+SELECT COUNT(*) FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb.zst');
+----
+2
+
+query I
+SELECT COUNT(*) FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb.gzip', compression='gzip');
+----
+2
+
+query I
+SELECT COUNT(*) FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb.gz');
+----
+2
+
+# query I
+# SELECT COUNT(*) FROM './test/sql/exondb-release-with-deb-info/gb/Alouatta_caraya_NC_021938.1.gb';
+# ----
+# 2
+
+query I
+SELECT COUNT(*) FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/*.gbk');
+----
+3
+
+# query II
+# SELECT accession, feature['kind'] FROM (SELECT accession, UNNEST(features) AS feature FROM read_genbank('./test/sql/exondb-release-with-deb-info/gb/BGC0002747.gbk')) WHERE feature.kind = 'CDS' LIMIT 1;
+# ----
+# BGC0002747
+# CDS

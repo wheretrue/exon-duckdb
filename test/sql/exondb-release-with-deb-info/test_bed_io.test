@@ -1,0 +1,18 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+query IIIIIIIIIIII
+SELECT * FROM read_bed_file('test/sql/exondb-release-with-deb-info/bed/test3.bed') LIMIT 1;
+----
+sq0
+8
+13
+NULL
+NULL
+NULL
+8
+13
+NULL
+2
+2,1
+0,3

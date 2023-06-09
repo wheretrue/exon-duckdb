@@ -1,0 +1,68 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Test counting from a FASTQ file
+query I
+SELECT count(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq');
+----
+2
+
+# Test counting from a FASTQ gzipped file, autodetect extension
+query I
+SELECT count(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq.gz');
+----
+2
+
+# Test counting from a FASTQ gzipped file, with option
+query I
+SELECT count(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq.gzip', compression='gzip');
+----
+2
+
+# Test counting from a FASTQ zstd file, autodetect extension
+query I
+SELECT count(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq.zst');
+----
+2
+
+# Test counting from a FASTQ zstd file, with option
+query I
+SELECT count(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq.zstd', compression='zstd');
+----
+2
+
+# Test table structure
+query IIII
+SELECT * FROM read_fastq('./test/sql/exondb-release-with-deb-info/test.fastq') LIMIT 1;
+----
+SEQ_ID
+This is a description
+GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
+!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65
+
+# Test counting from a FASTQ file
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fastq';
+----
+2
+
+# Test counting from a FASTQ gzipped file, autodetect extension
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fastq.gz';
+----
+2
+
+# Test counting from a FASTQ zstd file, autodetect extension
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fastq.zst';
+----
+2
+
+statement error
+SELECT count(*) FROM read_fastq('');
+
+# Test glob functionality
+query I
+SELECT COUNT(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/*.fastq') LIMIT 1;
+----
+4

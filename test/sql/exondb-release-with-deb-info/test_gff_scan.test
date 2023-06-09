@@ -1,0 +1,113 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Test counting from a GFF file
+query IIIIIIIII
+SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
+----
+sq0
+caat
+gene
+8
+13
+NULL
++
+NULL
+{gene_id=caat1, gene_name=gene0}
+sq1
+caat
+gene
+8
+14
+0.1
++
+0
+{gene_id=caat2, gene_name=gene0}
+
+# Test counting from a GFF file
+query I
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
+----
+2
+
+# Test counting from a GFF gzipped file, autodetect extension
+query I
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.gz');
+----
+2
+
+# Test counting from a GFF gzipped file, with option
+query I
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.gzip', compression='gzip');
+----
+2
+
+# Test counting from a GFF zstd file, autodetect extension
+query I
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.zst');
+----
+2
+
+# Test counting from a GFF zstd file, with option
+query I
+SELECT count(*) FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff.zstd', compression='zstd');
+----
+2
+
+# Test counting from a GFF file
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff';
+----
+2
+
+# Test counting from a GFF gzipped file, autodetect extension
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff.gz';
+----
+2
+
+# Test counting from a GFF gzipped file, autodetect extension
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.gff.zst';
+----
+2
+
+# Test missing file throws an error
+statement error
+SELECT count(*) FROM read_gff('');
+
+# Test attribute parsing works
+query I
+SELECT gff_parse_attributes('ID=KanNP_rdsDRAFT_3085441342.1;locus_tag=KanNP_rdsDRAFT_30854413421;');
+----
+{ID=KanNP_rdsDRAFT_3085441342.1, locus_tag=KanNP_rdsDRAFT_30854413421}
+
+# Test attribute parsing works
+query I
+SELECT gff_parse_attributes('ID=KanNP_rdsDRAFT_3085441342.1;locus_tag=KanNP_rdsDRAFT_30854413421');
+----
+{ID=KanNP_rdsDRAFT_3085441342.1, locus_tag=KanNP_rdsDRAFT_30854413421}
+
+# Test attribute parsing works
+statement error
+SELECT gff_parse_attributes('ID');
+
+# Test attribute parsing works
+query I
+SELECT element_at(gff_parse_attributes('key=value'), 'key')[1];
+----
+value
+
+# Test that a "raw" gff can be read
+# query IIIIIIIII
+# SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff_raw('./test/sql/exondb-release-with-deb-info/gff/raw-test.gff') LIMIT 1;
+# ----
+# KanNP_rdsDRAFT_3085441342
+# FGMP
+# CDS
+# 2
+# 151
+# .
+# 1
+# 0
+# ID=KanNP_rdsDRAFT_3085441342.1;locus_tag=KanNP_rdsDRAFT_30854413421;

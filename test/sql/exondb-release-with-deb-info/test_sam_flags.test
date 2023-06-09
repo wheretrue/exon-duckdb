@@ -1,0 +1,67 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+query I
+SELECT is_segmented(1);
+----
+true
+
+query I
+SELECT is_unmapped(7);
+----
+true
+
+query I
+SELECT is_properly_aligned(7);
+----
+true
+
+query I
+SELECT is_mate_unmapped(15);
+----
+true
+
+query I
+SELECT is_reverse_complemented(31);
+----
+true
+
+query I
+SELECT is_mate_reverse_complemented(63);
+----
+true
+
+query I
+SELECT is_first_segment(127);
+----
+true
+
+query I
+SELECT is_last_segment(255);
+----
+true
+
+query I
+SELECT is_secondary(511);
+----
+true
+
+query I
+SELECT is_secondary(255);
+----
+false
+
+query I
+SELECT is_quality_control_failed(2815);
+----
+true
+
+query I
+SELECT is_duplicate(4095);
+----
+true
+
+query I
+SELECT is_supplementary(8191);
+----
+true

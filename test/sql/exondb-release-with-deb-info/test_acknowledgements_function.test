@@ -1,0 +1,18 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Very basic
+query I
+SELECT name FROM exondb_third_party_acknowledgements() ORDER BY name;
+----
+DuckDB
+WFA2-lib
+brotli
+cpp-httplib
+gb-io
+nlohmann/json
+noodles
+openssl
+
+statement ok
+SELECT exondb_version();

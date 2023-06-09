@@ -1,0 +1,85 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Test writing to a FASTA file
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta' (FORMAT 'fasta');
+# ----
+# 2
+
+# Test that we can re-read what we write_to_file
+# query I
+# SELECT COUNT(*) FROM read_fasta('./test/sql/tmp/test.fasta');
+# ----
+# 2
+
+# Test writing to a FASTA file in gzip format
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.gz' (FORMAT 'fasta');
+# ----
+# 2
+
+# Test that we can re-read what we write_to_file
+# query I
+# SELECT COUNT(*) FROM read_fasta('./test/sql/tmp/test.fasta.gz');
+# ----
+# 2
+
+# Test writing to a FASTA file in zstd format
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.zst' (FORMAT 'fasta');
+# ----
+# 2
+
+# Test writing to a FASTA file in zstd format, force its creation
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.zst' (FORMAT 'fasta', FORCE true);
+# ----
+# 2
+
+# Now don't force it, and expect an error
+# statement error
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.zst' (FORMAT 'fasta');
+
+# Test that we can re-read what we write_to_file
+# query I
+# SELECT COUNT(*) FROM read_fasta('./test/sql/tmp/test.fasta.zst');
+# ----
+# 2
+
+# Test writing to a FASTA file in gzip format
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.gzip' (FORMAT 'fasta', COMPRESSION 'gzip');
+# ----
+# 2
+
+# Test reading back from that file
+# query I
+# SELECT COUNT(*) FROM read_fasta('./test/sql/tmp/test.fasta.gzip', compression='gzip');
+# ----
+# 2
+
+# Test writing to a FASTA file in zstd format
+# query I
+# COPY (SELECT * FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.fasta')) TO './test/sql/tmp/test.fasta.zstd' (FORMAT 'fasta', COMPRESSION 'zstd');
+# ----
+# 2
+
+# Test round trip for mixed description null.
+# query I
+# COPY (FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.mixed-desc.fasta')) TO './test/sql/tmp/test.mixed-desc.fasta' (FORMAT 'fasta');
+# ----
+# 2
+
+# Test the output of the prior job can be read back correctly
+# query III
+# FROM read_fasta('./test/sql/tmp/test.mixed-desc.fasta') WHERE description IS NULL;
+# ----
+# b
+# NULL
+# ATCG
+
+# query I
+# COPY (FROM read_fasta('./test/sql/exondb-release-with-deb-info/test.mixed-desc.fasta') LIMIT 1) TO STDOUT (FORMAT 'fasta');
+# ----
+# 1

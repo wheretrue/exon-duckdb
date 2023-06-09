@@ -1,0 +1,22 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Example File
+query IIIIIIIIII
+SELECT * FROM read_bam_file_records('./test/sql/exondb-release-with-deb-info/bam/example1.bam')
+----
+ref1_grp1_p001
+99
+ref1
+1
+10
+0
+10M
+ref1
+CGAGCTCGGT
+!!!!!!!!!!
+
+# Missing file throws an error
+statement error
+SELECT * FROM read_bam_file_records('./test/sql/exondb-release-with-deb-info/bam/missing.bam')
+----

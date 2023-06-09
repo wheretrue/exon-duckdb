@@ -1,0 +1,26 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+query I
+SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC')
+----
+2M1D2M
+
+statement error
+SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 1, 'memory_low')
+----
+
+query I
+SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', -1, 1, 2, 3, 'memory_low')
+----
+2M1D2M
+
+query I
+SELECT alignment_string_wfa_gap_affine('AACC', 'AAACC', 1, 1, 1, 'memory_low')
+----
+2M1D2M
+
+query I
+SELECT alignment_score_wfa_gap_affine('AACC', 'AACC')
+----
+0.0
