@@ -121,8 +121,8 @@ elseif(UNIX)
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
 
-    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-    "${wfa2_BINARY_DIR}/libwfa2.a"
+    # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    # "${wfa2_BINARY_DIR}/libwfa2.a"
 
     -lz
     -lm
