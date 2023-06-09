@@ -46,3 +46,6 @@ test_windows: release
 	rm -rf ./test/sql/tmp/*
 	./build/release/test/Release/unittest.exe --test-dir . "[exondb-release-with-deb-info]"
 	rm -rf ./test/sql/tmp
+
+extension-release:
+    ENVIRONMENT=$(ENVIRONMENT) python bin/upload-artifacts.py

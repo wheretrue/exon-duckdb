@@ -20,7 +20,7 @@ jobs:
     - name: Install DuckDB on Mac
       if: matrix.os == 'macos-latest'
       run: |
-        brew install duckdb
+        brew install duckdb@0.8.0
     - name: Install DuckDB on Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
