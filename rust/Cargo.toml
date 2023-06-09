@@ -1,0 +1,30 @@
+[package]
+build = "build.rs"
+edition = "2021"
+name = "rust"
+version = "1.0.0"
+
+[features]
+all = []
+statically_linked = []
+
+[lib]
+crate-type = ["staticlib"]
+name = "rust"
+
+[dependencies]
+arrow = {version = "39", default-features = false, features = ["ffi"]}
+bytes = "1.4.0"
+datafusion = {version = "25.0.0", features = ["default"]}
+exon = {version = "0.1.1-alpha.5", features = ["all"]}
+flate2 = "1.0.26"
+noodles = {version = "0.38.0", features = ["sam", "fasta", "fastq", "gff"]}
+object_store = {version = "0.5.4", features = ["aws", "gcp", "azure", "aws_profile"]}
+serde = {version = "1.0", features = ["derive"]}
+serde_json = "1.0"
+tokio = {version = "1.28.1", features = ["rt-multi-thread"]}
+url = "2.4.0"
+zstd = "0.12.3"
+
+[build-dependencies]
+cbindgen = "0.24.5"
