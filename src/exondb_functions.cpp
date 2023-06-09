@@ -22,7 +22,7 @@
 namespace exondb
 {
 
-    const std::string EXON_01_VERSION = "0.3.9";
+    const std::string EXON_01_VERSION = "0.4.0";
 
     duckdb::CreateScalarFunctionInfo Wtt01Functions::GetWtt01VersionFunction()
     {
