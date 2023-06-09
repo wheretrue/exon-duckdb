@@ -16,7 +16,7 @@ if __name__ == "__main__":
         description="Upload artifacts to S3.",
     )
 
-    parser.add_argument("--name", default="exondb")
+    parser.add_argument("--name", default="exon")
 
     parser.add_argument("--version", default="v0.4.0")
 

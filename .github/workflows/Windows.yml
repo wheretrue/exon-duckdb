@@ -89,7 +89,7 @@ jobs:
       with:
         name: windows-extension
         path: |
-          build/release/extension/exondb/exondb.duckdb_extension
+          build/release/extension/exon/exon.duckdb_extension
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
