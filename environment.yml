@@ -1,0 +1,9 @@
+---
+name: exondb
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pip
+  - pip:
+      - boto3
