@@ -8,6 +8,31 @@ set(CMAKE_CXX_STANDARD 11)
 
 project(${TARGET_NAME})
 
+if (APPLE)
+  execute_process(COMMAND brew --prefix openssl@3 OUTPUT_VARIABLE OPENSSL_PREFIX)
+  string(STRIP ${OPENSSL_PREFIX} OPENSSL_ROOT_DIR)
+
+  include_directories(${OPENSSL_ROOT_DIR}/include)
+  link_directories(${OPENSSL_ROOT_DIR}/lib)
+
+  execute_process(COMMAND brew --prefix xz OUTPUT_VARIABLE XZ_PREFIX)
+  string(STRIP ${XZ_PREFIX} XZ_ROOT_DIR)
+
+  set(WFA2_ENABLED ON)
+  add_compile_definitions(WFA2_ENABLED)
+
+elseif(UNIX)
+  set(OPENSSL_ROOT_DIR /usr/local/ssl)
+
+  set(WFA2_ENABLED ON)
+  add_compile_definitions(WFA2_ENABLED)
+
+  include_directories(${OPENSSL_ROOT_DIR}/include)
+  link_directories(${OPENSSL_ROOT_DIR}/lib)
+
+elseif(WIN32)
+  set(WFA2_ENABLED OFF)
+endif()
 
 Include(FetchContent)
 
@@ -60,17 +85,53 @@ build_loadable_extension(${TARGET_NAME} ${PARAMETERS} ${EXTENSION_SOURCES})
 find_package(OpenSSL REQUIRED)
 message("-- wtt: Found openssl ${OPENSSL_VERSION}")
 
-target_link_libraries(${EXTENSION_NAME}
-  PUBLIC
-  "${CMAKE_CURRENT_BINARY_DIR}/Release/rust.lib"
-  ntdll
-  Secur32
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  bcrypt
-  ncrypt
-  Userenv)
+if(WIN32)
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/rust.lib"
+    ntdll
+    Secur32
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    bcrypt
+    ncrypt
+    Userenv
+  )
+elseif(APPLE)
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
 
+    # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    # "${wfa2_BINARY_DIR}/libwfa2.a"
+
+    -lz
+    -lm
+    -lbz2
+    ${XZ_ROOT_DIR}/lib/liblzma.a
+    -lcurl
+    ${OPENSSL_LIBRARIES}
+
+    "-framework CoreFoundation"
+    "-framework Security"
+    "-framework Accelerate"
+  )
+elseif(UNIX)
+  target_link_libraries(${EXTENSION_NAME}
+    PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
+
+    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    "${wfa2_BINARY_DIR}/libwfa2.a"
+
+    -lz
+    -lm
+    -lbz2
+    -llzma
+    -lcurl
+    ${OPENSSL_LIBRARIES}
+  )
+endif()
 
 install(
   TARGETS ${EXTENSION_NAME}
