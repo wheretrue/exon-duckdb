@@ -7,7 +7,7 @@
       "./CMakeLists.txt",
       "./Makefile",
       "./bin/upload-artifacts.py",
-      "./src/wtt01_functions.cpp",
+      "./src/exondb_functions.cpp"
     ]
   }
 }
