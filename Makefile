@@ -36,16 +36,16 @@ release:
 	cmake --build build/release --config Release
 
 test: release
-	mkdir -p ./test/sql/tmp/
-	rm -rf ./test/sql/tmp/*
-	./build/release/test/unittest --test-dir . "[exondb-release-with-deb-info]"
+	mkdir -p ./test/sql/tmp/ && \
+	rm -rf ./test/sql/tmp/* && \
+	./build/release/test/unittest --test-dir . "[exondb-release-with-deb-info]" && \
 	rm -rf ./test/sql/tmp
 
 test_windows: release
-	mkdir -p ./test/sql/tmp/
-	rm -rf ./test/sql/tmp/*
-	./build/release/test/Release/unittest.exe --test-dir . "[exondb-release-with-deb-info]"
+	mkdir -p ./test/sql/tmp/ && \
+	rm -rf ./test/sql/tmp/* && \
+	./build/release/test/Release/unittest.exe --test-dir . "[exondb-release-with-deb-info]" && \
 	rm -rf ./test/sql/tmp
 
 extension-release:
-    ENVIRONMENT=$(ENVIRONMENT) python bin/upload-artifacts.py
+    python bin/upload-artifacts.py
