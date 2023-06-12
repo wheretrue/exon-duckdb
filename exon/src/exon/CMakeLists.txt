@@ -4,7 +4,10 @@ add_subdirectory(sequence_functions)
 add_subdirectory(gff_functions)
 add_subdirectory(fastq_functions)
 add_subdirectory(core)
-add_subdirectory(alignment_functions)
+
+if(WFA2_ENABLED)
+        add_subdirectory(alignment_functions)
+endif()
 
 set(EXTENSION_SOURCES
         ${EXTENSION_SOURCES}
