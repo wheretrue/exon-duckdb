@@ -5,9 +5,12 @@
 #include "exon/arrow_table_function/module.hpp"
 #include "exon/sequence_functions/module.hpp"
 #include "exon/gff_functions/module.hpp"
-#include "exon/alignment_functions/module.hpp"
 #include "exon/fastq_functions/module.hpp"
 #include "exon/core/module.hpp"
+
+#if defined(WFA2_ENABLED)
+#include "exon/alignment_functions/module.hpp"
+#endif
 
 #include "duckdb.hpp"
 
