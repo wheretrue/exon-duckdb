@@ -69,6 +69,16 @@ list(APPEND available_contents httplib json Corrosion spdlog arrow)
 
 FetchContent_MakeAvailable(${available_contents})
 
+if(WFA2_ENABLED)
+  FetchContent_Declare(wfa2
+    GIT_REPOSITORY https://github.com/tshauck/WFA2-lib.git
+    GIT_TAG 4784d5892c25f1967174b4deb7a3a7f1f34a9cb8
+  )
+
+  FetchContent_MakeAvailable(wfa2)
+  include_directories(${wfa2_SOURCE_DIR})
+endif()
+
 corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml
   PROFILE release
 )
@@ -102,8 +112,10 @@ elseif(APPLE)
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
 
-    # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-    # "${wfa2_BINARY_DIR}/libwfa2.a"
+    ${WFA2_LIBRARIES}
+
+    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    "${wfa2_BINARY_DIR}/libwfa2.a"
 
     -lz
     -lm
@@ -121,8 +133,8 @@ elseif(UNIX)
     PUBLIC
     "${CMAKE_CURRENT_BINARY_DIR}/librust.a"
 
-    # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-    # "${wfa2_BINARY_DIR}/libwfa2.a"
+    "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+    "${wfa2_BINARY_DIR}/libwfa2.a"
 
     -lz
     -lm
