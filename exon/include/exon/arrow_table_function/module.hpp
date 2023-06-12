@@ -21,7 +21,6 @@
 #include <duckdb/parser/tableref/table_function_ref.hpp>
 #include "duckdb/function/table/arrow.hpp"
 
-
 using namespace duckdb;
 
 namespace exon

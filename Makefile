@@ -33,6 +33,14 @@ release:
 	mkdir -p build/release && \
 	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
 	cmake --build build/release --config Release -j 8 --target 'cargo-build_rust' && \
+	cmake --build build/release --config Release -j 8 --target wfa2cpp && \
+	cmake --build build/release --config Release -j 8 --target wfa2cpp_static && \
+	cmake --build build/release --config Release
+
+release_windows:
+	mkdir -p build/release && \
+	cmake $(GENERATOR) $(FORCE_COLOR) $(EXTENSION_FLAGS) ${CLIENT_FLAGS} -DEXTENSION_STATIC_BUILD=1 -DCMAKE_BUILD_TYPE=Release ${BUILD_FLAGS} -S ./duckdb/ -B build/release && \
+	cmake --build build/release --config Release -j 8 --target 'cargo-build_rust' && \
 	cmake --build build/release --config Release
 
 test: release
@@ -46,6 +54,9 @@ test_windows: release
 	rm -rf ./test/sql/tmp/* && \
 	./build/release/test/Release/unittest.exe --test-dir . "[exondb-release-with-deb-info]" && \
 	rm -rf ./test/sql/tmp
+
+test_align:
+	./build/release/test/unittest --test-dir . "[exondb-align]"
 
 extension_release:
 	python bin/upload-artifacts.py

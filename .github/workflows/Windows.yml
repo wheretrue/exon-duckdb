@@ -61,7 +61,7 @@ jobs:
 
     - name: Build extension
       run: |
-        make release
+        make release_windows
 
     - name: Test
       continue-on-error: true
