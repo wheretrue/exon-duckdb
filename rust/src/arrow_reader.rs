@@ -28,7 +28,7 @@ use exon::{
     context::ExonSessionExt, datasources::ExonFileType,
     ffi::create_dataset_stream_from_table_provider,
 };
-use object_store::aws::AmazonS3Builder;
+use object_store::{aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder};
 use tokio::runtime::Runtime;
 use url::Url;
 
@@ -117,6 +117,47 @@ pub unsafe extern "C" fn new_reader(
         let s3_url = Url::parse(&path).unwrap();
         ctx.runtime_env()
             .register_object_store(&s3_url, Arc::new(s3));
+    }
+
+    // Handle gcs file
+    if uri.starts_with("gs://") {
+        let url_from_uri = match Url::parse(uri) {
+            Ok(url) => url,
+            Err(e) => {
+                let error = CString::new(format!("could not parse uri: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let host_str = match url_from_uri.host_str() {
+            Some(host_str) => host_str,
+            None => {
+                let error = CString::new("could not parse host_str").unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let gcs = match GoogleCloudStorageBuilder::from_env()
+            .with_bucket_name(host_str)
+            .build()
+        {
+            Ok(gcs) => gcs,
+            Err(e) => {
+                let error = CString::new(format!("could not create gcs client: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        let path = format!("gs://{}", host_str);
+        let gcs_url = Url::parse(&path).unwrap();
+        ctx.runtime_env()
+            .register_object_store(&gcs_url, Arc::new(gcs));
     }
 
     rt.block_on(async {
