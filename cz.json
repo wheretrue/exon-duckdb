@@ -1,0 +1,13 @@
+{
+  "commitizen": {
+    "name": "cz_conventional_commits",
+    "version": "0.4.0",
+    "tag_format": "v$version",
+    "version_files": [
+      "./CMakeLists.txt",
+      "./Makefile",
+      "./bin/upload-artifacts.py",
+      "./exon/src/exon/core/module.cpp"
+    ]
+  }
+}
