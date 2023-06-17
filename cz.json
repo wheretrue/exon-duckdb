@@ -3,6 +3,7 @@
     "name": "cz_conventional_commits",
     "version": "0.7.0",
     "tag_format": "v$version",
+    "update_changelog_on_bump": true,
     "version_files": [
       "./CMakeLists.txt",
       "./Makefile",
