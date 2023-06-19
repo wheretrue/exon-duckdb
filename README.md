@@ -1,9 +1,16 @@
-# Exon DuckDB
+<h1 align="center">
+    <img src=".github/Duckdb+Exon.svg" width="200px" alt="exon-duckdb" />
+</h1>
 
-This repo has code that implements a [DuckDB][duckdb] frontend for [Exon][exon].
+Exon-DuckDB is a DuckDB Extension for Exon that allows for users to use exon functionality through DuckDB.
 
-The best place to find documentation containing intallation instructions and usage is at [wheretrue.dev][wheretrue-dev].
+For example, you can use the following query count the sequences in a FASTA file:
 
-[duckdb]: https://www.github.com/duckdb/duckdb
-[exon]: https://www.github.com/wheretrue/exon
-[wheretrue-dev]: https://www.wheretrue.dev
+```sql
+LOAD exon;
+
+SELECT COUNT(*)
+FROM read_fasta('file.fasta');
+```
+
+You can read more about how to use Exon-DuckDB in the [documentation](https://www.wheretrue.dev/docs/exon/exondb/).
