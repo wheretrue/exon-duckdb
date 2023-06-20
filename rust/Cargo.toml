@@ -13,10 +13,11 @@ crate-type = ["staticlib"]
 name = "rust"
 
 [dependencies]
-arrow = {version = "39", default-features = false, features = ["ffi"]}
+arrow = {version = "40", default-features = false, features = ["ffi"]}
 bytes = "1.4.0"
-datafusion = {version = "25.0.0", features = ["default"]}
-exon = {version = "0.1.1-alpha.5", features = ["all"]}
+datafusion = {version = "26.0.0", features = ["default"]}
+# exon = {version = "0.1.1-alpha.5", features = ["all"]}
+exon = {path = "../../exon/exon", features = ["all"]}
 flate2 = "1.0.26"
 noodles = {version = "0.38.0", features = ["sam", "fasta", "fastq", "gff"]}
 object_store = {version = "0.5.4", features = ["aws", "gcp", "azure", "aws_profile"]}
