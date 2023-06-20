@@ -31,6 +31,11 @@ SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fasta';
 ----
 2
 
+query I
+SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fasta' WHERE id = 'a';
+----
+1
+
 # Test counting from a FASTA file, gzip compression auto_detect
 query I
 SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fasta.gz';
@@ -49,12 +54,12 @@ SELECT count(*) FROM read_fasta('');
 
 # Test glob
 query I
-SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/*.fasta');
+SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/fasta/', compression='gzip');
 ----
 4
 
 # Test glob
-query I
-SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/*.fasta.gz');
-----
-2
+# query I
+# SELECT COUNT(*) FROM read_fasta('./test/sql/exondb-release-with-deb-info/*.fasta.gz');
+# ----
+# 2

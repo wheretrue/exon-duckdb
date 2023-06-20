@@ -28,10 +28,14 @@ namespace exon
 {
     struct GFFScanFunctionData : public TableFunctionData
     {
-        ArrowArrayStream stream;
+        string file_type;
+        string compression;
+        string file_name;
 
         unordered_map<idx_t, unique_ptr<ArrowConvertData>> arrow_convert_data;
         idx_t max_threads = 6;
+
+        vector<string> all_names;
 
         atomic<idx_t> lines_read;
     };
@@ -78,7 +82,6 @@ namespace exon
         struct ArrowArrayStream stream;
         auto vector_size = STANDARD_VECTOR_SIZE;
 
-        ReaderResult read_stream_result;
         auto compression = string("auto_detect");
 
         for (auto &kv : input.named_parameters)
@@ -89,13 +92,14 @@ namespace exon
             };
         }
 
+        ReaderResult read_stream_result;
         if (compression != "auto_detect")
         {
-            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, compression.c_str(), info.file_type.c_str());
+            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, compression.c_str(), info.file_type.c_str(), NULL);
         }
         else
         {
-            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, NULL, info.file_type.c_str());
+            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, NULL, info.file_type.c_str(), NULL);
         }
 
         if (read_stream_result.error != NULL)
@@ -115,6 +119,8 @@ namespace exon
         }
 
         auto result = duckdb::make_uniq<GFFScanFunctionData>();
+
+        result->all_names.reserve(arrow_schema.n_children);
 
         auto n_children = arrow_schema.n_children;
         for (idx_t col_idx = 0; col_idx < n_children; col_idx++)
@@ -136,13 +142,75 @@ namespace exon
                 name = string("v") + to_string(col_idx);
             }
             names.push_back(name);
-        }
 
-        result->stream = std::move(stream);
+            result->all_names.push_back(name);
+        }
 
         RenameArrowColumns(names);
 
+        result->file_name = file_name;
+        result->file_type = info.file_type;
+        result->compression = compression;
+
         return std::move(result);
+    }
+
+    static string FilterToString(const TableFilter &filter, const string &column_name)
+    {
+
+        switch (filter.filter_type)
+        {
+        case TableFilterType::CONSTANT_COMPARISON:
+        {
+            auto &constant_filter = (const ConstantFilter &)filter;
+            return column_name + ExpressionTypeToOperator(constant_filter.comparison_type) +
+                   constant_filter.constant.ToSQLString();
+        }
+        case TableFilterType::CONJUNCTION_AND:
+        {
+            auto &and_filter = (const ConjunctionAndFilter &)filter;
+            vector<string> filters;
+            for (const auto &child_filter : and_filter.child_filters)
+            {
+                filters.push_back(FilterToString(*child_filter, column_name));
+            }
+            return StringUtil::Join(filters, " AND ");
+        }
+        case TableFilterType::CONJUNCTION_OR:
+        {
+            auto &or_filter = (const ConjunctionOrFilter &)filter;
+            vector<string> filters;
+            for (const auto &child_filter : or_filter.child_filters)
+            {
+                filters.push_back(FilterToString(*child_filter, column_name));
+            }
+            return StringUtil::Join(filters, " OR ");
+        }
+        case TableFilterType::IS_NOT_NULL:
+        {
+            return column_name + " IS NOT NULL";
+        }
+        case TableFilterType::IS_NULL:
+        {
+            return column_name + " IS NULL";
+        }
+        default:
+            throw NotImplementedException("FilterToString: filter type not implemented");
+        }
+    }
+
+    static string FilterToString(const TableFilterSet &set, const vector<idx_t> &column_ids,
+                                 const vector<string> &column_names)
+    {
+
+        vector<string> filters;
+        for (auto &input_filter : set.filters)
+        {
+            auto col_idx = column_ids[input_filter.first];
+            auto &col_name = column_names[col_idx];
+            filters.push_back(FilterToString(*input_filter.second, col_name));
+        }
+        return StringUtil::Join(filters, " AND ");
     }
 
     unique_ptr<GlobalTableFunctionState> WTArrowTableFunction::InitGlobal(ClientContext &context,
@@ -151,9 +219,37 @@ namespace exon
         auto &data = (GFFScanFunctionData &)*input.bind_data;
         auto global_state = make_uniq<GFFScanGlobalState>();
 
-        global_state->stream = make_uniq<ArrowArrayStreamWrapper>();
+        string filter_clause = "";
+        if (input.filters)
+        {
+            filter_clause = FilterToString(*input.filters, input.column_ids, data.all_names);
+        }
 
-        global_state->stream->arrow_array_stream = std::move(data.stream);
+        struct ArrowArrayStream stream;
+
+        auto compression = data.compression;
+        auto file_name = data.file_name;
+        auto file_type = data.file_type;
+        auto vector_size = STANDARD_VECTOR_SIZE;
+
+        ReaderResult read_stream_result;
+
+        if (compression != "auto_detect")
+        {
+            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, compression.c_str(), file_type.c_str(), filter_clause.c_str());
+        }
+        else
+        {
+            read_stream_result = new_reader(&stream, file_name.c_str(), vector_size, NULL, file_type.c_str(), filter_clause.c_str());
+        }
+
+        if (read_stream_result.error != NULL)
+        {
+            throw std::runtime_error(read_stream_result.error);
+        }
+
+        global_state->stream = make_uniq<ArrowArrayStreamWrapper>();
+        global_state->stream->arrow_array_stream = std::move(stream);
 
         return std::move(global_state);
     }

@@ -30,7 +30,8 @@ ReaderResult new_reader(ArrowArrayStream *stream_ptr,
                         const char *uri,
                         uintptr_t batch_size,
                         const char *compression,
-                        const char *file_format);
+                        const char *file_format,
+                        const char *filters);
 
 ReplacementScanResult replacement_scan(const char *uri);
 

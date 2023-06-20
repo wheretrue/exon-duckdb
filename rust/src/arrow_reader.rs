@@ -25,7 +25,8 @@ use datafusion::{
     prelude::{SessionConfig, SessionContext},
 };
 use exon::{
-    context::ExonSessionExt, datasources::ExonFileType,
+    context::ExonSessionExt,
+    datasources::{ExonFileType, ExonReadOptions},
     ffi::create_dataset_stream_from_table_provider,
 };
 use object_store::{aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder};
@@ -44,20 +45,48 @@ pub unsafe extern "C" fn new_reader(
     batch_size: usize,
     compression: *const c_char,
     file_format: *const c_char,
+    filters: *const c_char,
 ) -> ReaderResult {
-    let uri = CStr::from_ptr(uri).to_str().unwrap();
+    let uri = match CStr::from_ptr(uri).to_str() {
+        Ok(uri) => uri,
+        Err(e) => {
+            let error = CString::new(format!("could not parse uri: {}", e)).unwrap();
+            return ReaderResult {
+                error: error.into_raw(),
+            };
+        }
+    };
+
     let rt = Arc::new(Runtime::new().unwrap());
 
     // if compression is null, try to infer from file extension
     let compression_type = if compression.is_null() {
-        let extension = uri.split('.').last().unwrap();
+        let extension = match uri.split('.').last() {
+            Some(extension) => extension,
+            None => {
+                let error = CString::new("could not parse extension").unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
         match extension {
             "gz" => FileCompressionType::GZIP,
             "zst" => FileCompressionType::ZSTD,
             _ => FileCompressionType::UNCOMPRESSED,
         }
     } else {
-        let compression = CStr::from_ptr(compression).to_str().unwrap();
+        let compression = match CStr::from_ptr(compression).to_str() {
+            Ok(compression) => compression,
+            Err(e) => {
+                let error = CString::new(format!("could not parse compression: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
         let compression =
             FileCompressionType::from_str(compression).unwrap_or(FileCompressionType::UNCOMPRESSED);
 
@@ -76,7 +105,7 @@ pub unsafe extern "C" fn new_reader(
     };
 
     let config = SessionConfig::new().with_batch_size(batch_size);
-    let ctx = SessionContext::with_config(config);
+    let ctx = SessionContext::with_config_exon(config);
 
     // handle s3
     if uri.starts_with("s3://") {
@@ -114,7 +143,16 @@ pub unsafe extern "C" fn new_reader(
         };
 
         let path = format!("s3://{}", host_str);
-        let s3_url = Url::parse(&path).unwrap();
+        let s3_url = match Url::parse(&path) {
+            Ok(url) => url,
+            Err(e) => {
+                let error = CString::new(format!("could not parse s3 url: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
         ctx.runtime_env()
             .register_object_store(&s3_url, Arc::new(s3));
     }
@@ -155,28 +193,69 @@ pub unsafe extern "C" fn new_reader(
         };
 
         let path = format!("gs://{}", host_str);
-        let gcs_url = Url::parse(&path).unwrap();
-        ctx.runtime_env()
-            .register_object_store(&gcs_url, Arc::new(gcs));
-    }
-
-    rt.block_on(async {
-        let df = match ctx
-            .read_exon_table(uri, file_type, Some(compression_type))
-            .await
-        {
-            Ok(df) => df,
+        let gcs_url = match Url::parse(&path) {
+            Ok(url) => url,
             Err(e) => {
-                let error = CString::new(format!("could not read table: {}", e)).unwrap();
+                let error = CString::new(format!("could not parse gcs url: {}", e)).unwrap();
                 return ReaderResult {
                     error: error.into_raw(),
                 };
             }
         };
 
-        create_dataset_stream_from_table_provider(df, rt.clone(), stream_ptr).await;
-        ReaderResult {
-            error: std::ptr::null(),
+        ctx.runtime_env()
+            .register_object_store(&gcs_url, Arc::new(gcs));
+    }
+
+    rt.block_on(async {
+        let options = ExonReadOptions::new(file_type).with_compression(compression_type);
+
+        if let Err(e) = ctx.register_exon_table("exon_table", uri, options).await {
+            let error = CString::new(format!("could not register table: {}", e)).unwrap();
+            return ReaderResult {
+                error: error.into_raw(),
+            };
+        }
+
+        let mut select_string = format!("SELECT * FROM exon_table");
+
+        if !filters.is_null() {
+            let filters_str = match CStr::from_ptr(filters).to_str() {
+                Ok(filters_str) => filters_str,
+                Err(e) => {
+                    let error = CString::new(format!("could not parse filters: {}", e)).unwrap();
+                    return ReaderResult {
+                        error: error.into_raw(),
+                    };
+                }
+            };
+
+            if filters_str != "" {
+                select_string.push_str(format!(" WHERE {}", filters_str).as_str());
+            }
+        }
+
+        let df = match ctx.sql(&select_string).await {
+            Ok(df) => df,
+            Err(e) => {
+                let error = CString::new(format!("could not execute sql: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
+        };
+
+        match create_dataset_stream_from_table_provider(df, rt.clone(), stream_ptr).await {
+            Ok(_) => ReaderResult {
+                error: std::ptr::null(),
+            },
+            Err(e) => {
+                let error =
+                    CString::new(format!("could not create dataset stream: {}", e)).unwrap();
+                return ReaderResult {
+                    error: error.into_raw(),
+                };
+            }
         }
     })
 }

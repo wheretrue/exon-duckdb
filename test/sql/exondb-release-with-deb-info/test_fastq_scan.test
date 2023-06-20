@@ -61,8 +61,8 @@ SELECT count(*) FROM './test/sql/exondb-release-with-deb-info/test.fastq.zst';
 statement error
 SELECT count(*) FROM read_fastq('');
 
-# Test glob functionality
+# Test list functionality
 query I
-SELECT COUNT(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/*.fastq') LIMIT 1;
+SELECT COUNT(*) FROM read_fastq('./test/sql/exondb-release-with-deb-info/fastq/') LIMIT 1;
 ----
 4
