@@ -1265,7 +1265,9 @@ dependencies = [
 
 [[package]]
 name = "exon"
-version = "0.1.1"
+version = "0.1.2-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9de9dad7edb8b57844c6cfb471772bf6ed9b81ffd2211e0b5297f353962816fa"
 dependencies = [
  "arrow",
  "async-trait",
