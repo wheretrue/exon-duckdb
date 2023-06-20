@@ -17,7 +17,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--name", default="exon")
-    parser.add_argument("--version", default="v0.7.1")
+    parser.add_argument("--version", default="v0.7.2")
     parser.add_argument("--duckdb_version", default="v0.8.1")
     parser.add_argument("--gcc4", action="store_true")
 
