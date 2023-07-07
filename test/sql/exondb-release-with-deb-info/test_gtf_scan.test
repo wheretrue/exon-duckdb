@@ -1,0 +1,22 @@
+statement ok
+LOAD 'build/release/extension/exon/exon.duckdb_extension';
+
+# Test counting from a GFF file
+query IIIIIIIII
+SELECT seqid, source, type, start, "end", score, strand, frame, attributes['gene_id'][1] FROM read_gtf('./test/sql/exondb-release-with-deb-info/gtf/test.gtf') LIMIT 1;
+----
+chr1
+processed_transcript
+exon
+11869
+12227
+NULL
++
+NULL
+ENSG00000223972
+
+# Test counting from a GFF file
+query I
+SELECT count(*) FROM read_gtf('./test/sql/exondb-release-with-deb-info/gtf/test.gtf');
+----
+77
