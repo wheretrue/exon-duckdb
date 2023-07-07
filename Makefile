@@ -1,7 +1,4 @@
-pull:
-	git submodule init
-	git submodule update --recursive --remote
-
+default: release
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 PROJ_DIR := $(dir $(MKFILE_PATH))
@@ -60,3 +57,7 @@ test_align:
 
 extension_release:
 	python bin/upload-artifacts.py
+
+pull:
+	git submodule init
+	git submodule update --recursive --remote

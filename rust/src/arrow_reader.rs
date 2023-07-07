@@ -28,10 +28,9 @@ use exon::{
     context::ExonSessionExt,
     datasources::{ExonFileType, ExonReadOptions},
     ffi::create_dataset_stream_from_table_provider,
+    runtime_env::ExonRuntimeEnvExt,
 };
-use object_store::{aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder};
 use tokio::runtime::Runtime;
-use url::Url;
 
 #[repr(C)]
 pub struct ReaderResult {
@@ -107,107 +106,15 @@ pub unsafe extern "C" fn new_reader(
     let config = SessionConfig::new().with_batch_size(batch_size);
     let ctx = SessionContext::with_config_exon(config);
 
-    // handle s3
-    if uri.starts_with("s3://") {
-        let url_from_uri = match Url::parse(uri) {
-            Ok(url) => url,
-            Err(e) => {
-                let error = CString::new(format!("could not parse uri: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let host_str = match url_from_uri.host_str() {
-            Some(host_str) => host_str,
-            None => {
-                let error = CString::new("could not parse host_str").unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let s3 = match AmazonS3Builder::from_env()
-            .with_bucket_name(host_str)
-            .build()
-        {
-            Ok(s3) => s3,
-            Err(e) => {
-                let error = CString::new(format!("could not create s3 client: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let path = format!("s3://{}", host_str);
-        let s3_url = match Url::parse(&path) {
-            Ok(url) => url,
-            Err(e) => {
-                let error = CString::new(format!("could not parse s3 url: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        ctx.runtime_env()
-            .register_object_store(&s3_url, Arc::new(s3));
-    }
-
-    // Handle gcs file
-    if uri.starts_with("gs://") {
-        let url_from_uri = match Url::parse(uri) {
-            Ok(url) => url,
-            Err(e) => {
-                let error = CString::new(format!("could not parse uri: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let host_str = match url_from_uri.host_str() {
-            Some(host_str) => host_str,
-            None => {
-                let error = CString::new("could not parse host_str").unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let gcs = match GoogleCloudStorageBuilder::from_env()
-            .with_bucket_name(host_str)
-            .build()
-        {
-            Ok(gcs) => gcs,
-            Err(e) => {
-                let error = CString::new(format!("could not create gcs client: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        let path = format!("gs://{}", host_str);
-        let gcs_url = match Url::parse(&path) {
-            Ok(url) => url,
-            Err(e) => {
-                let error = CString::new(format!("could not parse gcs url: {}", e)).unwrap();
-                return ReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
-
-        ctx.runtime_env()
-            .register_object_store(&gcs_url, Arc::new(gcs));
-    }
-
     rt.block_on(async {
+        if let Err(e) = ctx.runtime_env().exon_register_object_store_uri(uri).await {
+            return ReaderResult {
+                error: CString::new(format!("could not register object store: {}", e))
+                    .unwrap()
+                    .into_raw(),
+            };
+        }
+
         let options = ExonReadOptions::new(file_type).with_compression(compression_type);
 
         if let Err(e) = ctx.register_exon_table("exon_table", uri, options).await {
