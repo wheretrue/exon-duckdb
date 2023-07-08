@@ -39,3 +39,15 @@ G
 0.0
 NULL
 1
+
+
+query IIIIIII
+SELECT * FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1') LIMIT 1;
+---
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1

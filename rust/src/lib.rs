@@ -13,5 +13,6 @@
 // limitations under the License.
 
 pub mod arrow_reader;
+pub mod vcf_query_reader;
 
 pub mod sam_functions;
