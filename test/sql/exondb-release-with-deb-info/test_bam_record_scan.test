@@ -20,3 +20,22 @@ CGAGCTCGGT
 statement error
 SELECT * FROM read_bam_file_records('./test/sql/exondb-release-with-deb-info/bam/missing.bam')
 ----
+
+query I
+SELECT COUNT(*) FROM bam_query('./test/sql/exondb-release-with-deb-info/bam-index/test.bam', 'chr1');
+----
+61
+
+query IIIIIIIIII
+SELECT name, flag, reference, start, "end", mapping_quality, cigar, mate_reference, sequence, quality_score FROM bam_query('./test/sql/exondb-release-with-deb-info/bam-index/test.bam', 'chr1') LIMIT 1;
+----
+READ_ID
+83
+chr1
+12203704
+12217173
+NULL
+55M13394N21M
+chr1
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+8DCCCC?::>CDDB<<>@3CCDBD@DBDFHHHFEIIGCAIIHIF@@DDGGEBEGEIHGGGDGG?BHHHDFFFF@@<

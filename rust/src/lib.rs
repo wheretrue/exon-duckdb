@@ -13,6 +13,7 @@
 // limitations under the License.
 
 pub mod arrow_reader;
+pub mod bam_query_reader;
 pub mod bcf_query_reader;
 pub mod vcf_query_reader;
 
