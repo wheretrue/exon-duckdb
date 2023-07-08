@@ -7,6 +7,7 @@
 #include "exon/gff_functions/module.hpp"
 #include "exon/fastq_functions/module.hpp"
 #include "exon/vcf_query_function/module.hpp"
+#include "exon/bcf_query_function/module.hpp"
 #include "exon/core/module.hpp"
 
 #if defined(WFA2_ENABLED)
@@ -70,6 +71,7 @@ namespace duckdb
 		catalog.CreateFunction(context, get_wtt01_version_function);
 
 		exon::VCFQueryTableFunction::Register(context);
+		exon::BCFQueryTableFunction::Register(context);
 
 		config.replacement_scans.emplace_back(exon::WTArrowTableFunction::ReplacementScan);
 

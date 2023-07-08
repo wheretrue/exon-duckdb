@@ -12,6 +12,10 @@ struct ReplacementScanResult {
   const char *file_type;
 };
 
+struct BCFReaderResult {
+  const char *error;
+};
+
 struct VCFReaderResult {
   const char *error;
 };
@@ -38,6 +42,11 @@ ReaderResult new_reader(ArrowArrayStream *stream_ptr,
                         const char *filters);
 
 ReplacementScanResult replacement_scan(const char *uri);
+
+BCFReaderResult bcf_query_reader(ArrowArrayStream *stream_ptr,
+                                 const char *uri,
+                                 const char *query,
+                                 uintptr_t batch_size);
 
 VCFReaderResult vcf_query_reader(ArrowArrayStream *stream_ptr,
                                  const char *uri,

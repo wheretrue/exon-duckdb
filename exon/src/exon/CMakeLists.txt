@@ -3,6 +3,7 @@ add_subdirectory(sam_functions)
 add_subdirectory(sequence_functions)
 add_subdirectory(gff_functions)
 add_subdirectory(vcf_query_function)
+add_subdirectory(bcf_query_function)
 add_subdirectory(fastq_functions)
 add_subdirectory(core)
 
