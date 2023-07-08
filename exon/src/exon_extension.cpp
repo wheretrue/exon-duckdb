@@ -42,6 +42,7 @@ namespace duckdb
 		}
 
 		exon::WTArrowTableFunction::Register("read_gff", "gff", context);
+		exon::WTArrowTableFunction::Register("read_gtf", "gtf", context);
 		exon::WTArrowTableFunction::Register("read_fasta", "fasta", context);
 		exon::WTArrowTableFunction::Register("read_fastq", "fastq", context);
 		exon::WTArrowTableFunction::Register("read_sam_file_records", "sam", context);
