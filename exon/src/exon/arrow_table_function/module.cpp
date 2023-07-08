@@ -26,7 +26,7 @@
 
 namespace exon
 {
-    struct GFFScanFunctionData : public TableFunctionData
+    struct ExonScanFunctionData : public TableFunctionData
     {
         string file_type;
         string compression;
@@ -40,11 +40,11 @@ namespace exon
         atomic<idx_t> lines_read;
     };
 
-    struct GFFScanGlobalState : ArrowScanGlobalState
+    struct ExonScanGlobalState : ArrowScanGlobalState
     {
     };
 
-    struct GFFScanLocalState : ArrowScanLocalState
+    struct ExonScanLocalState : ArrowScanLocalState
     {
     };
 
@@ -118,7 +118,7 @@ namespace exon
             throw std::runtime_error("Failed to get schema");
         }
 
-        auto result = duckdb::make_uniq<GFFScanFunctionData>();
+        auto result = duckdb::make_uniq<ExonScanFunctionData>();
 
         result->all_names.reserve(arrow_schema.n_children);
 
@@ -216,8 +216,8 @@ namespace exon
     unique_ptr<GlobalTableFunctionState> WTArrowTableFunction::InitGlobal(ClientContext &context,
                                                                           TableFunctionInitInput &input)
     {
-        auto &data = (GFFScanFunctionData &)*input.bind_data;
-        auto global_state = make_uniq<GFFScanGlobalState>();
+        auto &data = (ExonScanFunctionData &)*input.bind_data;
+        auto global_state = make_uniq<ExonScanGlobalState>();
 
         string filter_clause = "";
         if (input.filters)
@@ -260,9 +260,9 @@ namespace exon
         {
             return;
         }
-        auto &data = (GFFScanFunctionData &)*input.bind_data;
+        auto &data = (ExonScanFunctionData &)*input.bind_data;
         auto &state = (ArrowScanLocalState &)*input.local_state;
-        auto &global_state = (GFFScanGlobalState &)*input.global_state;
+        auto &global_state = (ExonScanGlobalState &)*input.global_state;
 
         //! Out of tuples in this chunk
         if (state.chunk_offset >= (idx_t)state.chunk->arrow_array.length)
