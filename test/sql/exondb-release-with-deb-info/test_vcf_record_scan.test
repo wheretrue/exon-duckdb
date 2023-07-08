@@ -40,10 +40,14 @@ G
 NULL
 1
 
+query I
+SELECT COUNT(*) FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1');
+----
+191
 
 query IIIIIII
-SELECT * FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1') LIMIT 1;
----
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1') LIMIT 1;
+----
 1
 9999919
 G
