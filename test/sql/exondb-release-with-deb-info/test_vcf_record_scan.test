@@ -39,3 +39,35 @@ G
 0.0
 NULL
 1
+
+query I
+SELECT COUNT(*) FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1');
+----
+191
+
+query IIIIIII
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM vcf_query('./test/sql/exondb-release-with-deb-info/vcf-index/index.vcf.gz', '1') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1
+
+query I
+SELECT COUNT(*) FROM bcf_query('./test/sql/exondb-release-with-deb-info/bcf-index/index.bcf', '1');
+----
+191
+
+query IIIIIII
+SELECT chrom, pos, ref, alt, qual, info.indel, info.dp FROM bcf_query('./test/sql/exondb-release-with-deb-info/bcf-index/index.bcf', '1') LIMIT 1;
+----
+1
+9999919
+G
+[<*>]
+0.0
+NULL
+1

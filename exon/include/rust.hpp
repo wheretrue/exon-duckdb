@@ -12,6 +12,18 @@ struct ReplacementScanResult {
   const char *file_type;
 };
 
+struct BAMReaderResult {
+  const char *error;
+};
+
+struct BCFReaderResult {
+  const char *error;
+};
+
+struct VCFReaderResult {
+  const char *error;
+};
+
 struct CResult {
   const char *value;
   const char *error;
@@ -34,6 +46,21 @@ ReaderResult new_reader(ArrowArrayStream *stream_ptr,
                         const char *filters);
 
 ReplacementScanResult replacement_scan(const char *uri);
+
+BAMReaderResult bam_query_reader(ArrowArrayStream *stream_ptr,
+                                 const char *uri,
+                                 const char *query,
+                                 uintptr_t batch_size);
+
+BCFReaderResult bcf_query_reader(ArrowArrayStream *stream_ptr,
+                                 const char *uri,
+                                 const char *query,
+                                 uintptr_t batch_size);
+
+VCFReaderResult vcf_query_reader(ArrowArrayStream *stream_ptr,
+                                 const char *uri,
+                                 const char *query,
+                                 uintptr_t batch_size);
 
 bool is_segmented(uint16_t flag);
 

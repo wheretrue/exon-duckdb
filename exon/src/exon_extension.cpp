@@ -6,6 +6,9 @@
 #include "exon/sequence_functions/module.hpp"
 #include "exon/gff_functions/module.hpp"
 #include "exon/fastq_functions/module.hpp"
+#include "exon/vcf_query_function/module.hpp"
+#include "exon/bcf_query_function/module.hpp"
+#include "exon/bam_query_function/module.hpp"
 #include "exon/core/module.hpp"
 
 #if defined(WFA2_ENABLED)
@@ -65,11 +68,12 @@ namespace duckdb
 		auto extract_sequence_from_cigar = exon::SamFunctions::GetExtractFromCIGARFunction();
 		catalog.CreateFunction(context, *extract_sequence_from_cigar);
 
-		// auto third_party_acks = exon::ExonDbFunctions::GetThirdPartyAcknowledgementTable();
-		// catalog.CreateTableFunction(context, &third_party_acks);
-
 		auto get_wtt01_version_function = exon::ExonDbFunctions::GetExonDbVersionFunction();
 		catalog.CreateFunction(context, get_wtt01_version_function);
+
+		exon::VCFQueryTableFunction::Register(context);
+		exon::BCFQueryTableFunction::Register(context);
+		exon::BAMQueryTableFunction::Register(context);
 
 		config.replacement_scans.emplace_back(exon::WTArrowTableFunction::ReplacementScan);
 
