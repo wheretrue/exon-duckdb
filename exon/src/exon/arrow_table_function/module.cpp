@@ -369,6 +369,10 @@ namespace exon
         {
             table_function->function = make_uniq<FunctionExpression>("read_hmm_dom_tbl_out", std::move(children));
         }
+        else if (file_type == "MZML")
+        {
+            table_function->function = make_uniq<FunctionExpression>("read_mzml", std::move(children));
+        }
         else
         {
             throw std::runtime_error("Unknown file type");
