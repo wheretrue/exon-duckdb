@@ -3,7 +3,7 @@ LOAD 'build/release/extension/exon/exon.duckdb_extension';
 
 # Test counting from a GFF file
 query IIIIIIIII
-SELECT seqid, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
+SELECT seqname, source, type, start, "end", score, strand, phase, attributes FROM read_gff('./test/sql/exondb-release-with-deb-info/test.gff');
 ----
 sq0
 caat
