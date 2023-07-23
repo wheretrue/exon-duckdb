@@ -64,7 +64,6 @@ jobs:
         make release_windows
 
     - name: Test
-      continue-on-error: true
       run: |
         make test_windows
 

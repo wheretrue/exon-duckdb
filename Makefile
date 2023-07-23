@@ -46,7 +46,7 @@ test: release
 	./build/release/test/unittest --test-dir . "[exondb-release-with-deb-info]" && \
 	rm -rf ./test/sql/tmp
 
-test_windows: release
+test_windows: release_windows
 	mkdir -p ./test/sql/tmp/ && \
 	rm -rf ./test/sql/tmp/* && \
 	./build/release/test/Release/unittest.exe --test-dir . "[exondb-release-with-deb-info]" && \

@@ -25,10 +25,9 @@ use datafusion::{
     prelude::{SessionConfig, SessionContext},
 };
 use exon::{
-    context::ExonSessionExt,
     datasources::{ExonFileType, ExonReadOptions},
     ffi::create_dataset_stream_from_table_provider,
-    runtime_env::ExonRuntimeEnvExt,
+    ExonRuntimeEnvExt, ExonSessionExt,
 };
 use tokio::runtime::Runtime;
 
