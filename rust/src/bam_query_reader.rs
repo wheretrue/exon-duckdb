@@ -19,7 +19,7 @@ use std::{
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
 use datafusion::prelude::{SessionConfig, SessionContext};
-use exon::{context::ExonSessionExt, ffi::create_dataset_stream_from_table_provider};
+use exon::{ffi::create_dataset_stream_from_table_provider, ExonSessionExt};
 use tokio::runtime::Runtime;
 
 #[repr(C)]
