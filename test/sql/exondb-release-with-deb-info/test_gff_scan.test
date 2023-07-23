@@ -13,7 +13,7 @@ gene
 NULL
 +
 NULL
-{gene_id=caat1, gene_name=gene0}
+{gene_id=[caat1], gene_name=[gene0]}
 sq1
 caat
 gene
@@ -22,7 +22,7 @@ gene
 0.1
 +
 0
-{gene_id=caat2, gene_name=gene0}
+{gene_id=[caat2], gene_name=[gene0]}
 
 # Test counting from a GFF file
 query I
