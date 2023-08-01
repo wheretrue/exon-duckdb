@@ -19,7 +19,7 @@ use std::{
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
 use datafusion::prelude::{SessionConfig, SessionContext};
-use exon::{ffi::create_dataset_stream_from_table_provider, ExonSessionExt};
+use exon::{ffi::create_dataset_stream_from_table_provider, new_exon_config, ExonSessionExt};
 use tokio::runtime::Runtime;
 
 #[repr(C)]
@@ -46,7 +46,7 @@ pub unsafe extern "C" fn vcf_query_reader(
 
     let rt = Arc::new(Runtime::new().unwrap());
 
-    let config = SessionConfig::new().with_batch_size(batch_size);
+    let config = new_exon_config().with_batch_size(batch_size);
     let ctx = SessionContext::with_config_exon(config);
 
     let query = match CStr::from_ptr(query).to_str() {
