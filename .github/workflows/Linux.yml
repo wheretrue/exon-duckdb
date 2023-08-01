@@ -84,11 +84,11 @@ jobs:
         submodules: "true"
 
     - name: Setup mamba
-      uses: mamba-org/provision-with-micromamba@main
+      uses: mamba-org/setup-micromamba@main
       with:
         environment-file: environment.yml
         cache-downloads: true
-        cache-env: true
+        cache-environment: true
 
     - name: Install latest nightly
       uses: actions-rs/toolchain@v1
@@ -108,7 +108,7 @@ jobs:
 
       # Build extension
     - name: Build extension
-      shell: bash -l {0}
+      shell: bash -el {0}
       env:
         GEN: ninja
         STATIC_LIBCPP: 1
@@ -118,7 +118,7 @@ jobs:
         make release
 
     - name: Test extension
-      shell: bash -l {0}
+      shell: bash -el {0}
       continue-on-error: true
       run: |
         make test
@@ -136,7 +136,7 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-deploy-role
 
     - name: upload to s3 no gcc
-      shell: bash -l {0}
+      shell: bash -el {0}
       if: ${{ matrix.arch == 'linux_amd64' }}
       env:
         ENVIRONMENT: ${{ env.ENVIRONMENT }}
@@ -144,7 +144,7 @@ jobs:
         python bin/upload-artifacts.py
 
     - name: upload to s3 gcc4
-      shell: bash -l {0}
+      shell: bash -el {0}
       if: ${{ matrix.arch == 'linux_amd64_gcc4' }}
       env:
         ENVIRONMENT: ${{ env.ENVIRONMENT }}
