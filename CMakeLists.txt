@@ -141,6 +141,7 @@ elseif(UNIX)
     -lbz2
     -llzma
     -lcurl
+    -lpthread
     ${OPENSSL_LIBRARIES}
   )
 endif()

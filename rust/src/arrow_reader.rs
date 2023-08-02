@@ -21,13 +21,12 @@ use std::{
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
 use datafusion::{
-    datasource::file_format::file_type::FileCompressionType,
-    prelude::{SessionConfig, SessionContext},
+    datasource::file_format::file_type::FileCompressionType, prelude::SessionContext,
 };
 use exon::{
     datasources::{ExonFileType, ExonReadOptions},
     ffi::create_dataset_stream_from_table_provider,
-    ExonRuntimeEnvExt, ExonSessionExt,
+    new_exon_config, ExonRuntimeEnvExt, ExonSessionExt,
 };
 use tokio::runtime::Runtime;
 
@@ -102,7 +101,7 @@ pub unsafe extern "C" fn new_reader(
         }
     };
 
-    let config = SessionConfig::new().with_batch_size(batch_size);
+    let config = new_exon_config().with_batch_size(batch_size);
     let ctx = SessionContext::with_config_exon(config);
 
     rt.block_on(async {

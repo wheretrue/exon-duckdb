@@ -74,9 +74,9 @@ checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
 
 [[package]]
 name = "arrow"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "773d18d72cd290f3f9e2149a714c8ac404b6c3fd614c684f0015449940fca899"
+checksum = "2feeebd77b34b0bc88f224e06d01c27da4733997cc4789a4e056196656cdc59a"
 dependencies = [
  "ahash",
  "arrow-arith",
@@ -96,9 +96,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-arith"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93bc0da4b22ba63807fa2a74998e21209179c93c67856ae65d9218b81f3ef918"
+checksum = "7173f5dc49c0ecb5135f52565af33afd3fdc9a12d13bd6f9973e8b96305e4b2e"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -111,9 +111,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-array"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea9a0fd21121304cad96f307c938d861cb1e7f0c151b93047462cd9817d760fb"
+checksum = "63d7ea725f7d1f8bb2cffc53ef538557e95fc802e217d5be25122d402e22f3d0"
 dependencies = [
  "ahash",
  "arrow-buffer",
@@ -128,9 +128,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-buffer"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30ce342ecf5971004e23cef8b5fb3bacd2bbc48a381464144925074e1472e9eb"
+checksum = "bdbe439e077f484e5000b9e1d47b5e4c0d15f2b311a8f5bcc682553d5d67a722"
 dependencies = [
  "half",
  "num",
@@ -138,9 +138,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-cast"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b94a0ce7d27abbb02e2ee4db770f593127610f57b32625b0bc6a1a90d65f085"
+checksum = "93913cc14875770aa1eef5e310765e855effa352c094cb1c7c00607d0f37b4e1"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -156,9 +156,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-csv"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f3be10a00a43c4bf0d243c070754ebdde17c5d576b4928d9c3efbe3005a3853"
+checksum = "ef55b67c55ed877e6fe7b923121c19dae5e31ca70249ea2779a17b58fb0fbd9a"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -175,9 +175,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-data"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d9a83dad6a53d6907765106d3bc61d6d9d313cfe1751701b3ef0948e7283dc2"
+checksum = "d4f4f4a3c54614126a71ab91f6631c9743eb4643d6e9318b74191da9dc6e028b"
 dependencies = [
  "arrow-buffer",
  "arrow-schema",
@@ -187,9 +187,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ipc"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a46da5e438a854e0386b38774da88a98782c0973c6dbc5c949ca4e02faf9b016"
+checksum = "d41a3659f984a524ef1c2981d43747b24d8eec78e2425267fcd0ef34ce71cd18"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -201,9 +201,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-json"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5f27a1fbc76553ad92dc1a9583e56b7058d8c418c4089b0b689f5b87e2da5e1"
+checksum = "10b95faa95a378f56ef32d84cc0104ea998c39ef7cd1faaa6b4cebf8ea92846d"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -212,7 +212,7 @@ dependencies = [
  "arrow-schema",
  "chrono",
  "half",
- "indexmap 1.9.2",
+ "indexmap 2.0.0",
  "lexical-core",
  "num",
  "serde",
@@ -221,9 +221,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ord"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2373661f6c2233e18f6fa69c40999a9440231d1e8899be8bbbe73c7e24aa3b4"
+checksum = "c68549a4284d9f8b39586afb8d5ff8158b8f0286353a4844deb1d11cf1ba1f26"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -236,9 +236,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-row"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "377cd5158b7de4034a175e296726c40c3236e65d71d90a5dab2fb4fab526a8f4"
+checksum = "0a75a4a757afc301ce010adadff54d79d66140c4282ed3de565f6ccb716a5cf3"
 dependencies = [
  "ahash",
  "arrow-array",
@@ -251,18 +251,18 @@ dependencies = [
 
 [[package]]
 name = "arrow-schema"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba9ed245bd2d7d97ad1457cb281d4296e8b593588758b8fec6d67b2b2b0f2265"
+checksum = "2bebcb57eef570b15afbcf2d07d813eb476fde9f6dd69c81004d6476c197e87e"
 dependencies = [
  "bitflags 2.0.2",
 ]
 
 [[package]]
 name = "arrow-select"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0dc9bd6aebc565b1d04bae64a0f4dda3abc677190eb7d960471b1b20e1cebed0"
+checksum = "f6e2943fa433a48921e914417173816af64eef61c0a3d448280e6c40a62df221"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -273,15 +273,16 @@ dependencies = [
 
 [[package]]
 name = "arrow-string"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23cf2baea2ef53787332050decf7d71aca836a352e188c8ad062892405955d2b"
+checksum = "bbc92ed638851774f6d7af1ad900b92bc1486746497511868b4298fcbcfa35af"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
  "arrow-data",
  "arrow-schema",
  "arrow-select",
+ "num",
  "regex",
  "regex-syntax",
 ]
@@ -1055,9 +1056,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e96f6e4eb10bd3e6b709686858246466983e8c5354a928ff77ee34919aa60d00"
+checksum = "5ddbcb2dda5b5033537457992ebde78938014390b2b19f9f4282e3be0e18b0c3"
 dependencies = [
  "ahash",
  "arrow",
@@ -1074,13 +1075,13 @@ dependencies = [
  "datafusion-expr",
  "datafusion-optimizer",
  "datafusion-physical-expr",
- "datafusion-row",
  "datafusion-sql",
  "flate2",
  "futures",
  "glob",
+ "half",
  "hashbrown 0.14.0",
- "indexmap 1.9.2",
+ "indexmap 2.0.0",
  "itertools 0.11.0",
  "lazy_static",
  "log",
@@ -1104,9 +1105,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-common"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00e5fddcc0dd49bbe199e43aa406f39c46c790bb2a43c7b36a478e5f3f971235"
+checksum = "85fbb7b4da925031311743ab96662d55f0f7342d3692744f184f99b2257ef435"
 dependencies = [
  "arrow",
  "arrow-array",
@@ -1119,9 +1120,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-execution"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfd50b6cb17acc78d2473c0d28014b8fd4e2e0a2c067c07645d6547b33b0aeeb"
+checksum = "5bb3617466d894eb0ad11d06bab1e6e89c571c0a27d660685d327d0c6e1e1ccd"
 dependencies = [
  "dashmap",
  "datafusion-common",
@@ -1137,9 +1138,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-expr"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1a35dc2cd9eac18063d636f7ddf4f090fe1f34284d80192ac7ade38cc3c6991"
+checksum = "3bd8220a0dfcdfddcc785cd7e71770ef1ce54fbe1e08984e5adf537027ecb6de"
 dependencies = [
  "ahash",
  "arrow",
@@ -1152,9 +1153,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-optimizer"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f5043afeb45ec1c0f45519e1eed6a477f2d30732e8f975d9cf9a75fba0ca716"
+checksum = "1d685a100c66952aaadd0cbe766df46d1887d58fc8bcf3589e6387787f18492b"
 dependencies = [
  "arrow",
  "async-trait",
@@ -1170,27 +1171,29 @@ dependencies = [
 
 [[package]]
 name = "datafusion-physical-expr"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cc892a24f4b829ee7718ad3950884c0346dbdf1517f3df153af4bcf54d8ca4d"
+checksum = "0f2c635da9b05b4b4c6c8d935f46fd99f9b6225f834091cf4e3c8a045b68beab"
 dependencies = [
  "ahash",
  "arrow",
  "arrow-array",
  "arrow-buffer",
  "arrow-schema",
+ "base64",
  "blake2",
  "blake3",
  "chrono",
  "datafusion-common",
  "datafusion-expr",
- "datafusion-row",
  "half",
  "hashbrown 0.14.0",
- "indexmap 1.9.2",
+ "hex",
+ "indexmap 2.0.0",
  "itertools 0.11.0",
  "lazy_static",
  "libc",
+ "log",
  "md-5",
  "paste",
  "petgraph",
@@ -1202,22 +1205,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "datafusion-row"
-version = "27.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce75c660bbddfdd254109e668e5b5bd69df31ea26e3768e15cef0c68015e650e"
-dependencies = [
- "arrow",
- "datafusion-common",
- "paste",
- "rand",
-]
-
-[[package]]
 name = "datafusion-sql"
-version = "27.0.0"
+version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49cab87e4933a452e0b7b3f0cbd0e760daf7d33fb54d09d70d3ffba229eaa652"
+checksum = "b3ef8abf4dd84d3f20c910822b52779c035ab7f4f2d5e7125ede3bae618e9de8"
 dependencies = [
  "arrow",
  "arrow-schema",
@@ -1281,9 +1272,9 @@ dependencies = [
 
 [[package]]
 name = "exon"
-version = "0.2.6-beta.2"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a091edf6dae04bf3e4ad87fe1d715f1aea4d5ed1e972388051efe3d68e4cbea"
+checksum = "b1bb7a7f30bdac3a5c4a9731315ba8de047316c2db70eb87f98adfb3ae45d1b5"
 dependencies = [
  "arrow",
  "async-trait",
@@ -1296,10 +1287,12 @@ dependencies = [
  "flate2",
  "futures",
  "gb-io",
- "noodles 0.45.0",
+ "noodles",
+ "num_cpus",
  "object_store",
+ "parking_lot",
  "pin-project",
- "quick-xml 0.29.0",
+ "quick-xml 0.30.0",
  "serde",
  "tokio",
  "tokio-util",
@@ -1551,12 +1544,9 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.2.6"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee512640fe35acbfb4bb779db6f0d80704c2cacfa2e39b601ef3e3f47d1ae4c7"
-dependencies = [
- "libc",
-]
+checksum = "443144c8cdadd93ebf52ddb4056d257f5b52c04d3c804e657d19eb73fc33668b"
 
 [[package]]
 name = "hex"
@@ -1999,52 +1989,40 @@ dependencies = [
 
 [[package]]
 name = "noodles"
-version = "0.38.0"
+version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f4ad3a4cc6c1c0ffb88bda2eece6a3a2e9cd7c3a8161f74f88872909ce00294"
-dependencies = [
- "noodles-fasta 0.22.0",
- "noodles-fastq 0.7.1",
- "noodles-gff 0.11.0",
- "noodles-sam 0.29.0",
-]
-
-[[package]]
-name = "noodles"
-version = "0.45.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ec5a0da9e505ec562008ecffa514f810bf131bf41de0c4a5c5d491b432b111f"
+checksum = "b7375dbfcd8a0f37bc8f9ac105614bc821860ed1bc085d2b2b0b4025fd8375c6"
 dependencies = [
  "noodles-bam",
  "noodles-bcf",
  "noodles-bed",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
+ "noodles-bgzf",
+ "noodles-core",
  "noodles-cram",
- "noodles-csi 0.22.0",
- "noodles-fasta 0.26.0",
- "noodles-fastq 0.8.0",
- "noodles-gff 0.17.0",
+ "noodles-csi",
+ "noodles-fasta",
+ "noodles-fastq",
+ "noodles-gff",
  "noodles-gtf",
- "noodles-sam 0.36.0",
+ "noodles-sam",
  "noodles-tabix",
  "noodles-vcf",
 ]
 
 [[package]]
 name = "noodles-bam"
-version = "0.39.0"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdeb844c20c1464b177bbc29221615b369533a59719c2c220ea0a1a9d069ad71"
+checksum = "719973d977642a2e7ff85770e14a9d0b3d53810caad12589369da23dc713e76d"
 dependencies = [
  "bit-vec",
  "byteorder",
  "bytes",
  "futures",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
- "noodles-sam 0.36.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
+ "noodles-sam",
  "tokio",
 ]
 
@@ -2057,9 +2035,9 @@ dependencies = [
  "byteorder",
  "futures",
  "indexmap 2.0.0",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
  "noodles-vcf",
  "tokio",
 ]
@@ -2070,19 +2048,7 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "deba180b7b94c524307da91d5bc983e0ccb9a08c4e24384cc8f93e0210af254a"
 dependencies = [
- "noodles-core 0.12.0",
-]
-
-[[package]]
-name = "noodles-bgzf"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf38d9f8687d88b5e7cc53ac0732de833c76933fbb53a2c5c6ccf3bdf73d7699"
-dependencies = [
- "byteorder",
- "bytes",
- "crossbeam-channel",
- "flate2",
+ "noodles-core",
 ]
 
 [[package]]
@@ -2103,21 +2069,15 @@ dependencies = [
 
 [[package]]
 name = "noodles-core"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72f9ab09e13392e71797e7502109575d2aae5cb2002bd2304647f7746215c2fe"
-
-[[package]]
-name = "noodles-core"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94fbe3192fe33acacabaedd387657f39b0fc606f1996d546db0dfe14703b843a"
 
 [[package]]
 name = "noodles-cram"
-version = "0.36.0"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad5b8ce88f8656ab8bc3ee263e7ec8523fd827613c385b192b09a916142dcfb6"
+checksum = "c1758a42f8b3063267f09d56116209028f2a542509dacd4da3332d20374ca9eb"
 dependencies = [
  "async-compression",
  "bitflags 2.0.2",
@@ -2128,25 +2088,12 @@ dependencies = [
  "futures",
  "md-5",
  "noodles-bam",
- "noodles-core 0.12.0",
- "noodles-fasta 0.26.0",
- "noodles-sam 0.36.0",
+ "noodles-core",
+ "noodles-fasta",
+ "noodles-sam",
  "pin-project-lite",
  "tokio",
  "xz2",
-]
-
-[[package]]
-name = "noodles-csi"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f4c8fedbfa1317d1f2bf2961864a2b251402befed340b522bc1251de5bec195"
-dependencies = [
- "bit-vec",
- "byteorder",
- "indexmap 1.9.2",
- "noodles-bgzf 0.21.0",
- "noodles-core 0.11.0",
 ]
 
 [[package]]
@@ -2158,43 +2105,22 @@ dependencies = [
  "bit-vec",
  "byteorder",
  "indexmap 2.0.0",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
+ "noodles-bgzf",
+ "noodles-core",
  "tokio",
 ]
 
 [[package]]
 name = "noodles-fasta"
-version = "0.22.0"
+version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26d21fffe965a7679793f307ec78cd0ae11bbf517dd1002f8f1ae7ec98ce6038"
+checksum = "a8af3e2fd41a831ab9fbbbd33ce00ab2c1299d6548c13ffc30152ede4d10f6ea"
 dependencies = [
  "bytes",
  "memchr",
- "noodles-bgzf 0.21.0",
- "noodles-core 0.11.0",
-]
-
-[[package]]
-name = "noodles-fasta"
-version = "0.26.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ebae7087afc126a9a5b96d381cf2d0ea334cbf3a57ba3773e94931d493922da"
-dependencies = [
- "bytes",
- "memchr",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
+ "noodles-bgzf",
+ "noodles-core",
  "tokio",
-]
-
-[[package]]
-name = "noodles-fastq"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0acf704402dfce283bdaf6dda9c28e2485ef83a15bc5f6d77d19d466dd8e02e9"
-dependencies = [
- "memchr",
 ]
 
 [[package]]
@@ -2210,24 +2136,14 @@ dependencies = [
 
 [[package]]
 name = "noodles-gff"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6befb1186be031f48baffa083d63c39246210e5dfac3a1f8a2305f272efe12b"
-dependencies = [
- "noodles-core 0.11.0",
- "percent-encoding",
-]
-
-[[package]]
-name = "noodles-gff"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29cd6131bf39317a7b222eab0e99f3a14559e02a2a8c22e6160f66d17a513b74"
 dependencies = [
  "indexmap 2.0.0",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
  "percent-encoding",
 ]
 
@@ -2237,41 +2153,25 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "096367bb382b244da2dc087a9628daecae299a5641f6572f28627f2001187465"
 dependencies = [
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
 ]
 
 [[package]]
 name = "noodles-sam"
-version = "0.29.0"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "682d9f03f76761050026b8c5eb8603b9eff2589ad60ee1487e45fa4595746d9b"
-dependencies = [
- "bitflags 2.0.2",
- "indexmap 1.9.2",
- "lexical-core",
- "memchr",
- "noodles-bgzf 0.21.0",
- "noodles-core 0.11.0",
- "noodles-csi 0.17.0",
- "noodles-fasta 0.22.0",
-]
-
-[[package]]
-name = "noodles-sam"
-version = "0.36.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4bd534ba3782dfa9de672f6e39cea6c84fabc5a0fe97ec4351745565959e5f3"
+checksum = "174066f6273cca871327768b20b2ce9b44bca09b020b240852b16789b324199e"
 dependencies = [
  "bitflags 2.0.2",
  "futures",
  "indexmap 2.0.0",
  "lexical-core",
  "memchr",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
  "tokio",
 ]
 
@@ -2283,9 +2183,9 @@ checksum = "9056c1880629bbd50c7737c4d2cffcfb3610045a024776dad5cd606dd88feefc"
 dependencies = [
  "bit-vec",
  "byteorder",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
  "tokio",
 ]
 
@@ -2299,9 +2199,9 @@ dependencies = [
  "indexmap 2.0.0",
  "memchr",
  "nom 7.1.3",
- "noodles-bgzf 0.22.0",
- "noodles-core 0.12.0",
- "noodles-csi 0.22.0",
+ "noodles-bgzf",
+ "noodles-core",
+ "noodles-csi",
  "noodles-tabix",
  "percent-encoding",
  "tokio",
@@ -2386,11 +2286,11 @@ dependencies = [
 
 [[package]]
 name = "num_cpus"
-version = "1.15.0"
+version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fac9e2da13b5eb447a6ce3d392f23a29d8694bff781bf03a16cd9ac8697593b"
+checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
 dependencies = [
- "hermit-abi 0.2.6",
+ "hermit-abi 0.3.2",
  "libc",
 ]
 
@@ -2482,9 +2382,9 @@ dependencies = [
 
 [[package]]
 name = "parquet"
-version = "42.0.0"
+version = "43.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baab9c36b1c8300b81b4d577d306a0a733f9d34021363098d3548e37757ed6c8"
+checksum = "ec7267a9607c3f955d4d0ac41b88a67cecc0d8d009173ad3da390699a6cb3750"
 dependencies = [
  "ahash",
  "arrow-array",
@@ -2703,9 +2603,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.29.0"
+version = "0.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81b9228215d82c7b61490fec1de287136b5de6f5700f6e58ea9ad61a7964ca51"
+checksum = "eff6510e86862b57b210fd8cbe8ed3f0d7d600b9c2863cd4549a2e033c66e956"
 dependencies = [
  "memchr",
  "serde",
@@ -2850,7 +2750,7 @@ dependencies = [
  "cbindgen",
  "datafusion",
  "exon",
- "noodles 0.38.0",
+ "noodles",
  "tokio",
 ]
 
