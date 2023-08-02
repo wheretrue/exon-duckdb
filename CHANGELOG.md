@@ -1,3 +1,12 @@
+## v0.8.0 (2023-08-01)
+
+### Feat
+
+- updating exon (#16)
+- add mzml function (#13)
+- add vcf/bam/bcf scan (#11)
+- add gtf (#10)
+
 ## v0.7.2 (2023-06-20)
 
 ### Fix
