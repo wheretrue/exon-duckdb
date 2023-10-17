@@ -8,8 +8,8 @@ if (APPLE)
   execute_process(COMMAND brew --prefix xz OUTPUT_VARIABLE XZ_PREFIX)
   string(STRIP ${XZ_PREFIX} XZ_ROOT_DIR)
 
-  set(WFA2_ENABLED ON)
-  add_compile_definitions(WFA2_ENABLED)
+  set(WFA2_ENABLED OFF)
+  # add_compile_definitions(WFA2_ENABLED)
 
 elseif(UNIX)
   set(WFA2_ENABLED ON)
@@ -68,9 +68,9 @@ add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
 target_link_libraries(${EXTENSION_NAME} PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}/libexon_duckdb.a
-  ${WFA2_LIBRARIES}
-  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-  "${wfa2_BINARY_DIR}/libwfa2.a"
+  # ${WFA2_LIBRARIES}
+  # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+  # "${wfa2_BINARY_DIR}/libwfa2.a"
   -lz
   -lm
   -lbz2
@@ -88,9 +88,9 @@ build_loadable_extension(${TARGET_NAME} " " ${EXTENSION_SOURCES})
 
 target_link_libraries(${LOADABLE_EXTENSION_NAME}
   ${CMAKE_CURRENT_BINARY_DIR}/libexon_duckdb.a
-  ${WFA2_LIBRARIES}
-  "${wfa2_BINARY_DIR}/libwfa2cpp.a"
-  "${wfa2_BINARY_DIR}/libwfa2.a"
+  # ${WFA2_LIBRARIES}
+  # "${wfa2_BINARY_DIR}/libwfa2cpp.a"
+  # "${wfa2_BINARY_DIR}/libwfa2.a"
   -lz
   -lm
   -lbz2

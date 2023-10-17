@@ -60,8 +60,6 @@ release:
 	cmake $(GENERATOR) $(BUILD_FLAGS)  $(CLIENT_FLAGS)  -DCMAKE_BUILD_TYPE=Release -S ./duckdb/ -B build/release && \
 	cmake --build build/release --config Release -j 8 --target cargo-prebuild_exon_duckdb && \
 	cmake --build build/release --config Release -j 8 --target cargo-build_exon_duckdb && \
-	cmake --build build/release --config Release -j 8 --target wfa2cpp && \
-	cmake --build build/release --config Release -j 8 --target wfa2cpp_static && \
 	cmake --build build/release --config Release
 
 ##### Client build
