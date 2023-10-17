@@ -1,0 +1,23 @@
+[package]
+build = "build.rs"
+edition = "2021"
+name = "exon-duckdb"
+version = "1.0.0"
+
+[features]
+all = []
+statically_linked = []
+
+[lib]
+crate-type = ["staticlib"]
+name = "exon_duckdb"
+
+[dependencies]
+arrow = {version = "46", default-features = false, features = ["ffi"]}
+datafusion = {version = "31.0.0", features = ["default"]}
+exon = {version = "0.3.4-beta.5", features = ["all"]}
+noodles = {version = "0.53", features = ["sam", "fasta", "fastq", "gff"]}
+tokio = {version = "1", features = ["rt-multi-thread"]}
+
+[build-dependencies]
+cbindgen = "0.26.0"

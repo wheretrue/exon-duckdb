@@ -18,7 +18,7 @@ use std::{
 };
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
-use datafusion::prelude::{SessionConfig, SessionContext};
+use datafusion::prelude::SessionContext;
 use exon::{ffi::create_dataset_stream_from_table_provider, new_exon_config, ExonSessionExt};
 use tokio::runtime::Runtime;
 
@@ -60,15 +60,17 @@ pub unsafe extern "C" fn bam_query_reader(
     };
 
     rt.block_on(async {
-        let df = match ctx.query_bam_file(uri, query).await {
-            Ok(df) => df,
-            Err(e) => {
-                let error = CString::new(format!("could not read BAM file: {}", e)).unwrap();
-                return BAMReaderResult {
-                    error: error.into_raw(),
-                };
-            }
-        };
+        // let df = match ctx.query_bam_file(uri, query).await {
+        //     Ok(df) => df,
+        //     Err(e) => {
+        //         let error = CString::new(format!("could not read BAM file: {}", e)).unwrap();
+        //         return BAMReaderResult {
+        //             error: error.into_raw(),
+        //         };
+        //     }
+        // };
+
+        let df = ctx.sql("SELECT 1;").await.unwrap();
 
         match create_dataset_stream_from_table_provider(df, rt.clone(), stream_ptr).await {
             Ok(_) => BAMReaderResult {

@@ -20,7 +20,7 @@ fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = "./../exon/include/";
 
-    let dest_path = std::path::Path::new(&out_dir).join("rust.hpp");
+    let dest_path = std::path::Path::new(&out_dir).join("exon_duckdb.hpp");
 
     cbindgen::Builder::new()
         .with_crate(crate_dir)
