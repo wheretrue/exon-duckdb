@@ -20,7 +20,7 @@
 #include <duckdb/parser/expression/function_expression.hpp>
 
 #include "exon/fastq_functions/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {

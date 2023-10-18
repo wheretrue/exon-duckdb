@@ -22,7 +22,7 @@
 
 #include "exon/arrow_table_function/module.hpp"
 #include "exon/bcf_query_function/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {
@@ -31,8 +31,9 @@ namespace exon
         string file_name;
         string query;
 
-        unordered_map<idx_t, unique_ptr<ArrowConvertData>> arrow_convert_data;
         idx_t max_threads = 6;
+
+        ArrowTableType arrow_table;
 
         vector<string> all_names;
 
@@ -84,7 +85,8 @@ namespace exon
             }
 
             // TODO: handle dictionary
-            return_types.emplace_back(GetArrowLogicalType(schema, result->arrow_convert_data, col_idx));
+            auto arrow_type = GetArrowLogicalType(schema);
+            return_types.emplace_back(arrow_type->GetDuckType());
 
             auto format = string(schema.format);
             auto name = string(schema.name);
@@ -95,6 +97,7 @@ namespace exon
             names.push_back(name);
 
             result->all_names.push_back(name);
+            result->arrow_table.AddColumn(col_idx, std::move(arrow_type));
         }
 
         RenameArrowColumns(names);
@@ -155,14 +158,14 @@ namespace exon
         {
             state.all_columns.Reset();
             state.all_columns.SetCardinality(output_size);
-            ArrowToDuckDB(state, data.arrow_convert_data, state.all_columns, data.lines_read - output_size, false);
+            ArrowToDuckDB(state, data.arrow_table.GetColumns(), state.all_columns, data.lines_read - output_size, false);
             output.ReferenceColumns(state.all_columns, global_state.projection_ids);
         }
         else
         {
             output.SetCardinality(output_size);
 
-            ArrowToDuckDB(state, data.arrow_convert_data, output, data.lines_read - output_size, false);
+            ArrowToDuckDB(state, data.arrow_table.GetColumns(), state.all_columns, data.lines_read - output_size, false);
         }
 
         output.Verify();

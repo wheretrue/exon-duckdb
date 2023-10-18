@@ -22,7 +22,7 @@
 #include <duckdb/function/table/read_csv.hpp>
 
 #include "exon/arrow_table_function/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {
@@ -32,10 +32,11 @@ namespace exon
         string compression;
         string file_name;
 
-        unordered_map<idx_t, unique_ptr<ArrowConvertData>> arrow_convert_data;
         idx_t max_threads = 6;
 
         vector<string> all_names;
+
+        ArrowTableType arrow_table;
 
         atomic<idx_t> lines_read;
     };
@@ -125,18 +126,19 @@ namespace exon
         auto n_children = arrow_schema.n_children;
         for (idx_t col_idx = 0; col_idx < n_children; col_idx++)
         {
-            auto &schema = *arrow_schema.children[col_idx];
+            auto &field = *arrow_schema.children[col_idx];
 
-            if (!schema.release)
+            if (!field.release)
             {
                 throw InvalidInputException("arrow_scan: released schema passed");
             }
 
             // TODO: handle dictionary
-            return_types.emplace_back(GetArrowLogicalType(schema, result->arrow_convert_data, col_idx));
+            auto arrow_type = GetArrowLogicalType(field);
+            return_types.emplace_back(arrow_type->GetDuckType());
 
-            auto format = string(schema.format);
-            auto name = string(schema.name);
+            auto format = string(field.format);
+            auto name = string(field.name);
             if (name.empty())
             {
                 name = string("v") + to_string(col_idx);
@@ -144,6 +146,7 @@ namespace exon
             names.push_back(name);
 
             result->all_names.push_back(name);
+            result->arrow_table.AddColumn(col_idx, std::move(arrow_type));
         }
 
         RenameArrowColumns(names);
@@ -279,14 +282,16 @@ namespace exon
         {
             state.all_columns.Reset();
             state.all_columns.SetCardinality(output_size);
-            ArrowToDuckDB(state, data.arrow_convert_data, state.all_columns, data.lines_read - output_size, false);
+            // ArrowToDuckDB(state, state.all_columns, data.lines_read - output_size, false);
+            ArrowToDuckDB(state, data.arrow_table.GetColumns(), state.all_columns, data.lines_read - output_size, false);
             output.ReferenceColumns(state.all_columns, global_state.projection_ids);
         }
         else
         {
             output.SetCardinality(output_size);
 
-            ArrowToDuckDB(state, data.arrow_convert_data, output, data.lines_read - output_size, false);
+            ArrowToDuckDB(state, data.arrow_table.GetColumns(), state.all_columns, data.lines_read - output_size, false);
+            // ArrowToDuckDB(state, output, data.lines_read - output_size, false);
         }
 
         output.Verify();

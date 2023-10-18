@@ -20,13 +20,10 @@ use std::{
 };
 
 use arrow::ffi_stream::FFI_ArrowArrayStream as ArrowArrayStream;
-use datafusion::{
-    datasource::file_format::file_type::FileCompressionType, prelude::SessionContext,
-};
+use datafusion::{common::FileCompressionType, prelude::SessionContext};
 use exon::{
-    datasources::{ExonFileType, ExonReadOptions},
-    ffi::create_dataset_stream_from_table_provider,
-    new_exon_config, ExonRuntimeEnvExt, ExonSessionExt,
+    datasources::ExonFileType, ffi::create_dataset_stream_from_table_provider, new_exon_config,
+    ExonRuntimeEnvExt, ExonSessionExt,
 };
 use tokio::runtime::Runtime;
 
@@ -91,15 +88,15 @@ pub unsafe extern "C" fn new_reader(
     };
 
     let file_type = CStr::from_ptr(file_format).to_str().unwrap();
-    let file_type = match ExonFileType::from_str(file_type) {
-        Ok(file_type) => file_type,
-        Err(_) => {
-            let error = CString::new(format!("could not parse file_format {}", file_type)).unwrap();
-            return ReaderResult {
-                error: error.into_raw(),
-            };
-        }
-    };
+    // let file_type = match ExonFileType::from_str(file_type) {
+    //     Ok(file_type) => file_type,
+    //     Err(_) => {
+    //         let error = CString::new(format!("could not parse file_format {}", file_type)).unwrap();
+    //         return ReaderResult {
+    //             error: error.into_raw(),
+    //         };
+    //     }
+    // };
 
     let config = new_exon_config().with_batch_size(batch_size);
     let ctx = SessionContext::with_config_exon(config);
@@ -113,9 +110,9 @@ pub unsafe extern "C" fn new_reader(
             };
         }
 
-        let options = ExonReadOptions::new(file_type).with_compression(compression_type);
+        // let options = ExonReadOptions::new(file_type).with_compression(compression_type);
 
-        if let Err(e) = ctx.register_exon_table("exon_table", uri, options).await {
+        if let Err(e) = ctx.register_exon_table("exon_table", uri, &file_type).await {
             let error = CString::new(format!("could not register table: {}", e)).unwrap();
             return ReaderResult {
                 error: error.into_raw(),

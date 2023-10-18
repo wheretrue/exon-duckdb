@@ -22,7 +22,7 @@
 #include <duckdb/function/table/read_csv.hpp>
 
 #include "exon/gff_functions/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {

@@ -14,7 +14,7 @@
 
 #include "exon/sam_functions/module.hpp"
 
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 #include <iostream>
 
