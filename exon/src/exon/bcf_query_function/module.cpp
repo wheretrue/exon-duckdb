@@ -22,7 +22,7 @@
 
 #include "exon/arrow_table_function/module.hpp"
 #include "exon/bcf_query_function/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {

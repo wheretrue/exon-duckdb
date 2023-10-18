@@ -17,7 +17,7 @@
 #include <map>
 
 #include "exon/core/module.hpp"
-#include "rust.hpp"
+#include "exon_duckdb.hpp"
 
 namespace exon
 {
