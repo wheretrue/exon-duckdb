@@ -66,6 +66,9 @@ add_subdirectory(exon/src)
 
 add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 
+# print the CMAKE_CURRENT_BINARY_DIR
+message(STATUS "CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
+
 target_link_libraries(${EXTENSION_NAME} PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}/libexon_duckdb.a
   # ${WFA2_LIBRARIES}

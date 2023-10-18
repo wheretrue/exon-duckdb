@@ -21,3 +21,7 @@ tokio = {version = "1", features = ["rt-multi-thread"]}
 
 [build-dependencies]
 cbindgen = "0.26.0"
+
+[profile.release]
+debug = true
+opt-level = 0
