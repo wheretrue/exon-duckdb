@@ -69,6 +69,11 @@ add_library(${EXTENSION_NAME} STATIC ${EXTENSION_SOURCES})
 # print the CMAKE_CURRENT_BINARY_DIR
 message(STATUS "CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
 
+# Raise an error if libexon_duckdb.a does not exist
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libexon_duckdb.a)
+  message(FATAL_ERROR "libexon_duckdb.a does not exist. Please build exon-duckdb.")
+endif()
+
 target_link_libraries(${EXTENSION_NAME} PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}/libexon_duckdb.a
   # ${WFA2_LIBRARIES}

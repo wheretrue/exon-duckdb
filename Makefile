@@ -56,9 +56,10 @@ debug:
 	cmake --build build/debug --config Debug
 
 release:
-	mkdir -p build/release && \
+	mkdir -p build/release/extension/exon && \
+	cargo build --manifest-path ./exon-duckdb/Cargo.toml --release && \
+	cp ./exon-duckdb/target/release/libexon_duckdb.a ./build/release/extension/exon/libexon_duckdb.a && \
 	cmake $(GENERATOR) $(BUILD_FLAGS)  $(CLIENT_FLAGS)  -DCMAKE_BUILD_TYPE=Release -S ./duckdb/ -B build/release && \
-	cmake --build build/release --config Release -j 8 --target cargo-build_exon_duckdb && \
 	cmake --build build/release --config Release
 
 ##### Client build

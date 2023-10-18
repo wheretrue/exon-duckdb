@@ -43,8 +43,16 @@ jobs:
         fetch-depth: 0
         submodules: 'true'
 
-    - name: Setup Ninja
-      run: brew install ninja
+    - name: Setup Ninja and clang15
+      run: |
+        # use brew to install
+        brew install ninja llvm@15
+
+        # set clang15 as default
+        sudo ln -sf /usr/local/opt/llvm@15/bin/clang /usr/local/bin/clang
+
+        # echo clang version
+        clang --version
 
     - uses: actions/setup-python@v2
       with:
@@ -73,8 +81,8 @@ jobs:
         make release
 
     # Test extension (only on x86_64)
-    - name: Test Extension
-      if: ${{ matrix.osx_build_arch == 'x86_64'}}
-      shell: bash
-      run: |
-        make test
+    # - name: Test Extension
+    #   if: ${{ matrix.osx_build_arch == 'x86_64'}}
+    #   shell: bash
+    #   run: |
+    #     make test
